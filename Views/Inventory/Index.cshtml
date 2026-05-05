@@ -1,0 +1,131 @@
+@model IEnumerable<SnackFlowMES.Models.Item>
+@{
+    ViewData["Title"] = "Inventory";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+    var typeFilter = ViewBag.TypeFilter as string;
+}
+
+<div class="dash-page-header">
+    <div>
+        <h1 class="dash-page-title">Inventory Management</h1>
+        <p class="dash-page-subtitle">Manage items and stock levels</p>
+    </div>
+    @if (User.IsInRole("Admin") || User.IsInRole("Planner"))
+    {
+        <a asp-action="Create" class="dash-btn dash-btn--primary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add New Item
+        </a>
+    }
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="dash-alert dash-alert--success">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        @TempData["Success"]
+    </div>
+}
+
+<!-- Type filter tabs -->
+<div class="dash-tabs">
+    <a href="@Url.Action("Index")" class="dash-tab @(string.IsNullOrEmpty(typeFilter) ? "dash-tab--active" : "")">
+        All Items (@Model.Count())
+    </a>
+    <a href="@Url.Action("Index", new { type = "RawMaterial" })" class="dash-tab @(typeFilter == "RawMaterial" ? "dash-tab--active" : "")">
+        Raw Materials (@Model.Count(i => i.ItemType == "RawMaterial"))
+    </a>
+    <a href="@Url.Action("Index", new { type = "Packaging" })" class="dash-tab @(typeFilter == "Packaging" ? "dash-tab--active" : "")">
+        Packaging (@Model.Count(i => i.ItemType == "Packaging"))
+    </a>
+    <a href="@Url.Action("Index", new { type = "FinishedGood" })" class="dash-tab @(typeFilter == "FinishedGood" ? "dash-tab--active" : "")">
+        Finished Goods (@Model.Count(i => i.ItemType == "FinishedGood"))
+    </a>
+    <a href="@Url.Action("Index", new { type = "SemiFinished" })" class="dash-tab @(typeFilter == "SemiFinished" ? "dash-tab--active" : "")">
+        Semi-Finished (@Model.Count(i => i.ItemType == "SemiFinished"))
+    </a>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="dash-empty-state">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+        <h3>No items found</h3>
+        <p>@(string.IsNullOrEmpty(typeFilter) ? "Add your first inventory item to get started." : $"No items of type '{typeFilter}'.")</p>
+        @if (User.IsInRole("Admin") || User.IsInRole("Planner"))
+        {
+            <a asp-action="Create" class="dash-btn dash-btn--primary" style="margin-top:16px;">Add New Item</a>
+        }
+    </div>
+}
+else
+{
+    <div class="dash-inventory-grid">
+        @foreach (var item in Model)
+        {
+            var balance = item.InventoryBalance;
+            var qtyOnHand = balance?.QtyOnHand ?? 0;
+            var isLowStock = item.ReorderPoint > 0 && qtyOnHand <= item.ReorderPoint;
+
+            <div class="dash-inventory-card @(isLowStock ? "dash-inventory-card--low-stock" : "")">
+                @if (isLowStock)
+                {
+                    <div class="dash-inventory-alert">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                        Low Stock
+                    </div>
+                }
+
+                <div class="dash-inventory-card-header">
+                    <div class="dash-inventory-icon dash-inventory-icon--@item.ItemType.ToLower()">
+                        @switch (item.ItemType)
+                        {
+                            case "RawMaterial":
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+                                break;
+                            case "Packaging":
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
+                                break;
+                            case "FinishedGood":
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                                break;
+                            default:
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="9" x2="15" y2="15"/><line x1="15" y1="9" x2="9" y2="15"/></svg>
+                                break;
+                        }
+                    </div>
+                    <span class="dash-badge dash-badge--secondary">@item.ItemType</span>
+                </div>
+
+                <div class="dash-inventory-card-body">
+                    <h3 class="dash-inventory-card-title">@item.ItemName</h3>
+                    <p class="dash-inventory-card-code">@item.ItemCode</p>
+                    @if (!string.IsNullOrEmpty(item.Category))
+                    {
+                        <p class="dash-inventory-card-category">@item.Category</p>
+                    }
+                </div>
+
+                <div class="dash-inventory-card-stock">
+                    <div class="dash-inventory-stock-label">Stock on Hand</div>
+                    <div class="dash-inventory-stock-value">
+                        @qtyOnHand.ToString("N2") <span class="dash-inventory-stock-unit">@item.UnitOfMeasure</span>
+                    </div>
+                    @if (item.ReorderPoint > 0)
+                    {
+                        <div class="dash-inventory-stock-reorder">
+                            Reorder at: @item.ReorderPoint.ToString("N2") @item.UnitOfMeasure
+                        </div>
+                    }
+                </div>
+
+                <div class="dash-inventory-card-footer">
+                    <a asp-action="Details" asp-route-id="@item.ItemId" class="dash-btn dash-btn--secondary dash-btn--sm dash-btn--full">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                        View Details
+                    </a>
+                </div>
+            </div>
+        }
+    </div>
+}

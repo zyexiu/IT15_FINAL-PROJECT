@@ -1,0 +1,27 @@
+@{
+    Layout = null;
+    ViewData["Title"] = "Access Denied — SnackFlow MES";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <link rel="icon" type="image/png" href="~/images/snackflow-logo.png" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/auth.css" asp-append-version="true" />
+</head>
+<body class="auth-body">
+    <div class="auth-bg" aria-hidden="true"></div>
+    <div class="auth-card" style="text-align:center; max-width:420px;">
+        <div style="font-size:3rem; margin-bottom:12px;">🔒</div>
+        <h1 class="auth-title">Access Denied</h1>
+        <p class="auth-subtitle" style="margin-bottom:28px;">You don't have permission to view this page.</p>
+        <a href="/Dashboard" class="auth-submit" style="text-decoration:none; display:inline-flex; justify-content:center;">Go to Dashboard</a>
+        <div class="auth-back" style="margin-top:16px;">
+            <a href="/" class="auth-back-link">← Back to landing page</a>
+        </div>
+    </div>
+</body>
+</html>

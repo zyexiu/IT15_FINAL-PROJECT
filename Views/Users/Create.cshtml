@@ -1,0 +1,75 @@
+@model SnackFlowMES.ViewModels.UserFormViewModel
+@{
+    ViewData["Title"] = "Add New User";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+}
+
+<div class="dash-page-header">
+    <div>
+        <h1 class="dash-page-title">Add New User</h1>
+        <p class="dash-page-subtitle">Create a new system user</p>
+    </div>
+    <a asp-action="Index" class="dash-btn dash-btn--secondary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        Back to List
+    </a>
+</div>
+
+<div class="dash-card">
+    <form asp-action="Create" method="post" class="dash-form">
+        @Html.AntiForgeryToken()
+        <div asp-validation-summary="ModelOnly" class="dash-validation-summary"></div>
+
+        <div class="dash-form-row">
+            <div class="dash-form-group">
+                <label asp-for="FullName" class="dash-label"></label>
+                <input asp-for="FullName" class="dash-input" placeholder="e.g., John Doe" />
+                <span asp-validation-for="FullName" class="dash-error"></span>
+            </div>
+
+            <div class="dash-form-group">
+                <label asp-for="Email" class="dash-label"></label>
+                <input asp-for="Email" class="dash-input" type="email" placeholder="e.g., john.doe@snackflow.local" />
+                <span asp-validation-for="Email" class="dash-error"></span>
+                <small class="dash-hint">This will be used as the username</small>
+            </div>
+        </div>
+
+        <div class="dash-form-row">
+            <div class="dash-form-group">
+                <label asp-for="Role" class="dash-label"></label>
+                <select asp-for="Role" asp-items="ViewBag.Roles" class="dash-select">
+                    <option value="">-- Select Role --</option>
+                </select>
+                <span asp-validation-for="Role" class="dash-error"></span>
+            </div>
+        </div>
+
+        <div class="dash-form-row">
+            <div class="dash-form-group">
+                <label asp-for="Password" class="dash-label"></label>
+                <input asp-for="Password" class="dash-input" type="password" placeholder="••••••••" />
+                <span asp-validation-for="Password" class="dash-error"></span>
+                <small class="dash-hint">Minimum 6 characters</small>
+            </div>
+
+            <div class="dash-form-group">
+                <label asp-for="ConfirmPassword" class="dash-label"></label>
+                <input asp-for="ConfirmPassword" class="dash-input" type="password" placeholder="••••••••" />
+                <span asp-validation-for="ConfirmPassword" class="dash-error"></span>
+            </div>
+        </div>
+
+        <div class="dash-form-actions">
+            <button type="submit" class="dash-btn dash-btn--primary">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                Create User
+            </button>
+            <a asp-action="Index" class="dash-btn dash-btn--secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

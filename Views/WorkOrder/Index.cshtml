@@ -1,0 +1,130 @@
+@model IEnumerable<SnackFlowMES.Models.WorkOrder>
+@{
+    ViewData["Title"] = "Work Orders";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+    var statusFilter = ViewBag.StatusFilter as string;
+}
+
+<div class="dash-page-header">
+    <div>
+        <h1 class="dash-page-title">Work Orders</h1>
+        <p class="dash-page-subtitle">Manage production work orders</p>
+    </div>
+    @if (User.IsInRole("Admin") || User.IsInRole("Planner"))
+    {
+        <a asp-action="Create" class="dash-btn dash-btn--primary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Create Work Order
+        </a>
+    }
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="dash-alert dash-alert--success">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        @TempData["Success"]
+    </div>
+}
+
+<!-- Status filter tabs -->
+<div class="dash-tabs">
+    <a href="@Url.Action("Index")" class="dash-tab @(string.IsNullOrEmpty(statusFilter) ? "dash-tab--active" : "")">
+        All (@Model.Count())
+    </a>
+    <a href="@Url.Action("Index", new { status = "Draft" })" class="dash-tab @(statusFilter == "Draft" ? "dash-tab--active" : "")">
+        Draft (@Model.Count(w => w.Status == "Draft"))
+    </a>
+    <a href="@Url.Action("Index", new { status = "Released" })" class="dash-tab @(statusFilter == "Released" ? "dash-tab--active" : "")">
+        Released (@Model.Count(w => w.Status == "Released"))
+    </a>
+    <a href="@Url.Action("Index", new { status = "InProgress" })" class="dash-tab @(statusFilter == "InProgress" ? "dash-tab--active" : "")">
+        In Progress (@Model.Count(w => w.Status == "InProgress"))
+    </a>
+    <a href="@Url.Action("Index", new { status = "Completed" })" class="dash-tab @(statusFilter == "Completed" ? "dash-tab--active" : "")">
+        Completed (@Model.Count(w => w.Status == "Completed"))
+    </a>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="dash-empty-state">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <h3>No work orders found</h3>
+        <p>@(string.IsNullOrEmpty(statusFilter) ? "Create your first work order to get started." : $"No work orders with status '{statusFilter}'.")</p>
+        @if (User.IsInRole("Admin") || User.IsInRole("Planner"))
+        {
+            <a asp-action="Create" class="dash-btn dash-btn--primary" style="margin-top:16px;">Create Work Order</a>
+        }
+    </div>
+}
+else
+{
+    <div class="dash-wo-grid">
+        @foreach (var wo in Model)
+        {
+            <div class="dash-wo-card">
+                <div class="dash-wo-card-header">
+                    <div>
+                        <div class="dash-wo-number">@wo.WoNumber</div>
+                        <div class="dash-wo-item">@(wo.Item?.ItemName ?? "—")</div>
+                    </div>
+                    <span class="dash-badge dash-badge--@wo.Status.ToLower()">@wo.Status</span>
+                </div>
+
+                <div class="dash-wo-card-body">
+                    <div class="dash-wo-stat-row">
+                        <div class="dash-wo-stat">
+                            <div class="dash-wo-stat-label">Planned</div>
+                            <div class="dash-wo-stat-value">@wo.PlannedQty.ToString("N0") @wo.UnitOfMeasure</div>
+                        </div>
+                        <div class="dash-wo-stat">
+                            <div class="dash-wo-stat-label">Actual</div>
+                            <div class="dash-wo-stat-value">@wo.ActualQty.ToString("N0") @wo.UnitOfMeasure</div>
+                        </div>
+                        <div class="dash-wo-stat">
+                            <div class="dash-wo-stat-label">Progress</div>
+                            <div class="dash-wo-stat-value">@(wo.PlannedQty > 0 ? ((wo.ActualQty / wo.PlannedQty) * 100).ToString("N0") : "0")%</div>
+                        </div>
+                    </div>
+
+                    @if (wo.PlannedQty > 0)
+                    {
+                        <div class="dash-wo-progress">
+                            <div class="dash-wo-progress-bar" style="width:@(wo.PlannedQty > 0 ? ((wo.ActualQty / wo.PlannedQty) * 100) : 0)%"></div>
+                        </div>
+                    }
+
+                    <div class="dash-wo-meta">
+                        <div class="dash-wo-meta-item">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+                            <span>@(wo.ProductionLine ?? "No line assigned")</span>
+                        </div>
+                        <div class="dash-wo-meta-item">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                            <span>@wo.ScheduledStart.ToString("MMM dd, HH:mm")</span>
+                        </div>
+                        <div class="dash-wo-meta-item">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                            <span>@(wo.CreatedBy?.FullName ?? "—")</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dash-wo-card-footer">
+                    <a asp-action="Details" asp-route-id="@wo.WorkOrderId" class="dash-btn dash-btn--secondary dash-btn--sm">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                        View Details
+                    </a>
+                    @if (User.IsInRole("Admin") || User.IsInRole("Planner"))
+                    {
+                        <a asp-action="Edit" asp-route-id="@wo.WorkOrderId" class="dash-btn dash-btn--secondary dash-btn--sm">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                            Edit
+                        </a>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+}

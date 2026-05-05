@@ -1,0 +1,147 @@
+@model SnackFlowMES.Models.ProductionPlan
+@{
+    ViewData["Title"] = Model.PlanName;
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+}
+
+<div class="dash-page-header">
+    <div>
+        <h1 class="dash-page-title">@Model.PlanName</h1>
+        <p class="dash-page-subtitle">Production plan details</p>
+    </div>
+    <a asp-action="Index" class="dash-btn dash-btn--secondary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        Back to List
+    </a>
+</div>
+
+<div class="dash-grid-2">
+    <!-- Left column: Plan Information -->
+    <div class="dash-card">
+        <div class="dash-card-header">
+            <h2 class="dash-card-title">Plan Information</h2>
+            <span class="dash-badge dash-badge--@Model.Status.ToLower()">@Model.Status</span>
+        </div>
+        <div class="dash-detail-grid">
+            <div class="dash-detail-item">
+                <span class="dash-detail-label">Plan Name</span>
+                <span class="dash-detail-value">@Model.PlanName</span>
+            </div>
+            <div class="dash-detail-item">
+                <span class="dash-detail-label">Status</span>
+                <span class="dash-detail-value">@Model.Status</span>
+            </div>
+            <div class="dash-detail-item">
+                <span class="dash-detail-label">Start Date</span>
+                <span class="dash-detail-value">@Model.PlanDateFrom.ToString("MMM dd, yyyy")</span>
+            </div>
+            <div class="dash-detail-item">
+                <span class="dash-detail-label">End Date</span>
+                <span class="dash-detail-value">@Model.PlanDateTo.ToString("MMM dd, yyyy")</span>
+            </div>
+            <div class="dash-detail-item">
+                <span class="dash-detail-label">Duration</span>
+                <span class="dash-detail-value">@((Model.PlanDateTo - Model.PlanDateFrom).Days) days</span>
+            </div>
+            <div class="dash-detail-item">
+                <span class="dash-detail-label">Plan Lines</span>
+                <span class="dash-detail-value">@(Model.PlanLines?.Count ?? 0)</span>
+            </div>
+            <div class="dash-detail-item">
+                <span class="dash-detail-label">Created By</span>
+                <span class="dash-detail-value">@(Model.CreatedBy?.FullName ?? "—")</span>
+            </div>
+            <div class="dash-detail-item">
+                <span class="dash-detail-label">Created At</span>
+                <span class="dash-detail-value">@Model.CreatedAt.ToString("MMM dd, yyyy HH:mm")</span>
+            </div>
+        </div>
+        @if (!string.IsNullOrEmpty(Model.Notes))
+        {
+            <div style="margin-top:20px;padding-top:20px;border-top:1px solid #E4E9EF;">
+                <span class="dash-detail-label">Notes</span>
+                <p style="margin-top:8px;color:#6B7A8D;line-height:1.6;">@Model.Notes</p>
+            </div>
+        }
+    </div>
+
+    <!-- Right column: Timeline -->
+    <div class="dash-card">
+        <div class="dash-card-header">
+            <h2 class="dash-card-title">Timeline</h2>
+        </div>
+        <div class="dash-timeline">
+            <div class="dash-timeline-item">
+                <div class="dash-timeline-marker dash-timeline-marker--active"></div>
+                <div class="dash-timeline-content">
+                    <div class="dash-timeline-title">Plan Created</div>
+                    <div class="dash-timeline-date">@Model.CreatedAt.ToString("MMM dd, yyyy HH:mm")</div>
+                    <div class="dash-timeline-desc">By @(Model.CreatedBy?.FullName ?? "—")</div>
+                </div>
+            </div>
+            <div class="dash-timeline-item">
+                <div class="dash-timeline-marker @(Model.Status == "Approved" || Model.Status == "InProgress" || Model.Status == "Completed" ? "dash-timeline-marker--active" : "")"></div>
+                <div class="dash-timeline-content">
+                    <div class="dash-timeline-title">Plan Start</div>
+                    <div class="dash-timeline-date">@Model.PlanDateFrom.ToString("MMM dd, yyyy")</div>
+                    <div class="dash-timeline-desc">Scheduled start date</div>
+                </div>
+            </div>
+            <div class="dash-timeline-item">
+                <div class="dash-timeline-marker @(Model.Status == "Completed" ? "dash-timeline-marker--active" : "")"></div>
+                <div class="dash-timeline-content">
+                    <div class="dash-timeline-title">Plan End</div>
+                    <div class="dash-timeline-date">@Model.PlanDateTo.ToString("MMM dd, yyyy")</div>
+                    <div class="dash-timeline-desc">Scheduled end date</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Plan Lines -->
+@if (Model.PlanLines != null && Model.PlanLines.Any())
+{
+    <div class="dash-card" style="margin-top:24px;">
+        <div class="dash-card-header">
+            <h2 class="dash-card-title">Plan Lines</h2>
+            <span class="dash-badge">@Model.PlanLines.Count items</span>
+        </div>
+        <div class="dash-table-container">
+            <table class="dash-table">
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Planned Quantity</th>
+                        <th>Scheduled Date</th>
+                        <th>Production Line</th>
+                        <th>Status</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var line in Model.PlanLines.OrderBy(l => l.ScheduledDate))
+                    {
+                        <tr>
+                            <td>
+                                <div style="display:flex;flex-direction:column;gap:4px;">
+                                    <span style="font-weight:600;color:#0F1C26;">@(line.Item?.ItemName ?? "—")</span>
+                                    <span style="font-size:0.8125rem;color:#6B7A8D;">@(line.Item?.ItemCode ?? "—")</span>
+                                </div>
+                            </td>
+                            <td>@line.PlannedQty.ToString("N2") @line.UnitOfMeasure</td>
+                            <td>@line.ScheduledDate.ToString("MMM dd, yyyy")</td>
+                            <td>@(line.ProductionLine ?? "—")</td>
+                            <td>
+                                <span class="dash-badge dash-badge--@line.Status.ToLower()">
+                                    @line.Status
+                                </span>
+                            </td>
+                            <td>@(line.Notes ?? "—")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

@@ -1,0 +1,256 @@
+@model SnackFlowMES.ViewModels.ReportViewModel
+@{
+    ViewData["Title"] = "Reports & Analytics";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+}
+
+<div class="dash-page-header">
+    <div>
+        <h1 class="dash-page-title">Reports & Analytics</h1>
+        <p class="dash-page-subtitle">System-wide statistics and insights</p>
+    </div>
+    <button class="dash-btn dash-btn--secondary" onclick="window.print()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        Print Report
+    </button>
+</div>
+
+<!-- KPI Cards -->
+<div class="dash-kpi-grid">
+    <div class="dash-kpi-card">
+        <div class="dash-kpi-icon dash-kpi-icon--primary">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        </div>
+        <div class="dash-kpi-content">
+            <div class="dash-kpi-label">Total Work Orders</div>
+            <div class="dash-kpi-value">@Model.TotalWorkOrders</div>
+            <div class="dash-kpi-trend dash-kpi-trend--up">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+                All time
+            </div>
+        </div>
+    </div>
+
+    <div class="dash-kpi-card">
+        <div class="dash-kpi-icon dash-kpi-icon--success">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        </div>
+        <div class="dash-kpi-content">
+            <div class="dash-kpi-label">Completed Orders</div>
+            <div class="dash-kpi-value">@Model.CompletedWorkOrders</div>
+            <div class="dash-kpi-trend dash-kpi-trend--up">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+                @Model.CompletionRate.ToString("N1")% completion rate
+            </div>
+        </div>
+    </div>
+
+    <div class="dash-kpi-card">
+        <div class="dash-kpi-icon dash-kpi-icon--warning">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <div class="dash-kpi-content">
+            <div class="dash-kpi-label">In Progress</div>
+            <div class="dash-kpi-value">@Model.InProgressWorkOrders</div>
+            <div class="dash-kpi-trend">
+                Active production
+            </div>
+        </div>
+    </div>
+
+    <div class="dash-kpi-card">
+        <div class="dash-kpi-icon dash-kpi-icon--info">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+        </div>
+        <div class="dash-kpi-content">
+            <div class="dash-kpi-label">Total Items</div>
+            <div class="dash-kpi-value">@Model.TotalItems</div>
+            <div class="dash-kpi-trend @(Model.LowStockItems > 0 ? "dash-kpi-trend--down" : "")">
+                @if (Model.LowStockItems > 0)
+                {
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    <span>@Model.LowStockItems low stock</span>
+                }
+                else
+                {
+                    <span>All items in stock</span>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="dash-grid-2" style="margin-top:24px;">
+    <!-- Work Order Status Breakdown -->
+    <div class="dash-card">
+        <div class="dash-card-header">
+            <h2 class="dash-card-title">Work Order Status</h2>
+        </div>
+        <div class="dash-chart-container">
+            <div class="dash-chart-bar-group">
+                <div class="dash-chart-bar-item">
+                    <div class="dash-chart-bar-label">Draft</div>
+                    <div class="dash-chart-bar-track">
+                        <div class="dash-chart-bar dash-chart-bar--draft" style="width:@(Model.TotalWorkOrders > 0 ? (Model.DraftWorkOrders * 100.0 / Model.TotalWorkOrders) : 0)%"></div>
+                    </div>
+                    <div class="dash-chart-bar-value">@Model.DraftWorkOrders</div>
+                </div>
+                <div class="dash-chart-bar-item">
+                    <div class="dash-chart-bar-label">Released</div>
+                    <div class="dash-chart-bar-track">
+                        <div class="dash-chart-bar dash-chart-bar--released" style="width:@(Model.TotalWorkOrders > 0 ? (Model.ReleasedWorkOrders * 100.0 / Model.TotalWorkOrders) : 0)%"></div>
+                    </div>
+                    <div class="dash-chart-bar-value">@Model.ReleasedWorkOrders</div>
+                </div>
+                <div class="dash-chart-bar-item">
+                    <div class="dash-chart-bar-label">In Progress</div>
+                    <div class="dash-chart-bar-track">
+                        <div class="dash-chart-bar dash-chart-bar--inprogress" style="width:@(Model.TotalWorkOrders > 0 ? (Model.InProgressWorkOrders * 100.0 / Model.TotalWorkOrders) : 0)%"></div>
+                    </div>
+                    <div class="dash-chart-bar-value">@Model.InProgressWorkOrders</div>
+                </div>
+                <div class="dash-chart-bar-item">
+                    <div class="dash-chart-bar-label">Completed</div>
+                    <div class="dash-chart-bar-track">
+                        <div class="dash-chart-bar dash-chart-bar--completed" style="width:@(Model.TotalWorkOrders > 0 ? (Model.CompletedWorkOrders * 100.0 / Model.TotalWorkOrders) : 0)%"></div>
+                    </div>
+                    <div class="dash-chart-bar-value">@Model.CompletedWorkOrders</div>
+                </div>
+                <div class="dash-chart-bar-item">
+                    <div class="dash-chart-bar-label">Cancelled</div>
+                    <div class="dash-chart-bar-track">
+                        <div class="dash-chart-bar dash-chart-bar--cancelled" style="width:@(Model.TotalWorkOrders > 0 ? (Model.CancelledWorkOrders * 100.0 / Model.TotalWorkOrders) : 0)%"></div>
+                    </div>
+                    <div class="dash-chart-bar-value">@Model.CancelledWorkOrders</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Production Performance -->
+    <div class="dash-card">
+        <div class="dash-card-header">
+            <h2 class="dash-card-title">Production Performance</h2>
+        </div>
+        <div class="dash-performance-grid">
+            <div class="dash-performance-item">
+                <div class="dash-performance-label">Planned Quantity</div>
+                <div class="dash-performance-value">@Model.TotalPlannedQty.ToString("N2")</div>
+            </div>
+            <div class="dash-performance-item">
+                <div class="dash-performance-label">Actual Quantity</div>
+                <div class="dash-performance-value">@Model.TotalActualQty.ToString("N2")</div>
+            </div>
+            <div class="dash-performance-item dash-performance-item--highlight">
+                <div class="dash-performance-label">Yield Rate</div>
+                <div class="dash-performance-value">@Model.YieldRate.ToString("N1")%</div>
+                <div class="dash-performance-indicator">
+                    <div class="dash-performance-bar">
+                        <div class="dash-performance-bar-fill" style="width:@Model.YieldRate%"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="dash-performance-item dash-performance-item--highlight">
+                <div class="dash-performance-label">Completion Rate</div>
+                <div class="dash-performance-value">@Model.CompletionRate.ToString("N1")%</div>
+                <div class="dash-performance-indicator">
+                    <div class="dash-performance-bar">
+                        <div class="dash-performance-bar-fill" style="width:@Model.CompletionRate%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Inventory Breakdown -->
+<div class="dash-grid-2" style="margin-top:24px;">
+    <div class="dash-card">
+        <div class="dash-card-header">
+            <h2 class="dash-card-title">Inventory by Type</h2>
+        </div>
+        <div class="dash-inventory-stats">
+            <div class="dash-inventory-stat-item">
+                <div class="dash-inventory-stat-icon dash-inventory-stat-icon--raw">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+                </div>
+                <div class="dash-inventory-stat-content">
+                    <div class="dash-inventory-stat-label">Raw Materials</div>
+                    <div class="dash-inventory-stat-value">@Model.RawMaterialsCount</div>
+                </div>
+            </div>
+            <div class="dash-inventory-stat-item">
+                <div class="dash-inventory-stat-icon dash-inventory-stat-icon--packaging">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
+                </div>
+                <div class="dash-inventory-stat-content">
+                    <div class="dash-inventory-stat-label">Packaging</div>
+                    <div class="dash-inventory-stat-value">@Model.PackagingCount</div>
+                </div>
+            </div>
+            <div class="dash-inventory-stat-item">
+                <div class="dash-inventory-stat-icon dash-inventory-stat-icon--finished">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                </div>
+                <div class="dash-inventory-stat-content">
+                    <div class="dash-inventory-stat-label">Finished Goods</div>
+                    <div class="dash-inventory-stat-value">@Model.FinishedGoodsCount</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="dash-card">
+        <div class="dash-card-header">
+            <h2 class="dash-card-title">Production Plans</h2>
+        </div>
+        <div class="dash-plan-stats">
+            <div class="dash-plan-stat-item">
+                <div class="dash-plan-stat-value">@Model.TotalProductionPlans</div>
+                <div class="dash-plan-stat-label">Total Plans</div>
+            </div>
+            <div class="dash-plan-stat-divider"></div>
+            <div class="dash-plan-stat-item">
+                <div class="dash-plan-stat-value">@Model.ActiveProductionPlans</div>
+                <div class="dash-plan-stat-label">Active Plans</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activity -->
+@if (Model.RecentWorkOrders.Any())
+{
+    <div class="dash-card" style="margin-top:24px;">
+        <div class="dash-card-header">
+            <h2 class="dash-card-title">Recent Work Orders</h2>
+            <a href="/WorkOrder" class="dash-link">View All →</a>
+        </div>
+        <div class="dash-table-container">
+            <table class="dash-table">
+                <thead>
+                    <tr>
+                        <th>WO Number</th>
+                        <th>Item</th>
+                        <th>Planned Qty</th>
+                        <th>Status</th>
+                        <th>Scheduled Start</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var wo in Model.RecentWorkOrders)
+                    {
+                        <tr>
+                            <td><a href="/WorkOrder/Details/@wo.WorkOrderId" class="dash-link">@wo.WoNumber</a></td>
+                            <td>@wo.ItemName</td>
+                            <td>@wo.PlannedQty.ToString("N2") @wo.UnitOfMeasure</td>
+                            <td><span class="dash-badge dash-badge--@wo.Status.ToLower()">@wo.Status</span></td>
+                            <td>@wo.ScheduledStart.ToString("MMM dd, yyyy")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

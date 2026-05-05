@@ -1,0 +1,210 @@
+@model IEnumerable<SnackFlowMES.Models.BillOfMaterials>
+@{
+    ViewData["Title"] = "Bill of Materials";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+}
+
+<!-- Success Message -->
+@if (TempData["Success"] != null)
+{
+    <div class="dash-alert dash-alert--success">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+        <p>@TempData["Success"]</p>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="dash-alert dash-alert--error">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <p>@TempData["Error"]</p>
+    </div>
+}
+
+<div class="dash-page-header">
+    <div>
+        <h1 class="dash-page-title">Bill of Materials (BOM)</h1>
+        <p class="dash-page-subtitle">Define production recipes and material lists</p>
+    </div>
+    <a asp-action="Create" class="dash-btn dash-btn--primary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Create BOM
+    </a>
+</div>
+
+<!-- Search -->
+<div class="dash-card" style="margin-bottom: 24px;">
+    <form asp-action="Index" method="get" class="dash-form" style="gap: 12px; flex-direction: row; align-items: flex-end;">
+        <div class="dash-form-group" style="flex: 1; gap: 4px;">
+            <label for="search" class="dash-label">Search BOMs</label>
+            <input type="text" name="search" id="search" class="dash-input" placeholder="Search by product name or version..." value="@ViewBag.SearchTerm" />
+        </div>
+        <button type="submit" class="dash-btn dash-btn--secondary">Search</button>
+        @if (!string.IsNullOrEmpty(ViewBag.SearchTerm))
+        {
+            <a asp-action="Index" class="dash-btn dash-btn--secondary">Clear</a>
+        }
+    </form>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="dash-empty-state">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="13" x2="12" y2="17"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+        <h3>No BOMs found</h3>
+        <p>Create a Bill of Materials to define the materials and resources needed for your finished goods.</p>
+        <a asp-action="Create" class="dash-btn dash-btn--primary" style="margin-top: 16px;">
+            Create Your First BOM
+        </a>
+    </div>
+}
+else
+{
+    <div class="dash-table-container">
+        <table class="dash-table">
+            <thead>
+                <tr>
+                    <th style="width: 25%;">Product</th>
+                    <th style="width: 10%;">Version</th>
+                    <th style="width: 15%;">Output</th>
+                    <th style="width: 15%;">Time Estimates</th>
+                    <th style="width: 10%;">Materials</th>
+                    <th style="width: 10%;">Status</th>
+                    <th style="width: 15%;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var bom in Model)
+                {
+                    var lineCount = bom.BomLines?.Count ?? 0;
+                    var machineHours = bom.EstMachineHours > 0 ? $"{bom.EstMachineHours}h" : "—";
+                    var laborHours = bom.EstLaborHours > 0 ? $"{bom.EstLaborHours}h" : "—";
+                    
+                    <tr class="@(!bom.IsActive ? "dash-table-row--disabled" : "")">
+                        <td>
+                            <strong>@bom.Item?.ItemName</strong>
+                        </td>
+                        <td>
+                            <code style="background: #F0F4F9; padding: 2px 6px; border-radius: 4px;">@bom.Version</code>
+                        </td>
+                        <td>
+                            @bom.BatchOutputQty <strong>@bom.BatchOutputUom</strong>
+                        </td>
+                        <td>
+                            <span class="dash-text-small">
+                                Machine: @machineHours<br/>
+                                Labor: @laborHours
+                            </span>
+                        </td>
+                        <td>
+                            <span class="dash-badge">@lineCount items</span>
+                        </td>
+                        <td>
+                            @if (bom.IsActive)
+                            {
+                                <span class="dash-badge dash-badge--success">Active</span>
+                            }
+                            else
+                            {
+                                <span class="dash-badge dash-badge--secondary">Inactive</span>
+                            }
+                        </td>
+                        <td>
+                            <div style="display: flex; gap: 6px;">
+                                <a asp-action="Details" asp-route-id="@bom.BomId" class="dash-btn dash-btn--sm dash-btn--secondary" title="View & manage materials">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                </a>
+                                <a asp-action="Edit" asp-route-id="@bom.BomId" class="dash-btn dash-btn--sm dash-btn--secondary" title="Edit BOM">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@bom.BomId" class="dash-btn dash-btn--sm dash-btn--danger" title="Delete BOM">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+<style>
+.dash-table-container {
+    background: white;
+    border-radius: 12px;
+    border: 1px solid #E4E9EF;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(15, 28, 38, 0.05);
+}
+
+.dash-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.dash-table thead {
+    background: #F9FAFB;
+    border-bottom: 1px solid #E4E9EF;
+}
+
+.dash-table th {
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 700;
+    color: #0F1C26;
+    white-space: nowrap;
+}
+
+.dash-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #E4E9EF;
+    color: #4B5563;
+}
+
+.dash-table tbody tr:hover {
+    background: #F9FAFB;
+}
+
+.dash-table-row--disabled {
+    opacity: 0.65;
+    background: #F9FAFB;
+}
+
+.dash-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    background: #E0E7FF;
+    color: #3730A3;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.dash-badge--success {
+    background: #D1FAE5;
+    color: #065F46;
+}
+
+.dash-badge--secondary {
+    background: #E5E7EB;
+    color: #374151;
+}
+
+.dash-text-small {
+    font-size: 12px;
+    color: #6B7A8D;
+}
+
+.dash-btn--danger {
+    background: #FEE2E2;
+    color: #991B1B;
+    border: 1px solid #FECACA;
+}
+
+.dash-btn--danger:hover {
+    background: #FCA5A5;
+    border-color: #F87171;
+}
+</style>

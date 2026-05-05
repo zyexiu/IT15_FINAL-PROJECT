@@ -1,0 +1,200 @@
+@model SnackFlowMES.ViewModels.ProductionPlanFormViewModel
+@{
+    ViewData["Title"] = "Create Production Plan";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+}
+
+<!-- Success Message -->
+@if (TempData["Success"] != null)
+{
+    <div class="dash-alert dash-alert--success">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+        <p>@TempData["Success"]</p>
+    </div>
+}
+
+<!-- Error Message -->
+@if (TempData["Error"] != null)
+{
+    <div class="dash-alert dash-alert--error">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <p>@TempData["Error"]</p>
+    </div>
+}
+
+<div class="dash-page-header">
+    <div>
+        <h1 class="dash-page-title">Create Production Plan</h1>
+        <p class="dash-page-subtitle">Create a new manufacturing schedule</p>
+    </div>
+    <a asp-action="Index" class="dash-btn dash-btn--secondary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        Back to List
+    </a>
+</div>
+
+<div class="dash-card">
+    <form asp-action="Create" asp-controller="ProductionPlan" method="post" class="dash-form" id="productionPlanForm" novalidate>
+        @Html.AntiForgeryToken()
+        
+        <!-- Validation Summary -->
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div asp-validation-summary="All" class="dash-alert dash-alert--error">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                <div>
+                    <strong>Please correct the following errors:</strong>
+                    <ul>
+                        @foreach (var modelState in ViewData.ModelState.Values)
+                        {
+                            @foreach (var error in modelState.Errors)
+                            {
+                                <li>@error.ErrorMessage</li>
+                            }
+                        }
+                    </ul>
+                </div>
+            </div>
+        }
+
+        <!-- Section 1: Plan Information -->
+        <fieldset>
+            <legend style="font-size: 14px; font-weight: 700; color: #0F1C26; margin-bottom: 16px;">Plan Information</legend>
+            
+            <div class="dash-form-group">
+                <label asp-for="PlanName" class="dash-label dash-label--required"></label>
+                <input asp-for="PlanName" class="dash-input" placeholder="e.g., Q2 Production Schedule" required maxlength="100" />
+                <span asp-validation-for="PlanName" class="dash-error"></span>
+                <span class="dash-form-hint">Enter a descriptive name for this production plan</span>
+            </div>
+        </fieldset>
+
+        <!-- Section 2: Date Range -->
+        <fieldset>
+            <legend style="font-size: 14px; font-weight: 700; color: #0F1C26; margin-bottom: 16px;">Schedule Duration</legend>
+            
+            <div class="dash-form-row">
+                <div class="dash-form-group">
+                    <label asp-for="PlanDateFrom" class="dash-label dash-label--required"></label>
+                    <input asp-for="PlanDateFrom" class="dash-input" type="datetime-local" required />
+                    <span asp-validation-for="PlanDateFrom" class="dash-error"></span>
+                    <span class="dash-form-hint">When does this plan start?</span>
+                </div>
+
+                <div class="dash-form-group">
+                    <label asp-for="PlanDateTo" class="dash-label dash-label--required"></label>
+                    <input asp-for="PlanDateTo" class="dash-input" type="datetime-local" required />
+                    <span asp-validation-for="PlanDateTo" class="dash-error"></span>
+                    <span class="dash-form-hint">When does this plan end?</span>
+                </div>
+            </div>
+        </fieldset>
+
+        <!-- Section 3: Status -->
+        <fieldset>
+            <legend style="font-size: 14px; font-weight: 700; color: #0F1C26; margin-bottom: 16px;">Status</legend>
+            
+            <div class="dash-form-group">
+                <label asp-for="Status" class="dash-label dash-label--required"></label>
+                <select asp-for="Status" class="dash-select" required>
+                    <option value="">-- Select Status --</option>
+                    <option value="Draft">Draft (Editable)</option>
+                    <option value="Approved">Approved (Ready)</option>
+                    <option value="InProgress">In Progress (Active)</option>
+                    <option value="Completed">Completed</option>
+                    <option value="Cancelled">Cancelled</option>
+                </select>
+                <span asp-validation-for="Status" class="dash-error"></span>
+                <span class="dash-form-hint">Default: Draft. Can be changed later.</span>
+            </div>
+        </fieldset>
+
+        <!-- Section 4: Notes -->
+        <fieldset>
+            <legend style="font-size: 14px; font-weight: 700; color: #0F1C26; margin-bottom: 16px;">Additional Information</legend>
+            
+            <div class="dash-form-group">
+                <label asp-for="Notes" class="dash-label"></label>
+                <textarea asp-for="Notes" class="dash-textarea" rows="4" placeholder="Add any special instructions, constraints, or notes for this production plan..." maxlength="500"></textarea>
+                <span asp-validation-for="Notes" class="dash-error"></span>
+                <span class="dash-form-hint">Optional: Any special instructions or notes (max 500 characters)</span>
+            </div>
+        </fieldset>
+
+        <!-- Form Actions -->
+        <div class="dash-form-actions">
+            <button type="submit" class="dash-btn dash-btn--primary" id="submitBtn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                Create Production Plan
+            </button>
+            <a asp-action="Index" class="dash-btn dash-btn--secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Client-side validation to catch issues
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('productionPlanForm');
+            const submitBtn = document.getElementById('submitBtn');
+
+            if (form && submitBtn) {
+                form.addEventListener('submit', function(e) {
+                    // Validate required fields
+                    const planName = document.querySelector('[name="PlanName"]');
+                    const planDateFrom = document.querySelector('[name="PlanDateFrom"]');
+                    const planDateTo = document.querySelector('[name="PlanDateTo"]');
+                    const status = document.querySelector('[name="Status"]');
+
+                    let hasErrors = false;
+                    const errors = [];
+
+                    if (!planName.value || planName.value.trim().length < 3) {
+                        errors.push('Plan name is required and must be at least 3 characters');
+                        hasErrors = true;
+                    }
+                    if (!planDateFrom.value) {
+                        errors.push('Please select a plan start date');
+                        hasErrors = true;
+                    }
+                    if (!planDateTo.value) {
+                        errors.push('Please select a plan end date');
+                        hasErrors = true;
+                    }
+                    if (!status.value) {
+                        errors.push('Please select a status');
+                        hasErrors = true;
+                    }
+                    
+                    // Check if end date is after start date
+                    if (planDateFrom.value && planDateTo.value) {
+                        const startDate = new Date(planDateFrom.value);
+                        const endDate = new Date(planDateTo.value);
+                        if (endDate <= startDate) {
+                            errors.push('Plan end date must be after the start date');
+                            hasErrors = true;
+                        }
+                    }
+
+                    if (hasErrors) {
+                        e.preventDefault();
+                        console.error('Validation errors:', errors);
+                        alert('Please fix the following errors:\n\n' + errors.join('\n'));
+                    } else {
+                        // Disable button to prevent double-submit
+                        submitBtn.disabled = true;
+                        submitBtn.style.opacity = '0.6';
+                        submitBtn.style.cursor = 'not-allowed';
+                    }
+                });
+            }
+
+            // Log form state for debugging
+            console.log('Production Plan Create form loaded');
+            console.log('Form ID:', form?.id);
+            console.log('Submit button:', submitBtn);
+        });
+    </script>
+}

@@ -1,0 +1,137 @@
+@model SnackFlowMES.Models.BillOfMaterials
+@{
+    ViewData["Title"] = "Delete Bill of Materials";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+}
+
+<div class="dash-page-header">
+    <div>
+        <h1 class="dash-page-title">Delete BOM</h1>
+        <p class="dash-page-subtitle">Are you sure you want to delete this BOM?</p>
+    </div>
+    <a asp-action="Index" class="dash-btn dash-btn--secondary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        Cancel
+    </a>
+</div>
+
+<div class="dash-card">
+    <div class="dash-alert dash-alert--warning">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3.05h16.94a2 2 0 0 0 1.71-3.05L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <div>
+            <strong>This action cannot be undone!</strong>
+            <p style="margin: 8px 0 0 0;">Deleting this BOM will permanently remove it from the system. If any work orders depend on this BOM, the deletion will be blocked.</p>
+        </div>
+    </div>
+
+    <div style="margin: 24px 0; padding: 20px; background: #F9FAFB; border-radius: 8px; border: 1px solid #E4E9EF;">
+        <h3 style="margin: 0 0 12px 0; font-size: 14px; font-weight: 700; color: #0F1C26;">BOM Details</h3>
+        
+        <div class="dash-form-group" style="gap: 0;">
+            <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #E4E9EF;">
+                <span style="font-weight: 600; color: #6B7A8D;">Product:</span>
+                <strong style="color: #0F1C26;">@Model.Item?.ItemName</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #E4E9EF;">
+                <span style="font-weight: 600; color: #6B7A8D;">Version:</span>
+                <code style="background: #E4E9EF; padding: 2px 6px; border-radius: 4px;">@Model.Version</code>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #E4E9EF;">
+                <span style="font-weight: 600; color: #6B7A8D;">Batch Output:</span>
+                <span>@Model.BatchOutputQty @Model.BatchOutputUom</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #E4E9EF;">
+                <span style="font-weight: 600; color: #6B7A8D;">Materials:</span>
+                <span>@(Model.BomLines?.Count ?? 0) items</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 8px 0;">
+                <span style="font-weight: 600; color: #6B7A8D;">Status:</span>
+                @if (Model.IsActive)
+                {
+                    <span class="dash-badge dash-badge--success">Active</span>
+                }
+                else
+                {
+                    <span class="dash-badge dash-badge--secondary">Inactive</span>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="dash-form-actions">
+        <form asp-action="DeleteConfirmed" asp-route-id="@Model.BomId" method="post" style="display: inline;">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="dash-btn dash-btn--danger" onclick="return confirm('Are you absolutely sure? This cannot be undone.');">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                Yes, Delete BOM
+            </button>
+        </form>
+        <a asp-action="Index" class="dash-btn dash-btn--secondary">No, Cancel</a>
+    </div>
+</div>
+
+<style>
+.dash-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    background: #E0E7FF;
+    color: #3730A3;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.dash-badge--success {
+    background: #D1FAE5;
+    color: #065F46;
+}
+
+.dash-badge--secondary {
+    background: #E5E7EB;
+    color: #374151;
+}
+
+.dash-alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    border: 1px solid;
+    margin-bottom: 24px;
+}
+
+.dash-alert svg {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.dash-alert--warning {
+    background: #FFFBEB;
+    border-color: #FDE68A;
+    color: #92400E;
+}
+
+.dash-alert--warning svg {
+    stroke: #F59E0B;
+}
+
+.dash-alert p {
+    margin: 0;
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+.dash-btn--danger {
+    background: #DC2626;
+    color: white;
+    border: 1px solid #B91C1C;
+}
+
+.dash-btn--danger:hover {
+    background: #B91C1C;
+    border-color: #991B1B;
+}
+</style>

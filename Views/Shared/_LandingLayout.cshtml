@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="SnackFlow MES — Production planning and work order system for small snack food manufacturers. Chips, crackers, baked snacks." />
+    <title>@ViewData["Title"]</title>
+    <script>
+        (function () {
+            const key = 'snackflow-theme';
+            let theme = 'light';
+
+            try {
+                const stored = localStorage.getItem(key);
+                if (stored === 'light' || stored === 'dark') {
+                    theme = stored;
+                } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                    theme = 'dark';
+                }
+            } catch {
+                theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            }
+
+            document.documentElement.dataset.theme = theme;
+            document.documentElement.style.colorScheme = theme;
+        })();
+    </script>
+    <link rel="icon" type="image/png" href="~/images/snackflow-logo.png" />
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+</head>
+<body class="sf-body">
+    @RenderBody()
+    <script src="~/js/site.js" asp-append-version="true"></script>
+</body>
+</html>

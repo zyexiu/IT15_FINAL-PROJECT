@@ -1,0 +1,121 @@
+/* ══════════════════════════════════════════════════════════
+   LOGO ENHANCEMENTS FOR BANNER-STYLE LOGO
+   
+   This file contains enhanced styling for wide/banner logos.
+   Include this file AFTER the main CSS files if your logo
+   is wider than it is tall.
+   ══════════════════════════════════════════════════════════ */
+
+/* ── Dashboard Sidebar Logo (Banner Style) ─────────────── */
+.dash-sidebar-logo {
+  width: auto;           /* Allow natural width */
+  max-width: 120px;      /* Limit maximum width */
+  height: 36px;          /* Fixed height */
+  object-fit: contain;   /* Maintain aspect ratio */
+}
+
+/* ── Landing Page Logo (Banner Style) ──────────────────── */
+.sf-logo {
+  width: auto;           /* Allow natural width */
+  max-width: 140px;      /* Limit maximum width */
+  height: 36px;          /* Fixed height */
+  object-fit: contain;   /* Maintain aspect ratio */
+}
+
+.sf-logo--sm {
+  width: auto;
+  max-width: 100px;
+  height: 28px;
+  object-fit: contain;
+}
+
+/* ── Login Page Logo (Banner Style) ────────────────────── */
+.auth-logo {
+  width: auto;           /* Allow natural width */
+  max-width: 200px;      /* Limit maximum width */
+  height: 48px;          /* Fixed height */
+  object-fit: contain;   /* Maintain aspect ratio */
+}
+
+/* ── Login Panel Logo (Banner Style) ───────────────────── */
+.sf-login-logo {
+  width: auto;
+  max-width: 160px;
+  height: 40px;
+  object-fit: contain;
+}
+
+/* ── Sidebar Brand Container Adjustment ────────────────── */
+.dash-sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  min-height: 72px;      /* Ensure enough space */
+}
+
+/* ── Landing Page Brand Container ──────────────────────── */
+.sf-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+}
+
+/* ── Optional: Hide text when logo is wide ─────────────── */
+/* Uncomment these if your logo already contains the text */
+
+/*
+.dash-sidebar-brand-text {
+  display: none;
+}
+
+.sf-brand-text {
+  display: none;
+}
+*/
+
+/* ── Responsive Adjustments ────────────────────────────── */
+@media (max-width: 768px) {
+  .dash-sidebar-logo {
+    max-width: 100px;
+    height: 32px;
+  }
+  
+  .sf-logo {
+    max-width: 120px;
+    height: 32px;
+  }
+  
+  .auth-logo {
+    max-width: 160px;
+    height: 40px;
+  }
+}
+
+/* ── High DPI Displays (Retina) ────────────────────────── */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .dash-sidebar-logo,
+  .sf-logo,
+  .auth-logo,
+  .sf-login-logo {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════
+   USAGE INSTRUCTIONS:
+   
+   1. Add this line to your layout files AFTER existing CSS:
+      <link rel="stylesheet" href="~/css/logo-enhancements.css" />
+   
+   2. Or copy these styles to the end of your existing CSS files:
+      - dashboard.css (for dashboard)
+      - snackflow.css (for landing page)
+      - auth.css (for login page)
+   
+   3. Adjust max-width values if your logo needs more/less space
+   
+   ══════════════════════════════════════════════════════════ */

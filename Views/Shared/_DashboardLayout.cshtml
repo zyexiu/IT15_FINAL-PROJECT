@@ -1,0 +1,248 @@
+@using Microsoft.AspNetCore.Identity
+@using SnackFlowMES.Models
+@using SnackFlowMES.Services
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser>   UserManager
+@{
+    var user     = await UserManager.GetUserAsync(User);
+    var fullName = user?.FullName ?? User.Identity?.Name ?? "User";
+    var roles    = user != null ? await UserManager.GetRolesAsync(user) : new List<string>();
+    var role     = roles.FirstOrDefault() ?? "User";
+    var initials = string.Concat(fullName.Split(' ').Take(2).Select(w => w[0])).ToUpper();
+
+    // Get role-based menu
+    var menuItems = RoleMenuService.GetMenuForRole(role);
+    var sections = menuItems.GroupBy(m => m.Section).ToList();
+
+    // Active nav detection
+    var ctrl   = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+    var action = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+    string Nav(string c) =>
+        ctrl.Equals(c, StringComparison.OrdinalIgnoreCase) ? "dash-nav-link--active" : "";
+    
+    // Icon mapping
+    string GetIcon(string iconName) => iconName switch
+    {
+        "dashboard" => "<rect x=\"3\" y=\"3\" width=\"7\" height=\"7\"/><rect x=\"14\" y=\"3\" width=\"7\" height=\"7\"/><rect x=\"14\" y=\"14\" width=\"7\" height=\"7\"/><rect x=\"3\" y=\"14\" width=\"7\" height=\"7\"/>",
+        "file-text" => "<path d=\"M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z\"/><polyline points=\"14 2 14 8 20 8\"/><line x1=\"16\" y1=\"13\" x2=\"8\" y2=\"13\"/><line x1=\"16\" y1=\"17\" x2=\"8\" y2=\"17\"/>",
+        "calendar" => "<rect x=\"3\" y=\"4\" width=\"18\" height=\"18\" rx=\"2\" ry=\"2\"/><line x1=\"16\" y1=\"2\" x2=\"16\" y2=\"6\"/><line x1=\"8\" y1=\"2\" x2=\"8\" y2=\"6\"/><line x1=\"3\" y1=\"10\" x2=\"21\" y2=\"10\"/>",
+        "layers" => "<polygon points=\"12 2 3 7 12 12 21 7 12 2\"/><polyline points=\"3 12 12 17 21 12\"/><polyline points=\"3 17 12 22 21 17\"/>",
+        "package" => "<path d=\"M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z\"/>",
+        "bar-chart" => "<line x1=\"18\" y1=\"20\" x2=\"18\" y2=\"10\"/><line x1=\"12\" y1=\"20\" x2=\"12\" y2=\"4\"/><line x1=\"6\" y1=\"20\" x2=\"6\" y2=\"14\"/>",
+        "users" => "<path d=\"M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2\"/><circle cx=\"9\" cy=\"7\" r=\"4\"/><path d=\"M23 21v-2a4 4 0 0 0-3-3.87\"/><path d=\"M16 3.13a4 4 0 0 1 0 7.75\"/>",
+        "check-circle" => "<path d=\"M22 11.08V12a10 10 0 1 1-5.93-9.14\"/><polyline points=\"22 4 12 14.01 9 11.01\"/>",
+        "activity" => "<polyline points=\"22 12 18 12 15 21 9 3 6 12 2 12\"/>",
+        _ => "<circle cx=\"12\" cy=\"12\" r=\"10\"/>"
+    };
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] — SnackFlow MES</title>
+    <script>
+        (function () {
+            const key = 'snackflow-theme';
+            let theme = 'light';
+
+            try {
+                const stored = localStorage.getItem(key);
+                if (stored === 'light' || stored === 'dark') {
+                    theme = stored;
+                } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                    theme = 'dark';
+                }
+            } catch {
+                theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            }
+
+            document.documentElement.dataset.theme = theme;
+            document.documentElement.style.colorScheme = theme;
+        })();
+    </script>
+    <link rel="icon" type="image/png" href="~/images/snackflow-logo.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body class="dash-body">
+
+    <!-- ══ SIDEBAR ══════════════════════════════════════════ -->
+    <aside class="dash-sidebar" id="dash-sidebar" role="navigation" aria-label="Main navigation">
+
+        <!-- Brand -->
+        <div class="dash-sidebar-brand">
+            <img src="~/images/snackflow-logo.png" alt="SnackFlow" class="dash-sidebar-logo" />
+            <div class="dash-sidebar-brand-text">
+                <span class="dash-brand-name">Snack<span class="dash-brand-accent">Flow</span></span>
+                <span class="dash-brand-sub">MES</span>
+            </div>
+        </div>
+
+        <!-- Dynamic Role-Based Navigation -->
+        @foreach (var section in sections)
+        {
+            <div class="dash-nav-section-label" style="@(section.Key != "MAIN MENU" ? "margin-top:24px;" : "")">@(section.Key)</div>
+            <nav>
+                <ul class="dash-nav-list" role="list">
+                    @foreach (var item in section)
+                    {
+                        <li>
+                            <a href="/@item.Controller/@item.Action" class="dash-nav-link @Nav(item.Controller)">
+                                <svg class="dash-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">@Html.Raw(GetIcon(item.Icon))</svg>
+                                <span>@item.Title</span>
+                                @if (!string.IsNullOrEmpty(item.Badge))
+                                {
+                                    <span class="dash-nav-badge dash-nav-badge--@(item.BadgeColor ?? "primary")">@item.Badge</span>
+                                }
+                            </a>
+                        </li>
+                    }
+                </ul>
+            </nav>
+        }
+
+        <!-- Sidebar footer -->
+        <div class="dash-sidebar-footer">
+            <div class="dash-sidebar-user">
+                <div class="dash-avatar" aria-hidden="true">@initials</div>
+                <div class="dash-sidebar-user-info">
+                    <span class="dash-sidebar-user-name">@fullName</span>
+                    <span class="dash-sidebar-user-role">@role</span>
+                </div>
+            </div>
+        </div>
+
+    </aside>
+
+    <!-- ══ MAIN AREA ═════════════════════════════════════════ -->
+    <div class="dash-main" id="dash-main">
+
+        <!-- Topbar -->
+        <header class="dash-topbar" role="banner">
+            <div class="dash-topbar-left">
+                <!-- Mobile sidebar toggle -->
+                <button class="dash-sidebar-toggle" id="dash-sidebar-toggle" aria-label="Toggle sidebar" aria-expanded="false" aria-controls="dash-sidebar">
+                    <span></span><span></span><span></span>
+                </button>
+                <!-- Desktop sidebar toggle -->
+                <button class="dash-sidebar-toggle--desktop" id="dash-sidebar-toggle-desktop" aria-label="Toggle sidebar" aria-expanded="true" aria-controls="dash-sidebar" title="Collapse/Expand sidebar">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8h12M6 16h12"/><path d="M3 12l3-3m0 6l-3-3m18 0l-3 3m0-6l3 3"/></svg>
+                </button>
+                <div class="dash-topbar-title">@ViewData["Title"]</div>
+            </div>
+
+            <div class="dash-topbar-right">
+                <!-- Theme toggle -->
+                <button type="button" class="theme-toggle dash-theme-toggle" data-theme-toggle>
+                    <svg class="theme-toggle__icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-theme-icon></svg>
+                </button>
+
+                <!-- User pill -->
+                <div class="dash-topbar-user">
+                    <div class="dash-avatar dash-avatar--sm" aria-hidden="true">@initials</div>
+                    <div class="dash-topbar-user-info">
+                        <span class="dash-topbar-user-name">@fullName</span>
+                        <span class="dash-topbar-user-role">@role</span>
+                    </div>
+                </div>
+
+                <!-- Logout -->
+                <form asp-action="Logout" asp-controller="Account" method="post" style="margin:0;">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="dash-logout-btn" title="Sign out">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                        Logout
+                    </button>
+                </form>
+            </div>
+        </header>
+
+        <!-- Page content -->
+        <main class="dash-content" role="main">
+            @RenderBody()
+        </main>
+
+    </div>
+
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+        (function() {
+            const mobileToggle   = document.getElementById('dash-sidebar-toggle');
+            const desktopToggle  = document.getElementById('dash-sidebar-toggle-desktop');
+            const sidebar        = document.getElementById('dash-sidebar');
+            const COLLAPSED_KEY  = 'snackflow-sidebar-collapsed';
+            const OPEN_KEY       = 'snackflow-sidebar-open';
+
+            // Initialize sidebar state from localStorage
+            function initSidebar() {
+                const isMobile = window.innerWidth < 1024;
+                
+                if (isMobile) {
+                    // Mobile: use open/closed state
+                    const wasOpen = localStorage.getItem(OPEN_KEY) === 'true';
+                    if (wasOpen) {
+                        sidebar.classList.add('dash-sidebar--open');
+                        mobileToggle.setAttribute('aria-expanded', 'true');
+                    }
+                } else {
+                    // Desktop: use collapsed state (default collapsed)
+                    const shouldBeCollapsed = localStorage.getItem(COLLAPSED_KEY) !== 'false';
+                    if (shouldBeCollapsed) {
+                        sidebar.classList.add('dash-sidebar--collapsed');
+                        desktopToggle.setAttribute('aria-expanded', 'false');
+                    }
+                }
+            }
+
+            // Mobile toggle handler
+            mobileToggle.addEventListener('click', () => {
+                const isOpen = sidebar.classList.toggle('dash-sidebar--open');
+                mobileToggle.setAttribute('aria-expanded', String(isOpen));
+                localStorage.setItem(OPEN_KEY, String(isOpen));
+            });
+
+            // Desktop toggle handler
+            desktopToggle.addEventListener('click', () => {
+                const isCollapsed = sidebar.classList.toggle('dash-sidebar--collapsed');
+                desktopToggle.setAttribute('aria-expanded', String(!isCollapsed));
+                localStorage.setItem(COLLAPSED_KEY, String(isCollapsed));
+            });
+
+            // Close sidebar on outside click (mobile)
+            document.addEventListener('click', e => {
+                if (window.innerWidth < 1024 &&
+                    !sidebar.contains(e.target) &&
+                    !mobileToggle.contains(e.target)) {
+                    sidebar.classList.remove('dash-sidebar--open');
+                    mobileToggle.setAttribute('aria-expanded', 'false');
+                    localStorage.setItem(OPEN_KEY, 'false');
+                }
+            });
+
+            // Handle window resize to switch between mobile/desktop modes
+            let resizeTimeout;
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(() => {
+                    const isMobile = window.innerWidth < 1024;
+                    if (isMobile) {
+                        sidebar.classList.remove('dash-sidebar--collapsed');
+                    } else {
+                        sidebar.classList.remove('dash-sidebar--open');
+                        const shouldBeCollapsed = localStorage.getItem(COLLAPSED_KEY) !== 'false';
+                        sidebar.classList.toggle('dash-sidebar--collapsed', shouldBeCollapsed);
+                    }
+                }, 250);
+            });
+
+            // Initialize on load
+            initSidebar();
+        })();
+    </script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

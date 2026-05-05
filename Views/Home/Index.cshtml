@@ -1,0 +1,324 @@
+﻿@{
+    ViewData["Title"] = "SnackFlow MES";
+    Layout = "~/Views/Shared/_LandingLayout.cshtml";
+}
+
+<link rel="stylesheet" href="~/css/snackflow.css" asp-append-version="true" />
+
+<!-- ═══════════════════════════════════════════════
+     STICKY NAVBAR (hidden until scroll)
+════════════════════════════════════════════════ -->
+<nav id="sf-navbar" class="sf-navbar" role="navigation" aria-label="Main navigation">
+    <div class="sf-nav-inner">
+
+        <!-- Brand -->
+        <a href="#home" class="sf-brand" aria-label="SnackFlow home">
+            <img src="~/images/snackflow-logo.png" alt="SnackFlow chip logo" class="sf-logo" />
+            <span class="sf-brand-text">Snack<span class="sf-brand-accent">Flow</span></span>
+        </a>
+
+        <!-- Center links -->
+        <ul class="sf-navlinks" id="sf-navlinks" role="list">
+            <li><a href="#home"     class="sf-link sf-link--active">Home</a></li>
+            <li><a href="#about"    class="sf-link">About</a></li>
+            <li><a href="#features" class="sf-link">Features</a></li>
+        </ul>
+
+        <!-- Right actions -->
+        <div class="sf-nav-actions">
+            <button type="button" class="theme-toggle sf-theme-toggle" data-theme-toggle>
+                <svg class="theme-toggle__icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-theme-icon></svg>
+            </button>
+
+            <div class="sf-signin-wrap">
+                <button id="sf-signin-btn" class="sf-btn sf-btn--signin" aria-haspopup="true" aria-expanded="false">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+                    Sign In
+                </button>
+
+                <!-- Login dropdown panel -->
+                <div id="sf-login-panel" class="sf-login-panel" role="dialog" aria-modal="true" aria-label="Sign in" aria-hidden="true">
+                    <div class="sf-login-header">
+                        <img src="~/images/snackflow-logo.png" alt="" class="sf-login-logo" aria-hidden="true" />
+                        <span class="sf-login-title">Sign in to SnackFlow</span>
+                    </div>
+                    <form class="sf-login-form" id="sf-login-form" novalidate>
+                        @Html.AntiForgeryToken()
+                        <div id="sf-login-error" class="sf-login-error" style="display:none;" role="alert">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                            <span id="sf-login-error-msg"></span>
+                        </div>
+                        <div class="sf-field">
+                            <label for="sf-username" class="sf-field-label">Username or Email</label>
+                            <input id="sf-username" type="text" name="username" class="sf-input" placeholder="admin@snackflow.local" autocomplete="username" />
+                            <span class="sf-field-error" id="sf-username-error"></span>
+                        </div>
+                        <div class="sf-field">
+                            <label for="sf-password" class="sf-field-label">Password</label>
+                            <div class="sf-password-wrap">
+                                <input id="sf-password" type="password" name="password" class="sf-input" placeholder="••••••••" autocomplete="current-password" />
+                                <button type="button" class="sf-password-toggle" id="sf-password-toggle" aria-label="Toggle password visibility" tabindex="-1">
+                                    <svg class="sf-eye-show" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                    <svg class="sf-eye-hide" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                                </button>
+                            </div>
+                            <span class="sf-field-error" id="sf-password-error"></span>
+                        </div>
+                        <label class="sf-remember">
+                            <input type="checkbox" name="remember" class="sf-checkbox" id="sf-remember" />
+                            <span>Remember me</span>
+                        </label>
+                        <button type="submit" class="sf-btn sf-btn--primary sf-btn--full" id="sf-login-submit">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+                            <span id="sf-login-btn-text">Sign In</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Mobile hamburger -->
+            <button id="sf-hamburger" class="sf-hamburger" aria-label="Toggle navigation" aria-expanded="false" aria-controls="sf-navlinks">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════════
+     HERO SECTION
+════════════════════════════════════════════════ -->
+<section id="home" class="sf-hero" aria-labelledby="sf-hero-heading">
+
+    <!-- Background factory image -->
+    <div class="sf-hero-bg" aria-hidden="true">
+        <div class="sf-hero-overlay"></div>
+    </div>
+
+    <div class="sf-hero-inner">
+
+        <!-- Left: copy -->
+        <div class="sf-hero-copy">
+            <p class="sf-eyebrow sf-reveal">
+                <span class="sf-eyebrow-dot" aria-hidden="true"></span>
+                Built for snack food manufacturing
+            </p>
+            <h1 id="sf-hero-heading" class="sf-hero-h1 sf-reveal sf-reveal--delay-1">
+                Manage production.<br />
+                Track work order.
+            </h1>
+            <p class="sf-hero-lead sf-reveal sf-reveal--delay-2">
+                SnackFlow helps small snack manufacturers plan production, track work orders, and monitor daily operations in one system.
+                It keeps everything organized so teams can work more efficiently and avoid delays.
+            </p>
+            <div class="sf-hero-cta-row sf-reveal sf-reveal--delay-3">
+                <a href="#features" class="sf-btn sf-btn--primary sf-btn--lg">
+                    Get Started
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                </a>
+                <a href="#about" class="sf-btn sf-btn--ghost sf-btn--lg">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+                    View Demo
+                </a>
+            </div>
+
+            <!-- Stats row -->
+            <div class="sf-stats sf-reveal sf-reveal--delay-4" role="list">
+                <div class="sf-stat" role="listitem">
+                    <span class="sf-stat-value"></span>
+                    <span class="sf-stat-label">Track Work Orders in Real-Time</span>
+                </div>
+                <div class="sf-stat-divider" aria-hidden="true"></div>
+                <div class="sf-stat" role="listitem">
+                    <span class="sf-stat-value"></span>
+                    <span class="sf-stat-label">Improve Production Planning</span>
+                </div>
+                <div class="sf-stat-divider" aria-hidden="true"></div>
+                <div class="sf-stat" role="listitem">
+                    <span class="sf-stat-value"></span>
+                    <span class="sf-stat-label">Monitor Shop Floor Activity</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: dashboard card mockup -->
+        <div class="sf-hero-visual sf-reveal sf-reveal--delay-2" aria-hidden="true">
+            <div class="sf-mockup">
+                <!-- Work order card -->
+                <div class="sf-mock-card sf-mock-card--wo">
+                    <div class="sf-mock-card-header">
+                        <span class="sf-mock-label">WORK ORDER</span>
+                        <span class="sf-mock-badge sf-mock-badge--running">RUNNING</span>
+                    </div>
+                    <div class="sf-mock-title">WO-2041 · Sea Salt Chips</div>
+                    <div class="sf-mock-progress-track">
+                        <div class="sf-mock-progress-bar" style="width:76%"></div>
+                    </div>
+                    <div class="sf-mock-progress-label">1,820 / 2,400 bags</div>
+                </div>
+
+                <!-- Throughput card -->
+                <div class="sf-mock-card sf-mock-card--throughput">
+                    <div class="sf-mock-label">LINE 2 · THROUGHPUT</div>
+                    <div class="sf-mock-big-value">1,240<span class="sf-mock-unit">/hr</span></div>
+                    <div class="sf-mock-bars" aria-hidden="true">
+                        <span style="height:30%"></span>
+                        <span style="height:55%"></span>
+                        <span style="height:45%"></span>
+                        <span style="height:70%"></span>
+                        <span style="height:60%"></span>
+                        <span style="height:85%"></span>
+                        <span style="height:75%"></span>
+                        <span style="height:90%"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     ABOUT SECTION
+════════════════════════════════════════════════ -->
+<section id="about" class="sf-section sf-about" aria-labelledby="sf-about-heading">
+    <div class="sf-container">
+
+        <div class="sf-section-intro">
+            <div class="sf-section-left sf-reveal">
+                <p class="sf-eyebrow sf-eyebrow--dark">ABOUT SNACKFLOW</p>
+                <h2 id="sf-about-heading" class="sf-section-h2">
+                    Built for real snack<br />production workflows.
+                </h2>
+            </div>
+            <div class="sf-section-right sf-reveal sf-reveal--delay-1">
+                <p class="sf-section-body">
+                    SnackFlow was designed to help small snack manufacturers manage their daily production more efficiently.
+                    From planning batches to tracking work orders, it keeps everything organized in one place so teams can stay on schedule and avoid delays.
+                </p>
+            </div>
+        </div>
+
+        <div class="sf-about-cards" role="list">
+            <div class="sf-about-card sf-reveal sf-reveal--delay-1" role="listitem">
+                <div class="sf-about-icon" aria-hidden="true">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                </div>
+                <h3 class="sf-about-card-title">Designed for actual production use</h3>
+                <p class="sf-about-card-body">Designed for actual production useCreated for small snack manufacturers, not adapted from generic systems.</p>
+            </div>
+            <div class="sf-about-card sf-reveal sf-reveal--delay-2" role="listitem">
+                <div class="sf-about-icon" aria-hidden="true">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                </div>
+                <h3 class="sf-about-card-title">Manage work orders easily</h3>
+                <p class="sf-about-card-body">Track every step from order creation to production and completion.</p>
+            </div>
+            <div class="sf-about-card sf-reveal sf-reveal--delay-3" role="listitem">
+                <div class="sf-about-icon" aria-hidden="true">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                </div>
+                <h3 class="sf-about-card-title">Simple production insights</h3>
+                <p class="sf-about-card-body">View key production data like output, delays, and progress in one place.</p>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     FEATURES SECTION
+════════════════════════════════════════════════ -->
+<section id="features" class="sf-section sf-features" aria-labelledby="sf-features-heading">
+    <div class="sf-container">
+
+        <div class="sf-features-header">
+            <p class="sf-eyebrow sf-eyebrow--accent">FEATURES</p>
+            <h2 id="sf-features-heading" class="sf-section-h2 sf-section-h2--center">
+                Core features for managing<br />snack production
+            </h2>
+            <p class="sf-features-sub">
+                A single system for planning production, tracking work orders, and monitoring operations from start to finish.
+            </p>
+        </div>
+
+        <div class="sf-features-grid" role="list">
+
+            <div class="sf-feature-card sf-reveal sf-reveal--delay-1" role="listitem">
+                <div class="sf-feature-icon" aria-hidden="true">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                </div>
+                <h3 class="sf-feature-title">Production Scheduling</h3>
+                <p class="sf-feature-body">Create and organize production schedules across different lines and machines.</p>
+            </div>
+
+            <div class="sf-feature-card sf-reveal sf-reveal--delay-2" role="listitem">
+                <div class="sf-feature-icon" aria-hidden="true">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                </div>
+                <h3 class="sf-feature-title">Work Order Tracking</h3>
+                <p class="sf-feature-body">Create, monitor, and update work orders in real time during production.</p>
+            </div>
+
+            <div class="sf-feature-card sf-reveal sf-reveal--delay-3" role="listitem">
+                <div class="sf-feature-icon" aria-hidden="true">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                </div>
+                <h3 class="sf-feature-title">Recipe &amp; BOM Control</h3>
+                <p class="sf-feature-body">Store and manage product recipes and bill of materials for accurate production.</p>
+            </div>
+
+            <div class="sf-feature-card sf-reveal sf-reveal--delay-1" role="listitem">
+                <div class="sf-feature-icon" aria-hidden="true">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                </div>
+                <h3 class="sf-feature-title">OEE &amp; Downtime</h3>
+                <p class="sf-feature-body">Track production output and identify delays or downtime during operations.</p>
+            </div>
+
+            <div class="sf-feature-card sf-reveal sf-reveal--delay-2" role="listitem">
+                <div class="sf-feature-icon" aria-hidden="true">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                </div>
+                <h3 class="sf-feature-title">Lot Traceability</h3>
+                <p class="sf-feature-body">Monitor each batch from raw materials to finished products for traceability.</p>
+            </div>
+
+            <div class="sf-feature-card sf-reveal sf-reveal--delay-3" role="listitem">
+                <div class="sf-feature-icon" aria-hidden="true">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                </div>
+                <h3 class="sf-feature-title">Operator-Friendly</h3>
+                <p class="sf-feature-body">Simple and user-friendly interface designed for production staff.</p>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     CTA BANNER
+════════════════════════════════════════════════ -->
+<section class="sf-cta-banner" aria-labelledby="sf-cta-heading">
+    <div class="sf-container sf-cta-inner">
+        <div class="sf-cta-copy">
+            <h2 id="sf-cta-heading" class="sf-cta-h2">Improve your production workflow today</h2>
+            <p class="sf-cta-sub">Use SnackFlow to plan production, track work orders, and monitor operations more effectively.</p>
+        </div>
+        <a href="#home" class="sf-btn sf-btn--primary sf-btn--lg">View System Demo</a>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     FOOTER
+════════════════════════════════════════════════ -->
+<footer class="sf-footer" role="contentinfo">
+    <div class="sf-container sf-footer-inner">
+        <a href="#home" class="sf-brand sf-brand--footer" aria-label="SnackFlow home">
+            <img src="~/images/snackflow-logo.png" alt="SnackFlow logo" class="sf-logo sf-logo--sm" />
+            <span class="sf-brand-text">Snack<span class="sf-brand-accent">Flow</span></span>
+        </a>
+        <p class="sf-footer-copy">&copy; 2026 SnackFlow MES &mdash; A Production Planning and Work Order System for Snack Food Manufacturing</p>
+    </div>
+</footer>
+
+<script src="~/js/snackflow.js" asp-append-version="true"></script>

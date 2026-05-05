@@ -1,0 +1,221 @@
+@model SnackFlowMES.ViewModels.DashboardViewModel
+@{
+    ViewData["Title"] = "Planner Dashboard";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+}
+
+<!-- Role Welcome Banner -->
+<div class="dash-role-welcome">
+    <div class="dash-role-welcome-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    </div>
+    <div class="dash-role-welcome-content">
+        <h1 class="dash-role-welcome-title">Welcome, Production Planner</h1>
+        <p class="dash-role-welcome-subtitle">Plan production schedules, create work orders, and optimize manufacturing operations.</p>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="dash-quick-actions">
+    <a href="/WorkOrder/Create" class="dash-quick-action">
+        <div class="dash-quick-action-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+        </div>
+        <div class="dash-quick-action-content">
+            <div class="dash-quick-action-title">Create Work Order</div>
+            <div class="dash-quick-action-subtitle">New production order</div>
+        </div>
+    </a>
+    <a href="/ProductionPlan" class="dash-quick-action">
+        <div class="dash-quick-action-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        </div>
+        <div class="dash-quick-action-content">
+            <div class="dash-quick-action-title">Production Plans</div>
+            <div class="dash-quick-action-subtitle">View all plans</div>
+        </div>
+    </a>
+    <a href="/Report" class="dash-quick-action">
+        <div class="dash-quick-action-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        </div>
+        <div class="dash-quick-action-content">
+            <div class="dash-quick-action-title">View Reports</div>
+            <div class="dash-quick-action-subtitle">Production analytics</div>
+        </div>
+    </a>
+</div>
+
+<!-- ══ KPI CARDS ════════════════════════════════════════════ -->
+<div class="dash-kpi-grid">
+    <div class="dash-kpi-card dash-kpi-role-planner">
+        <div class="dash-kpi-icon dash-kpi-icon--blue" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        </div>
+        <div class="dash-kpi-body">
+            <span class="dash-kpi-label">Total Work Orders</span>
+            <span class="dash-kpi-value">@Model.TotalWorkOrders</span>
+            <span class="dash-kpi-sub">All time</span>
+        </div>
+    </div>
+
+    <div class="dash-kpi-card dash-kpi-role-planner">
+        <div class="dash-kpi-icon dash-kpi-icon--amber" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <div class="dash-kpi-body">
+            <span class="dash-kpi-label">Active Production</span>
+            <span class="dash-kpi-value">@Model.ActiveProduction</span>
+            <span class="dash-kpi-sub">Released + In Progress</span>
+        </div>
+    </div>
+
+    <div class="dash-kpi-card dash-kpi-role-planner">
+        <div class="dash-kpi-icon dash-kpi-icon--green" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        </div>
+        <div class="dash-kpi-body">
+            <span class="dash-kpi-label">Completed Orders</span>
+            <span class="dash-kpi-value">@Model.CompletedOrders</span>
+            <span class="dash-kpi-sub">Successfully closed</span>
+        </div>
+    </div>
+
+    <div class="dash-kpi-card dash-kpi-role-planner">
+        <div class="dash-kpi-icon dash-kpi-icon--purple" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        </div>
+        <div class="dash-kpi-body">
+            <span class="dash-kpi-label">Draft Orders</span>
+            <span class="dash-kpi-value">@Model.DraftCount</span>
+            <span class="dash-kpi-sub">Pending release</span>
+        </div>
+    </div>
+</div>
+
+<!-- ══ BOTTOM ROW: Table + Status Chart ═════════════════════ -->
+<div class="dash-row">
+    <!-- Recent Work Orders table -->
+    <div class="dash-panel dash-panel--wide">
+        <div class="dash-panel-header">
+            <h2 class="dash-panel-title">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                Recent Work Orders
+            </h2>
+            <a href="/WorkOrder" class="dash-panel-action">View all →</a>
+        </div>
+
+        @if (!Model.RecentWorkOrders.Any())
+        {
+            <div class="dash-empty">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                <p>No work orders yet. Create your first work order to get started.</p>
+            </div>
+        }
+        else
+        {
+            <div class="dash-table-wrap">
+                <table class="dash-table" role="table">
+                    <thead>
+                        <tr>
+                            <th>WO Number</th>
+                            <th>Product</th>
+                            <th>Line</th>
+                            <th>Planned Qty</th>
+                            <th>Actual Qty</th>
+                            <th>Scheduled</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var wo in Model.RecentWorkOrders)
+                        {
+                            <tr>
+                                <td class="dash-table-mono"><a href="/WorkOrder/Details/@wo.WorkOrderId">@wo.WoNumber</a></td>
+                                <td class="dash-table-primary">@wo.ItemName</td>
+                                <td>@(wo.ProductionLine ?? "—")</td>
+                                <td>@wo.PlannedQty.ToString("N0") @wo.UnitOfMeasure</td>
+                                <td>@wo.ActualQty.ToString("N0") @wo.UnitOfMeasure</td>
+                                <td>@wo.ScheduledStart.ToString("MMM dd, yyyy")</td>
+                                <td>
+                                    <span class="dash-badge dash-badge--@wo.Status.ToLower()">
+                                        @wo.Status
+                                    </span>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+
+    <!-- Status breakdown panel -->
+    <div class="dash-panel dash-panel--narrow">
+        <div class="dash-panel-header">
+            <h2 class="dash-panel-title">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                Order Status
+            </h2>
+        </div>
+
+        <div class="dash-status-list">
+            <div class="dash-status-row">
+                <div class="dash-status-dot dash-status-dot--draft"></div>
+                <span class="dash-status-label">Draft</span>
+                <span class="dash-status-count">@Model.DraftCount</span>
+                <div class="dash-status-bar-track">
+                    <div class="dash-status-bar dash-status-bar--draft"
+                         style="width:@(Model.TotalWorkOrders > 0 ? (Model.DraftCount * 100 / Model.TotalWorkOrders) : 0)%"></div>
+                </div>
+            </div>
+            <div class="dash-status-row">
+                <div class="dash-status-dot dash-status-dot--released"></div>
+                <span class="dash-status-label">Released</span>
+                <span class="dash-status-count">@Model.ReleasedCount</span>
+                <div class="dash-status-bar-track">
+                    <div class="dash-status-bar dash-status-bar--released"
+                         style="width:@(Model.TotalWorkOrders > 0 ? (Model.ReleasedCount * 100 / Model.TotalWorkOrders) : 0)%"></div>
+                </div>
+            </div>
+            <div class="dash-status-row">
+                <div class="dash-status-dot dash-status-dot--inprogress"></div>
+                <span class="dash-status-label">In Progress</span>
+                <span class="dash-status-count">@Model.InProgressCount</span>
+                <div class="dash-status-bar-track">
+                    <div class="dash-status-bar dash-status-bar--inprogress"
+                         style="width:@(Model.TotalWorkOrders > 0 ? (Model.InProgressCount * 100 / Model.TotalWorkOrders) : 0)%"></div>
+                </div>
+            </div>
+            <div class="dash-status-row">
+                <div class="dash-status-dot dash-status-dot--completed"></div>
+                <span class="dash-status-label">Completed</span>
+                <span class="dash-status-count">@Model.CompletedCount</span>
+                <div class="dash-status-bar-track">
+                    <div class="dash-status-bar dash-status-bar--completed"
+                         style="width:@(Model.TotalWorkOrders > 0 ? (Model.CompletedCount * 100 / Model.TotalWorkOrders) : 0)%"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Production summary -->
+        <div class="dash-summary-box">
+            <div class="dash-summary-row">
+                <span>Total Orders</span>
+                <strong>@Model.TotalWorkOrders</strong>
+            </div>
+            <div class="dash-summary-row">
+                <span>Completion Rate</span>
+                <strong>
+                    @(Model.TotalWorkOrders > 0
+                        ? $"{(Model.CompletedOrders * 100.0 / Model.TotalWorkOrders):F0}%"
+                        : "—")
+                </strong>
+            </div>
+            <div class="dash-summary-row">
+                <span>Active Now</span>
+                <strong class="dash-summary-active">@Model.ActiveProduction</strong>
+            </div>
+        </div>
+    </div>
+</div>

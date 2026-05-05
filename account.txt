@@ -1,0 +1,6 @@
+Role	        Email	                        Password
+Admin	        admin@snackflow.local	        Admin@1234!
+Planner	        planner@snackflow.local	        Planner@1234!
+Operator	    operator@snackflow.local	    Operator@1234!
+QC	            qc@snackflow.local	            QcUser@1234!
+Manager	        manager@snackflow.local	        Manager@1234!

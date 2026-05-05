@@ -1,0 +1,202 @@
+@model SnackFlowMES.Models.Item
+@{
+    ViewData["Title"] = Model.ItemName;
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+    var balance = Model.InventoryBalance;
+    var qtyOnHand = balance?.QtyOnHand ?? 0;
+    var isLowStock = Model.ReorderPoint > 0 && qtyOnHand <= Model.ReorderPoint;
+}
+
+<div class="dash-page-header">
+    <div>
+        <h1 class="dash-page-title">@Model.ItemName</h1>
+        <p class="dash-page-subtitle">@Model.ItemCode</p>
+    </div>
+    <div style="display:flex;gap:8px;">
+        @if (User.IsInRole("Admin") || User.IsInRole("Planner"))
+        {
+            <a asp-action="Edit" asp-route-id="@Model.ItemId" class="dash-btn dash-btn--secondary">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                Edit
+            </a>
+        }
+        <a asp-action="Index" class="dash-btn dash-btn--secondary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+            Back to List
+        </a>
+    </div>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="dash-alert dash-alert--success">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        @TempData["Success"]
+    </div>
+}
+
+@if (isLowStock)
+{
+    <div class="dash-alert dash-alert--warning">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        Low Stock Alert: Current stock (@qtyOnHand.ToString("N2") @Model.UnitOfMeasure) is below reorder point (@Model.ReorderPoint.ToString("N2") @Model.UnitOfMeasure)
+    </div>
+}
+
+<div class="dash-grid-2">
+    <!-- Left column: Item Details -->
+    <div>
+        <div class="dash-card">
+            <div class="dash-card-header">
+                <h2 class="dash-card-title">Item Information</h2>
+                <span class="dash-badge dash-badge--secondary">@Model.ItemType</span>
+            </div>
+            <div class="dash-detail-grid">
+                <div class="dash-detail-item">
+                    <span class="dash-detail-label">Item Code</span>
+                    <span class="dash-detail-value">@Model.ItemCode</span>
+                </div>
+                <div class="dash-detail-item">
+                    <span class="dash-detail-label">Item Name</span>
+                    <span class="dash-detail-value">@Model.ItemName</span>
+                </div>
+                <div class="dash-detail-item">
+                    <span class="dash-detail-label">Item Type</span>
+                    <span class="dash-detail-value">@Model.ItemType</span>
+                </div>
+                <div class="dash-detail-item">
+                    <span class="dash-detail-label">Category</span>
+                    <span class="dash-detail-value">@(Model.Category ?? "—")</span>
+                </div>
+                <div class="dash-detail-item">
+                    <span class="dash-detail-label">Unit of Measure</span>
+                    <span class="dash-detail-value">@Model.UnitOfMeasure</span>
+                </div>
+                <div class="dash-detail-item">
+                    <span class="dash-detail-label">Unit Cost</span>
+                    <span class="dash-detail-value">$@Model.UnitCost.ToString("N2")</span>
+                </div>
+                <div class="dash-detail-item">
+                    <span class="dash-detail-label">Reorder Point</span>
+                    <span class="dash-detail-value">@Model.ReorderPoint.ToString("N2") @Model.UnitOfMeasure</span>
+                </div>
+                <div class="dash-detail-item">
+                    <span class="dash-detail-label">Status</span>
+                    <span class="dash-detail-value">
+                        <span class="dash-badge dash-badge--@(Model.IsActive ? "success" : "secondary")">
+                            @(Model.IsActive ? "Active" : "Inactive")
+                        </span>
+                    </span>
+                </div>
+            </div>
+            @if (!string.IsNullOrEmpty(Model.Description))
+            {
+                <div style="margin-top:20px;padding-top:20px;border-top:1px solid #E4E9EF;">
+                    <span class="dash-detail-label">Description</span>
+                    <p style="margin-top:8px;color:#6B7A8D;line-height:1.6;">@Model.Description</p>
+                </div>
+            }
+        </div>
+
+        <!-- Stock Adjustment (Admin/Planner only) -->
+        @if (User.IsInRole("Admin") || User.IsInRole("Planner"))
+        {
+            <div class="dash-card" style="margin-top:16px;">
+                <div class="dash-card-header">
+                    <h2 class="dash-card-title">Adjust Stock</h2>
+                </div>
+                <form asp-action="UpdateQuantity" method="post" class="dash-form" style="margin:0;">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@Model.ItemId" />
+                    
+                    <div class="dash-form-group">
+                        <label class="dash-label">Quantity</label>
+                        <input type="number" name="quantity" class="dash-input" step="0.01" required placeholder="0.00" />
+                    </div>
+
+                    <div class="dash-form-group">
+                        <label class="dash-label">Transaction Type</label>
+                        <select name="transactionType" class="dash-select" required>
+                            <option value="Add">Add to Stock</option>
+                            <option value="Remove">Remove from Stock</option>
+                            <option value="Set">Set Stock Level</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="dash-btn dash-btn--primary dash-btn--full">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                        Update Stock
+                    </button>
+                </form>
+            </div>
+        }
+    </div>
+
+    <!-- Right column: Stock Info & History -->
+    <div>
+        <div class="dash-card">
+            <div class="dash-card-header">
+                <h2 class="dash-card-title">Current Stock</h2>
+            </div>
+            <div class="dash-stock-display">
+                <div class="dash-stock-main">
+                    <div class="dash-stock-value">@qtyOnHand.ToString("N2")</div>
+                    <div class="dash-stock-unit">@Model.UnitOfMeasure</div>
+                </div>
+                @if (balance != null)
+                {
+                    <div class="dash-stock-details">
+                        <div class="dash-stock-detail-item">
+                            <span class="dash-stock-detail-label">On Hand</span>
+                            <span class="dash-stock-detail-value">@balance.QtyOnHand.ToString("N2")</span>
+                        </div>
+                        <div class="dash-stock-detail-item">
+                            <span class="dash-stock-detail-label">Reserved</span>
+                            <span class="dash-stock-detail-value">@balance.QtyReserved.ToString("N2")</span>
+                        </div>
+                        <div class="dash-stock-detail-item">
+                            <span class="dash-stock-detail-label">Available</span>
+                            <span class="dash-stock-detail-value">@balance.QtyAvailable.ToString("N2")</span>
+                        </div>
+                        <div class="dash-stock-detail-item">
+                            <span class="dash-stock-detail-label">Last Updated</span>
+                            <span class="dash-stock-detail-value">@balance.LastUpdated.ToString("MMM dd, HH:mm")</span>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Recent Transactions -->
+        @if (Model.InventoryLedgers != null && Model.InventoryLedgers.Any())
+        {
+            <div class="dash-card" style="margin-top:16px;">
+                <div class="dash-card-header">
+                    <h2 class="dash-card-title">Recent Transactions</h2>
+                    <span class="dash-badge">Last 10</span>
+                </div>
+                <div class="dash-list">
+                    @foreach (var ledger in Model.InventoryLedgers.OrderByDescending(l => l.PostedAt).Take(10))
+                    {
+                        <div class="dash-list-item">
+                            <div>
+                                <div class="dash-list-item-title">@ledger.MovementType</div>
+                                <div class="dash-list-item-subtitle">@ledger.PostedAt.ToString("MMM dd, yyyy HH:mm")</div>
+                                @if (!string.IsNullOrEmpty(ledger.Notes))
+                                {
+                                    <div class="dash-list-item-subtitle">@ledger.Notes</div>
+                                }
+                            </div>
+                            <div style="text-align:right;">
+                                <div class="dash-list-item-value" style="color:@(ledger.Qty >= 0 ? "#10B981" : "#EF4444");">
+                                    @(ledger.Qty >= 0 ? "+" : "")@ledger.Qty.ToString("N2")
+                                </div>
+                                <div class="dash-list-item-subtitle">Balance: @ledger.BalanceAfter.ToString("N2")</div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</div>
