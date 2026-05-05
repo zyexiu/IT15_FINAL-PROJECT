@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 using SnackFlowMES.Data;
@@ -6,11 +7,34 @@ using SnackFlowMES.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var port = Environment.GetEnvironmentVariable("PORT");
+if (!string.IsNullOrWhiteSpace(port))
+{
+    builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+}
+
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.KnownIPNetworks.Clear();
+    options.KnownProxies.Clear();
+});
+
 // ── Database ─────────────────────────────────────────────────
-var connStr = builder.Configuration.GetConnectionString("DefaultConnection")
-    ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+var useRenderDatabase = string.Equals(Environment.GetEnvironmentVariable("RENDER_USE_SQLITE"), "true", StringComparison.OrdinalIgnoreCase);
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
+{
+    if (useRenderDatabase)
+    {
+        var sqlitePath = Environment.GetEnvironmentVariable("SQLITE_DB_PATH") ?? "snackflow_render.db";
+        options.UseSqlite($"Data Source={sqlitePath}");
+        return;
+    }
+
+    var connStr = builder.Configuration.GetConnectionString("DefaultConnection")
+        ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+
     options.UseMySql(
         connStr,
         ServerVersion.AutoDetect(connStr),
@@ -20,8 +44,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
             // MySQL has no schema concept — silently ignore any schema annotations
             mysql.SchemaBehavior(MySqlSchemaBehavior.Ignore);
         }
-    )
-);
+    );
+});
 
 // ── ASP.NET Core Identity ────────────────────────────────────
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
@@ -71,6 +95,7 @@ using (var scope = app.Services.CreateScope())
         var db          = svc.GetRequiredService<ApplicationDbContext>();
         var userManager = svc.GetRequiredService<UserManager<ApplicationUser>>();
         var roleManager = svc.GetRequiredService<RoleManager<IdentityRole>>();
+        await db.Database.EnsureCreatedAsync();
         await DbSeeder.SeedAsync(db, userManager, roleManager);
     }
     catch (Exception ex)
@@ -81,6 +106,8 @@ using (var scope = app.Services.CreateScope())
 }
 
 // ── HTTP pipeline ────────────────────────────────────────────
+app.UseForwardedHeaders();
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
