@@ -46,6 +46,10 @@ public class BillOfMaterials
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
+    /// <summary>Multi-tenant: Links this BOM to a specific Admin's workspace.</summary>
+    [Required, MaxLength(450)]
+    public string TenantId { get; set; } = string.Empty;
+
     // ── Navigation ──────────────────────────────────────────
     public ICollection<BomLine>?  BomLines   { get; set; }
     public ICollection<WorkOrder>? WorkOrders { get; set; }

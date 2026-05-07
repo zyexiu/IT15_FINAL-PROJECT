@@ -28,6 +28,7 @@ public class UsersController : Controller
     // ── GET /Users ───────────────────────────────────────────
     public async Task<IActionResult> Index()
     {
+        // TODO: Add tenant filtering later
         var users = await _users.Users
             .OrderBy(u => u.FullName)
             .ToListAsync();
@@ -78,6 +79,13 @@ public class UsersController : Controller
             IsActive  = true,
             CreatedAt = DateTime.UtcNow
         };
+
+        // TODO: Set TenantId when multi-tenancy is fully implemented
+        var currentAdmin = await _users.GetUserAsync(User);
+        if (currentAdmin != null && !string.IsNullOrEmpty(currentAdmin.TenantId))
+        {
+            user.TenantId = currentAdmin.TenantId;
+        }
 
         var result = await _users.CreateAsync(user, model.Password);
 
@@ -227,14 +235,66 @@ public class UsersController : Controller
         return RedirectToAction(nameof(Index));
     }
 
+    // ── POST /Users/Delete ────────────────────────────────────
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Delete(string id)
+    {
+        var user = await _users.FindByIdAsync(id);
+        if (user == null)
+            return NotFound();
+
+        // Prevent admin from deleting themselves
+        var currentUser = await _users.GetUserAsync(User);
+        if (currentUser?.Id == user.Id)
+        {
+            TempData["Error"] = "You cannot delete your own account.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        // Only allow deletion of inactive users
+        if (user.IsActive)
+        {
+            TempData["Error"] = "Cannot delete an active user. Please deactivate the user first.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        var email = user.Email;
+        
+        try
+        {
+            var result = await _users.DeleteAsync(user);
+
+            if (!result.Succeeded)
+            {
+                TempData["Error"] = string.Join(", ", result.Errors.Select(e => e.Description));
+                return RedirectToAction(nameof(Index));
+            }
+
+            _log.LogInformation("User {Email} permanently deleted by admin", email);
+            TempData["Success"] = $"User {email} has been permanently deleted from the system.";
+        }
+        catch (DbUpdateException ex)
+        {
+            // Handle foreign key constraint violations
+            _log.LogWarning(ex, "Failed to delete user {Email} due to foreign key constraint", email);
+            TempData["Error"] = $"Cannot delete user {email} because they have associated records in the system (e.g., production plans, work orders, or audit logs). These records must be deleted or reassigned first.";
+        }
+        catch (Exception ex)
+        {
+            _log.LogError(ex, "Unexpected error deleting user {Email}", email);
+            TempData["Error"] = $"An unexpected error occurred while deleting user {email}. Please try again or contact support.";
+        }
+
+        return RedirectToAction(nameof(Index));
+    }
+
     private async Task PopulateRoles()
     {
         var roles = await _roles.Roles
-            .Where(r => r.Name != "Admin") // Exclude Admin role from dropdown
+            .Where(r => r.Name != "Admin") // Exclude Admin role - can only be created via sign up
             .Select(r => r.Name!)
             .ToListAsync();
-
-        roles.Insert(0, "Admin"); // Add Admin at the beginning
 
         ViewBag.Roles = new SelectList(roles);
     }

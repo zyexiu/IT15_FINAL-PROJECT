@@ -184,5 +184,26 @@
                 </div>
             </div>
         }
+
+        @if ((User.IsInRole("Admin") || User.IsInRole("Planner")) && (Model.Status == "Draft" || Model.Status == "Cancelled"))
+        {
+            <div class="dash-card" style="margin-top:16px;">
+                <div class="dash-card-header">
+                    <h2 class="dash-card-title">Danger Zone</h2>
+                </div>
+                <div style="padding: 20px;">
+                    <p style="color: #6B7A8D; font-size: 0.875rem; margin-bottom: 12px;">
+                        Permanently delete this work order. This action cannot be undone.
+                    </p>
+                    <form asp-action="Delete" asp-route-id="@Model.WorkOrderId" method="post" style="margin:0;" onsubmit="return confirm('Are you sure you want to permanently delete work order @Model.WoNumber? This action cannot be undone.');">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="dash-btn dash-btn--danger dash-btn--full">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                            Delete Work Order
+                        </button>
+                    </form>
+                </div>
+            </div>
+        }
     </div>
 </div>

@@ -16,4 +16,7 @@ public class LoginViewModel
 
     /// <summary>URL to redirect to after successful login.</summary>
     public string? ReturnUrl { get; set; }
+
+    /// <summary>reCAPTCHA v3 token for bot protection.</summary>
+    public string? RecaptchaToken { get; set; }
 }

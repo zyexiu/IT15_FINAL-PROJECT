@@ -6,6 +6,7 @@ namespace SnackFlowMES.Models;
 /// <summary>
 /// Extends ASP.NET Core Identity user with SnackFlow-specific fields.
 /// Roles: Admin | Planner | Operator | QC | Manager
+/// Multi-tenant: Each Admin is a tenant, and all users belong to a tenant.
 /// </summary>
 public class ApplicationUser : IdentityUser
 {
@@ -16,6 +17,13 @@ public class ApplicationUser : IdentityUser
     public bool IsActive { get; set; } = true;
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+    /// <summary>
+    /// Tenant ID - For Admins, this is their own ID. For other roles, this is their Admin's ID.
+    /// This enables multi-tenancy where each Admin has isolated data.
+    /// </summary>
+    [MaxLength(450)]
+    public string? TenantId { get; set; }
 
     // ── Navigation ──────────────────────────────────────────
     public ICollection<ProductionPlan>?   CreatedPlans    { get; set; }

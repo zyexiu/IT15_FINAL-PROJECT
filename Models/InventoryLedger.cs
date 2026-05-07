@@ -51,4 +51,8 @@ public class InventoryLedger
     public string? PostedByUserId { get; set; }
 
     public DateTime PostedAt { get; set; } = DateTime.UtcNow;
+
+    /// <summary>Multi-tenant: Links this ledger entry to a specific Admin's workspace.</summary>
+    [Required, MaxLength(450)]
+    public string TenantId { get; set; } = string.Empty;
 }

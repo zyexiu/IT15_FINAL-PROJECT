@@ -772,6 +772,209 @@ html { scroll-behavior: smooth; font-size: 16px; }
   opacity: .85;
 }
 
+/* CommCalc-inspired centered hero variant */
+.sf-hero-inner--centered {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 26px;
+  text-align: center;
+  max-width: 1120px;
+  padding: 112px 24px 72px;
+}
+
+.sf-hero-center-copy {
+  width: 100%;
+  max-width: 760px;
+}
+
+.sf-eyebrow--hero-center {
+  justify-content: center;
+  margin-bottom: 18px;
+}
+
+.sf-hero-h1--center {
+  margin-bottom: 16px;
+  font-size: clamp(2.35rem, 5vw, 4.15rem);
+  line-height: 1.05;
+}
+
+.sf-hero-lead--center {
+  margin: 0 auto 24px;
+  max-width: 620px;
+  font-size: 1rem;
+  line-height: 1.65;
+}
+
+.sf-hero-cta-row--center {
+  justify-content: center;
+  margin-bottom: 18px;
+}
+
+.sf-hero-pill-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.sf-hero-pill {
+  border: 1px solid rgba(255,255,255,.20);
+  background: rgba(9, 21, 33, .54);
+  color: rgba(255,255,255,.84);
+  font-size: .72rem;
+  font-weight: 600;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  border-radius: 999px;
+  padding: 7px 12px;
+}
+
+.sf-hero-console {
+  width: min(860px, 100%);
+  border: 1px solid rgba(255,255,255,.15);
+  border-radius: 18px;
+  background: linear-gradient(160deg, rgba(9, 19, 36, 0.90) 0%, rgba(12, 23, 42, 0.82) 100%);
+  box-shadow: 0 28px 56px rgba(1, 8, 18, .45);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  overflow: hidden;
+}
+
+.sf-hero-console-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 18px;
+  border-bottom: 1px solid rgba(255,255,255,.10);
+  background: rgba(5, 13, 24, .45);
+}
+
+.sf-hero-console-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #2ed573;
+  box-shadow: 0 0 0 6px rgba(46, 213, 115, .15);
+}
+
+.sf-hero-console-title {
+  color: rgba(255,255,255,.92);
+  font-size: .78rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.sf-hero-console-time {
+  margin-left: auto;
+  color: rgba(255,255,255,.56);
+  font-size: .76rem;
+  font-weight: 500;
+}
+
+.sf-hero-console-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  padding: 16px;
+}
+
+.sf-console-card {
+  background: rgba(6, 15, 29, .70);
+  border: 1px solid rgba(255,255,255,.10);
+  border-radius: 12px;
+  padding: 15px;
+}
+
+.sf-console-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.sf-console-label {
+  color: rgba(255,255,255,.62);
+  font-size: .68rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.sf-console-badge {
+  background: rgba(232,119,34,.20);
+  color: #ffad70;
+  border: 1px solid rgba(232,119,34,.28);
+  border-radius: 999px;
+  padding: 3px 8px;
+  font-size: .62rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.sf-console-title {
+  color: #f8fafc;
+  font-size: 1.06rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.sf-console-progress-track {
+  width: 100%;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.12);
+  overflow: hidden;
+  margin-bottom: 7px;
+}
+
+.sf-console-progress-fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--sf-gold), var(--sf-amber));
+}
+
+.sf-console-sub {
+  color: rgba(255,255,255,.68);
+  font-size: .84rem;
+}
+
+.sf-console-kpi {
+  margin: 6px 0 10px;
+  color: #f8fafc;
+  font-size: 2rem;
+  line-height: 1;
+  font-weight: 800;
+  letter-spacing: -.02em;
+}
+
+.sf-console-kpi span {
+  color: rgba(255,255,255,.58);
+  font-size: .98rem;
+  font-weight: 500;
+  margin-left: 2px;
+}
+
+.sf-console-bars {
+  height: 44px;
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.sf-console-bars span {
+  flex: 1;
+  border-radius: 3px 3px 0 0;
+  background: linear-gradient(180deg, var(--sf-gold) 0%, var(--sf-amber) 100%);
+  opacity: .92;
+}
+
 /* ══════════════════════════════════════════════════════════
    SHARED SECTION STYLES
 ══════════════════════════════════════════════════════════ */
@@ -1001,6 +1204,9 @@ html { scroll-behavior: smooth; font-size: 16px; }
 /* Tablet */
 @media (max-width: 1024px) {
   .sf-hero-visual { flex: 0 0 320px; }
+  .sf-hero-console {
+    width: min(760px, 100%);
+  }
   .sf-about-cards { grid-template-columns: repeat(3, 1fr); gap: 14px; }
   .sf-features-grid { grid-template-columns: repeat(2, 1fr); }
 }
@@ -1031,6 +1237,23 @@ html { scroll-behavior: smooth; font-size: 16px; }
     padding: 100px 20px 60px;
     gap: 40px;
   }
+  .sf-hero-inner--centered {
+    padding: 96px 20px 58px;
+    gap: 20px;
+  }
+  .sf-hero-h1--center {
+    font-size: clamp(2.05rem, 9vw, 3rem);
+  }
+  .sf-hero-console-grid {
+    grid-template-columns: 1fr;
+  }
+  .sf-hero-pill-row {
+    gap: 8px;
+  }
+  .sf-hero-pill {
+    font-size: .68rem;
+    padding: 6px 10px;
+  }
   .sf-hero-visual { flex: none; width: 100%; max-width: 420px; margin: 0 auto; }
 
   .sf-section-intro { flex-direction: column; gap: 24px; }
@@ -1054,7 +1277,32 @@ html { scroll-behavior: smooth; font-size: 16px; }
 /* Small mobile */
 @media (max-width: 480px) {
   .sf-hero-h1 { font-size: 2.1rem; }
+  .sf-hero-console {
+    border-radius: 14px;
+  }
+  .sf-hero-console-top {
+    padding: 10px 12px;
+  }
+  .sf-hero-console-grid {
+    padding: 10px;
+    gap: 10px;
+  }
+  .sf-console-card {
+    padding: 12px;
+  }
+  .sf-console-kpi {
+    font-size: 1.72rem;
+  }
   .sf-hero-cta-row { flex-direction: column; align-items: flex-start; }
+  .sf-hero-cta-row--center {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .sf-hero-cta-row--center .sf-btn--lg {
+    width: auto;
+  }
   .sf-btn--lg { width: 100%; justify-content: center; }
   .sf-about-cards { grid-template-columns: 1fr; }
   .sf-login-panel { right: -80px; width: 280px; }
@@ -1134,4 +1382,127 @@ html { scroll-behavior: smooth; font-size: 16px; }
 
 .sf-password-toggle svg {
   flex-shrink: 0;
+}
+
+
+/* ══════════════════════════════════════════════════════════
+   SIGN UP PANEL & AUTH SWITCHING
+══════════════════════════════════════════════════════════ */
+
+/* Make both login and signup panels larger */
+.sf-login-panel {
+  width: 420px;
+  max-width: calc(100vw - 32px);
+  padding: 28px;
+  max-height: calc(100vh - 100px);
+  overflow-y: auto;
+}
+
+/* Sign up panel specific styling */
+.sf-signup-panel {
+  /* Inherits from .sf-login-panel */
+}
+
+/* Auth switch (Sign Up / Sign In links) */
+.sf-auth-switch {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--sf-border);
+}
+
+.sf-auth-switch-text {
+  font-size: 0.875rem;
+  color: #6B7280;
+}
+
+.sf-auth-switch-link {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--sf-amber);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: none;
+  transition: color var(--sf-transition);
+}
+
+.sf-auth-switch-link:hover {
+  color: var(--sf-gold);
+  text-decoration: underline;
+}
+
+/* Field hint (for password requirements) */
+.sf-field-hint {
+  font-size: 0.75rem;
+  color: #6B7280;
+  margin-top: 4px;
+}
+
+/* Success message styling */
+.sf-login-success {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: var(--sf-radius-sm);
+  color: #059669;
+  font-size: 0.875rem;
+  margin-bottom: 16px;
+}
+
+.sf-login-success svg {
+  flex-shrink: 0;
+  color: #10B981;
+}
+
+/* Adjust form spacing for signup */
+.sf-signup-panel .sf-login-form {
+  gap: 16px;
+}
+
+/* Scrollbar styling for panels */
+.sf-login-panel::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sf-login-panel::-webkit-scrollbar-track {
+  background: #F3F4F6;
+  border-radius: 3px;
+}
+
+.sf-login-panel::-webkit-scrollbar-thumb {
+  background: #D1D5DB;
+  border-radius: 3px;
+}
+
+.sf-login-panel::-webkit-scrollbar-thumb:hover {
+  background: #9CA3AF;
+}
+
+/* Responsive adjustments for larger panels */
+@media (max-width: 768px) {
+  .sf-login-panel {
+    width: 380px;
+    padding: 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .sf-login-panel {
+    width: calc(100vw - 32px);
+    padding: 20px;
+    max-height: calc(100vh - 80px);
+  }
+  
+  .sf-auth-switch {
+    flex-direction: column;
+    gap: 4px;
+  }
 }

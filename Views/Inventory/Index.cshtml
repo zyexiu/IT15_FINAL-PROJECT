@@ -3,6 +3,8 @@
     ViewData["Title"] = "Inventory";
     Layout = "~/Views/Shared/_DashboardLayout.cshtml";
     var typeFilter = ViewBag.TypeFilter as string;
+    var q = ViewContext.HttpContext.Request.Query["q"].ToString();
+    var lowstock = ViewContext.HttpContext.Request.Query["lowstock"].ToString();
 }
 
 <div class="dash-page-header">
@@ -19,6 +21,37 @@
     }
 </div>
 
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const searchForm = document.querySelector('.dash-search-form');
+        if (!searchForm) {
+            return;
+        }
+
+        const input = searchForm.querySelector('input[name="q"]');
+        const clearButton = searchForm.querySelector('.dash-search-clear');
+
+        const updateClearVisibility = function () {
+            if (!input || !clearButton) {
+                return;
+            }
+
+            clearButton.classList.toggle('is-hidden', !input.value.trim());
+        };
+
+        if (input && clearButton) {
+            input.addEventListener('input', updateClearVisibility);
+            updateClearVisibility();
+
+            clearButton.addEventListener('click', function () {
+                input.value = '';
+                updateClearVisibility();
+                searchForm.submit();
+            });
+        }
+    });
+</script>
+
 @if (TempData["Success"] != null)
 {
     <div class="dash-alert dash-alert--success">
@@ -29,21 +62,57 @@
 
 <!-- Type filter tabs -->
 <div class="dash-tabs">
-    <a href="@Url.Action("Index")" class="dash-tab @(string.IsNullOrEmpty(typeFilter) ? "dash-tab--active" : "")">
-        All Items (@Model.Count())
+    <a href="@Url.Action("Index", new { q, lowstock = string.IsNullOrWhiteSpace(lowstock) ? "all" : lowstock })" class="dash-tab @(string.IsNullOrEmpty(typeFilter) ? "dash-tab--active" : "")">
+        All Items (@ViewBag.TotalCount)
     </a>
-    <a href="@Url.Action("Index", new { type = "RawMaterial" })" class="dash-tab @(typeFilter == "RawMaterial" ? "dash-tab--active" : "")">
-        Raw Materials (@Model.Count(i => i.ItemType == "RawMaterial"))
+    <a href="@Url.Action("Index", new { type = "RawMaterial", q, lowstock = string.IsNullOrWhiteSpace(lowstock) ? "all" : lowstock })" class="dash-tab @(typeFilter == "RawMaterial" ? "dash-tab--active" : "")">
+        Raw Materials (@ViewBag.RawMaterialCount)
     </a>
-    <a href="@Url.Action("Index", new { type = "Packaging" })" class="dash-tab @(typeFilter == "Packaging" ? "dash-tab--active" : "")">
-        Packaging (@Model.Count(i => i.ItemType == "Packaging"))
+    <a href="@Url.Action("Index", new { type = "Packaging", q, lowstock = string.IsNullOrWhiteSpace(lowstock) ? "all" : lowstock })" class="dash-tab @(typeFilter == "Packaging" ? "dash-tab--active" : "")">
+        Packaging (@ViewBag.PackagingCount)
     </a>
-    <a href="@Url.Action("Index", new { type = "FinishedGood" })" class="dash-tab @(typeFilter == "FinishedGood" ? "dash-tab--active" : "")">
-        Finished Goods (@Model.Count(i => i.ItemType == "FinishedGood"))
+    <a href="@Url.Action("Index", new { type = "FinishedGood", q, lowstock = string.IsNullOrWhiteSpace(lowstock) ? "all" : lowstock })" class="dash-tab @(typeFilter == "FinishedGood" ? "dash-tab--active" : "")">
+        Finished Goods (@ViewBag.FinishedGoodCount)
     </a>
-    <a href="@Url.Action("Index", new { type = "SemiFinished" })" class="dash-tab @(typeFilter == "SemiFinished" ? "dash-tab--active" : "")">
-        Semi-Finished (@Model.Count(i => i.ItemType == "SemiFinished"))
+    <a href="@Url.Action("Index", new { type = "SemiFinished", q, lowstock = string.IsNullOrWhiteSpace(lowstock) ? "all" : lowstock })" class="dash-tab @(typeFilter == "SemiFinished" ? "dash-tab--active" : "")">
+        Semi-Finished (@ViewBag.SemiFinishedCount)
     </a>
+</div>
+
+<!-- Tabs row controls: search + filter -->
+<div class="dash-tabs-row">
+    <form method="get" action="@Url.Action("Index")" class="dash-search-form">
+        <input type="hidden" name="type" value="@(typeFilter ?? "")" />
+        <input type="hidden" name="lowstock" value="@(string.IsNullOrWhiteSpace(lowstock) ? "all" : lowstock)" />
+        <div class="dash-search-input-wrap">
+            <input type="text" name="q" placeholder="Search items" value="@q" aria-label="Search items" />
+            <button type="button" class="dash-search-clear" aria-label="Clear search" onclick="const input=this.parentElement.querySelector('input[name=q]'); input.value=''; this.form.submit();">×</button>
+        </div>
+        <button type="submit" class="dash-btn dash-btn--secondary dash-btn--sm">Search</button>
+    </form>
+
+    <form method="get" action="@Url.Action("Index")" class="dash-filter-form">
+        <input type="hidden" name="type" value="@(typeFilter ?? "")" />
+        <input type="hidden" name="q" value="@q" />
+        <label class="dash-filter-label">FILTER</label>
+        <select name="lowstock" class="dash-filter-select" onchange="this.form.submit()">
+            @if (lowstock == "all" || string.IsNullOrWhiteSpace(lowstock)) {
+                <option value="all" selected>All Stock</option>
+            } else {
+                <option value="all">All Stock</option>
+            }
+            @if (lowstock == "normal") {
+                <option value="normal" selected>Normal Stock</option>
+            } else {
+                <option value="normal">Normal Stock</option>
+            }
+            @if (lowstock == "low") {
+                <option value="low" selected>Low Stock</option>
+            } else {
+                <option value="low">Low Stock</option>
+            }
+        </select>
+    </form>
 </div>
 
 @if (!Model.Any())

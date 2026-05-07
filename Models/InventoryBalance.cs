@@ -30,4 +30,8 @@ public class InventoryBalance
     public decimal QtyAvailable => QtyOnHand - QtyReserved;
 
     public DateTime LastUpdated { get; set; } = DateTime.UtcNow;
+
+    /// <summary>Multi-tenant: Links this inventory balance to a specific Admin's workspace.</summary>
+    [Required, MaxLength(450)]
+    public string TenantId { get; set; } = string.Empty;
 }

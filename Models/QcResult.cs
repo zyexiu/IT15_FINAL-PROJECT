@@ -48,4 +48,8 @@ public class QcResult
     public ApplicationUser? InspectedBy { get; set; }
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+    /// <summary>Multi-tenant: Links this QC result to a specific Admin's workspace.</summary>
+    [Required, MaxLength(450)]
+    public string TenantId { get; set; } = string.Empty;
 }

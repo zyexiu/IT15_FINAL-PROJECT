@@ -18,6 +18,33 @@
     }
 </div>
 
+<!-- Status Filter -->
+<div class="dash-filter-bar">
+    <div class="dash-filter-group">
+        <label class="dash-filter-label">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+            Filter by Status:
+        </label>
+        <div class="dash-filter-buttons">
+            @foreach (var statusOption in ViewBag.StatusOptions as List<string>)
+            {
+                var isActive = ViewBag.CurrentStatus == statusOption;
+                <a asp-action="Index" asp-route-status="@statusOption" 
+                   class="dash-filter-btn @(isActive ? "dash-filter-btn--active" : "")">
+                    @statusOption
+                </a>
+            }
+        </div>
+    </div>
+    @if (ViewBag.CurrentStatus != "All")
+    {
+        <a asp-action="Index" class="dash-filter-clear">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            Clear Filter
+        </a>
+    }
+</div>
+
 @if (TempData["Success"] != null)
 {
     <div class="dash-alert dash-alert--success">

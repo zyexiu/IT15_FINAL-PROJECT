@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 using SnackFlowMES.Data;
 using SnackFlowMES.Models;
+using SnackFlowMES.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -76,6 +77,20 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.ExpireTimeSpan    = TimeSpan.FromHours(8);
     options.SlidingExpiration = true;
 });
+
+// ── Email Service ────────────────────────────────────────────
+builder.Services.AddScoped<IEmailService, EmailService>();
+
+// ── reCAPTCHA Service ────────────────────────────────────────
+builder.Services.AddHttpClient();
+builder.Services.AddScoped<IRecaptchaService, RecaptchaService>();
+
+// ── Tenant Service (Multi-tenancy) ───────────────────────────
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<TenantService>();
+
+// ── Role Menu Service ────────────────────────────────────────
+builder.Services.AddScoped<RoleMenuService>();
 
 // ── MVC ──────────────────────────────────────────────────────
 builder.Services.AddControllersWithViews(options =>

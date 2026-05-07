@@ -65,14 +65,18 @@ public class WorkOrder
     [MaxLength(500)]
     public string? Notes { get; set; }
 
-    [Required, MaxLength(450)]
-    public string CreatedByUserId { get; set; } = string.Empty;
+    [MaxLength(450)]
+    public string? CreatedByUserId { get; set; }
 
     [ForeignKey(nameof(CreatedByUserId))]
     public ApplicationUser? CreatedBy { get; set; }
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+
+    /// <summary>Multi-tenant: Links this work order to a specific Admin's workspace.</summary>
+    [Required, MaxLength(450)]
+    public string TenantId { get; set; } = string.Empty;
 
     // ── Navigation ──────────────────────────────────────────
     public ICollection<WorkOrderMaterial>? Materials      { get; set; }

@@ -210,6 +210,10 @@ namespace SnackFlowMES.Migrations
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("longtext");
 
+                    b.Property<string>("TenantId")
+                        .HasMaxLength(450)
+                        .HasColumnType("varchar(450)");
+
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("tinyint(1)");
 
@@ -264,6 +268,10 @@ namespace SnackFlowMES.Migrations
                     b.Property<string>("OldValues")
                         .HasColumnType("text");
 
+                    b.Property<string>("TenantId")
+                        .HasMaxLength(450)
+                        .HasColumnType("varchar(450)");
+
                     b.Property<DateTime>("Timestamp")
                         .HasColumnType("datetime(6)");
 
@@ -316,6 +324,11 @@ namespace SnackFlowMES.Migrations
                     b.Property<string>("Notes")
                         .HasMaxLength(500)
                         .HasColumnType("varchar(500)");
+
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("varchar(450)");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime(6)");
@@ -395,6 +408,11 @@ namespace SnackFlowMES.Migrations
                     b.Property<decimal>("QtyReserved")
                         .HasColumnType("decimal(12,4)");
 
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("varchar(450)");
+
                     b.HasKey("BalanceId");
 
                     b.HasIndex("ItemId")
@@ -440,6 +458,11 @@ namespace SnackFlowMES.Migrations
                     b.Property<string>("Reference")
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)");
+
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("varchar(450)");
 
                     b.Property<string>("UnitOfMeasure")
                         .IsRequired()
@@ -497,6 +520,11 @@ namespace SnackFlowMES.Migrations
 
                     b.Property<decimal>("ReorderPoint")
                         .HasColumnType("decimal(12,4)");
+
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("varchar(450)");
 
                     b.Property<decimal>("UnitCost")
                         .HasColumnType("decimal(12,4)");
@@ -580,6 +608,11 @@ namespace SnackFlowMES.Migrations
                         .IsRequired()
                         .HasMaxLength(15)
                         .HasColumnType("varchar(15)");
+
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("varchar(450)");
 
                     b.HasKey("MrpRunId");
 
@@ -674,6 +707,11 @@ namespace SnackFlowMES.Migrations
                         .HasMaxLength(15)
                         .HasColumnType("varchar(15)");
 
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("varchar(450)");
+
                     b.Property<string>("UnitOfMeasure")
                         .IsRequired()
                         .HasMaxLength(15)
@@ -703,7 +741,6 @@ namespace SnackFlowMES.Migrations
                         .HasColumnType("datetime(6)");
 
                     b.Property<string>("CreatedByUserId")
-                        .IsRequired()
                         .HasMaxLength(450)
                         .HasColumnType("varchar(450)");
 
@@ -726,6 +763,11 @@ namespace SnackFlowMES.Migrations
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("varchar(20)");
+
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("varchar(450)");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime(6)");
@@ -779,6 +821,11 @@ namespace SnackFlowMES.Migrations
                     b.Property<decimal?>("SampleQty")
                         .HasColumnType("decimal(12,4)");
 
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("varchar(450)");
+
                     b.Property<int>("WorkOrderId")
                         .HasColumnType("int");
 
@@ -815,7 +862,6 @@ namespace SnackFlowMES.Migrations
                         .HasColumnType("datetime(6)");
 
                     b.Property<string>("CreatedByUserId")
-                        .IsRequired()
                         .HasMaxLength(450)
                         .HasColumnType("varchar(450)");
 
@@ -846,6 +892,11 @@ namespace SnackFlowMES.Migrations
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("varchar(20)");
+
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("varchar(450)");
 
                     b.Property<string>("UnitOfMeasure")
                         .IsRequired()
@@ -1160,8 +1211,7 @@ namespace SnackFlowMES.Migrations
                     b.HasOne("SnackFlowMES.Models.ApplicationUser", "CreatedBy")
                         .WithMany("CreatedPlans")
                         .HasForeignKey("CreatedByUserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("CreatedBy");
                 });
@@ -1196,8 +1246,7 @@ namespace SnackFlowMES.Migrations
                     b.HasOne("SnackFlowMES.Models.ApplicationUser", "CreatedBy")
                         .WithMany("CreatedWorkOrders")
                         .HasForeignKey("CreatedByUserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("SnackFlowMES.Models.Item", "Item")
                         .WithMany()

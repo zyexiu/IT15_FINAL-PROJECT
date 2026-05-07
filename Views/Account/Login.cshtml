@@ -80,6 +80,48 @@
             </button>
         </form>
 
+        <!-- Sign up prompt (UI only) -->
+        <div class="auth-signup-row" style="margin-top: 24px; padding-top: 20px; border-top: 2px solid #E4E9EF; text-align: center; display: block !important; visibility: visible !important;">
+            <button type="button" id="show-signup" class="auth-link-btn" style="display: inline-block !important; visibility: visible !important; background: #FFF8F0; border: 2px solid #E87722; color: #0F1C26; font-size: 1rem; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 220ms;">Don't have an account? <strong style="color: #E87722; font-weight: 800;">Sign Up</strong></button>
+        </div>
+
+        <!-- Hidden sign-up area (UI only) -->
+        <div class="auth-signup-area" id="auth-signup-area" aria-hidden="true" style="display:none;">
+            <h2 class="auth-subtitle" style="margin-top:18px;margin-bottom:12px">Create an account</h2>
+            <div class="auth-field">
+                <label class="auth-label">Full name</label>
+                <input type="text" class="auth-input" placeholder="Jane Doe" />
+            </div>
+            <div class="auth-field">
+                <label class="auth-label">Email</label>
+                <input type="email" class="auth-input" placeholder="you@company.com" />
+            </div>
+            <div class="auth-field">
+                <label class="auth-label">Role</label>
+                <select class="auth-select">
+                    <option>Operator</option>
+                    <option>Planner</option>
+                    <option>Manager</option>
+                </select>
+            </div>
+            <div class="auth-field">
+                <label class="auth-label">Department</label>
+                <select class="auth-select">
+                    <option>Production</option>
+                    <option>Quality</option>
+                    <option>Inventory</option>
+                </select>
+            </div>
+            <div class="auth-field">
+                <label class="auth-label">Password</label>
+                <input type="password" class="auth-input" placeholder="Create a password" />
+            </div>
+            <div style="display:flex;gap:12px;margin-top:8px;">
+                <button type="button" class="auth-submit" id="auth-signup-btn">Sign Up</button>
+                <button type="button" class="auth-link-btn" id="auth-signup-cancel">Cancel</button>
+            </div>
+        </div>
+
         <div class="auth-back">
             <a href="/" class="auth-back-link">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
@@ -95,12 +137,52 @@
         const eyeBtn   = document.getElementById('auth-eye-btn');
         const eyeShow  = document.getElementById('eye-show');
         const eyeHide  = document.getElementById('eye-hide');
-        eyeBtn.addEventListener('click', () => {
-            const isText = pwdInput.type === 'text';
-            pwdInput.type = isText ? 'password' : 'text';
-            eyeShow.style.display = isText ? '' : 'none';
-            eyeHide.style.display = isText ? 'none' : '';
-        });
+        if (eyeBtn && pwdInput) {
+            eyeBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const isText = pwdInput.type === 'text';
+                pwdInput.type = isText ? 'password' : 'text';
+                if (eyeShow) eyeShow.style.display = isText ? '' : 'none';
+                if (eyeHide) eyeHide.style.display = isText ? 'none' : '';
+            });
+        }
+        
+        // Toggle sign-up area (UI only) — Simple and robust
+        const showSignupBtn = document.getElementById('show-signup');
+        const signupArea = document.getElementById('auth-signup-area');
+        const signupCancel = document.getElementById('auth-signup-cancel');
+        
+        if (showSignupBtn && signupArea) {
+            showSignupBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const isCurrentlyHidden = signupArea.style.display === 'none';
+                if (isCurrentlyHidden) {
+                    // Show signup area
+                    signupArea.style.display = 'block';
+                    signupArea.removeAttribute('aria-hidden');
+                    showSignupBtn.textContent = "Already have an account? Back to Sign In";
+                    console.log('Signup area shown');
+                } else {
+                    // Hide signup area
+                    signupArea.style.display = 'none';
+                    signupArea.setAttribute('aria-hidden', 'true');
+                    showSignupBtn.innerHTML = "Don't have an account? <strong>Sign Up</strong>";
+                    console.log('Signup area hidden');
+                }
+            });
+        }
+        
+        if (signupCancel && signupArea) {
+            signupCancel.addEventListener('click', function(e) {
+                e.preventDefault();
+                signupArea.style.display = 'none';
+                signupArea.setAttribute('aria-hidden', 'true');
+                showSignupBtn.innerHTML = "Don't have an account? <strong>Sign Up</strong>";
+                console.log('Signup area cancelled');
+            });
+        }
+        
+        console.log('Auth script loaded - signup elements:', { showSignupBtn, signupArea, signupCancel });
     </script>
 </body>
 </html>

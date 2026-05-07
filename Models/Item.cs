@@ -46,6 +46,10 @@ public class Item
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
+    /// <summary>Multi-tenant: Links this item to a specific Admin's workspace.</summary>
+    [Required, MaxLength(450)]
+    public string TenantId { get; set; } = string.Empty;
+
     // ── Navigation ──────────────────────────────────────────
     public ICollection<BomLine>?              BomLines          { get; set; }
     public ICollection<WorkOrderMaterial>?    WorkOrderMaterials { get; set; }

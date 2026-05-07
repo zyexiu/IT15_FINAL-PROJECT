@@ -266,6 +266,23 @@
         loginBtnText.textContent = 'Signing in...';
 
         try {
+          // Get reCAPTCHA token
+          const siteKey = document.querySelector('script[src*="recaptcha"]')?.src.match(/render=([^&]+)/)?.[1];
+          let recaptchaToken = '';
+          
+          if (siteKey && typeof grecaptcha !== 'undefined') {
+            try {
+              recaptchaToken = await grecaptcha.execute(siteKey, { action: 'login' });
+            } catch (recaptchaError) {
+              console.error('reCAPTCHA error:', recaptchaError);
+              loginErrorMsg.textContent = 'Security verification failed. Please refresh the page and try again.';
+              loginError.style.display = 'flex';
+              loginSubmitBtn.disabled = false;
+              loginBtnText.textContent = 'Sign In';
+              return;
+            }
+          }
+
           // Get anti-forgery token
           const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
           const token = tokenInput ? tokenInput.value : '';
@@ -279,7 +296,8 @@
             body: JSON.stringify({
               username: username,
               password: password,
-              rememberMe: rememberMe
+              rememberMe: rememberMe,
+              recaptchaToken: recaptchaToken
             })
           });
 
@@ -320,6 +338,338 @@
       if (passwordInput) {
         passwordInput.addEventListener('input', function () {
           passwordError.textContent = '';
+          this.classList.remove('sf-input--error');
+        });
+      }
+    }
+
+    /* ══════════════════════════════════════════════════════
+       SIGN UP / SIGN IN PANEL SWITCHING
+    ══════════════════════════════════════════════════════ */
+    const signupPanel = document.getElementById('sf-signup-panel');
+    const showSignupBtn = document.getElementById('sf-show-signup');
+    const showLoginBtn = document.getElementById('sf-show-login');
+    
+    // Password toggles for signup form
+    const signupPasswordToggle = document.getElementById('sf-signup-password-toggle');
+    const signupPasswordInput = document.getElementById('sf-signup-password');
+    const signupConfirmPasswordToggle = document.getElementById('sf-signup-confirm-password-toggle');
+    const signupConfirmPasswordInput = document.getElementById('sf-signup-confirm-password');
+
+    function showSignupPanel() {
+      if (loginPanel && signupPanel) {
+        loginPanel.style.display = 'none';
+        loginPanel.classList.remove('sf-login-panel--open');
+        signupPanel.style.display = 'block';
+        setTimeout(() => {
+          signupPanel.classList.add('sf-login-panel--open');
+          signupPanel.setAttribute('aria-hidden', 'false');
+          // Focus first input
+          const firstInput = signupPanel.querySelector('input');
+          if (firstInput) firstInput.focus();
+        }, 10);
+      }
+    }
+
+    function showLoginPanel() {
+      if (loginPanel && signupPanel) {
+        signupPanel.style.display = 'none';
+        signupPanel.classList.remove('sf-login-panel--open');
+        loginPanel.style.display = 'block';
+        setTimeout(() => {
+          loginPanel.classList.add('sf-login-panel--open');
+          loginPanel.setAttribute('aria-hidden', 'false');
+          // Focus first input
+          const firstInput = loginPanel.querySelector('input');
+          if (firstInput) firstInput.focus();
+        }, 10);
+      }
+    }
+
+    if (showSignupBtn) {
+      showSignupBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        showSignupPanel();
+      });
+    }
+
+    if (showLoginBtn) {
+      showLoginBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        showLoginPanel();
+      });
+    }
+
+    // Password toggle for signup password
+    if (signupPasswordToggle && signupPasswordInput) {
+      signupPasswordToggle.addEventListener('click', function () {
+        const isPassword = signupPasswordInput.type === 'password';
+        signupPasswordInput.type = isPassword ? 'text' : 'password';
+
+        const showIcon = this.querySelector('.sf-eye-show');
+        const hideIcon = this.querySelector('.sf-eye-hide');
+        if (showIcon && hideIcon) {
+          showIcon.style.display = isPassword ? 'none' : 'block';
+          hideIcon.style.display = isPassword ? 'block' : 'none';
+        }
+
+        this.setAttribute('aria-label', isPassword ? 'Hide password' : 'Show password');
+      });
+    }
+
+    // Password toggle for signup confirm password
+    if (signupConfirmPasswordToggle && signupConfirmPasswordInput) {
+      signupConfirmPasswordToggle.addEventListener('click', function () {
+        const isPassword = signupConfirmPasswordInput.type === 'password';
+        signupConfirmPasswordInput.type = isPassword ? 'text' : 'password';
+
+        const showIcon = this.querySelector('.sf-eye-show');
+        const hideIcon = this.querySelector('.sf-eye-hide');
+        if (showIcon && hideIcon) {
+          showIcon.style.display = isPassword ? 'none' : 'block';
+          hideIcon.style.display = isPassword ? 'block' : 'none';
+        }
+
+        this.setAttribute('aria-label', isPassword ? 'Hide password' : 'Show password');
+      });
+    }
+
+    // Close signup panel on outside click
+    document.addEventListener('click', function (e) {
+      if (
+        signupPanel &&
+        !signupPanel.contains(e.target) &&
+        signinBtn &&
+        !signinBtn.contains(e.target)
+      ) {
+        signupPanel.classList.remove('sf-login-panel--open');
+        signupPanel.setAttribute('aria-hidden', 'true');
+      }
+    });
+
+    /* ══════════════════════════════════════════════════════
+       AJAX SIGNUP FORM SUBMISSION
+    ══════════════════════════════════════════════════════ */
+    const signupForm = document.getElementById('sf-signup-form');
+    const signupFullNameInput = document.getElementById('sf-signup-fullname');
+    const signupEmailInput = document.getElementById('sf-signup-email');
+    const signupUsernameInput = document.getElementById('sf-signup-username');
+    const signupSubmitBtn = document.getElementById('sf-signup-submit');
+    const signupBtnText = document.getElementById('sf-signup-btn-text');
+    const signupError = document.getElementById('sf-signup-error');
+    const signupErrorMsg = document.getElementById('sf-signup-error-msg');
+    const signupSuccess = document.getElementById('sf-signup-success');
+    const signupSuccessMsg = document.getElementById('sf-signup-success-msg');
+    const termsCheckbox = document.getElementById('sf-terms');
+
+    // Error message elements
+    const signupFullNameError = document.getElementById('sf-signup-fullname-error');
+    const signupEmailError = document.getElementById('sf-signup-email-error');
+    const signupUsernameError = document.getElementById('sf-signup-username-error');
+    const signupPasswordError = document.getElementById('sf-signup-password-error');
+    const signupConfirmPasswordError = document.getElementById('sf-signup-confirm-password-error');
+
+    if (signupForm) {
+      signupForm.addEventListener('submit', async function (e) {
+        e.preventDefault();
+
+        // Clear previous errors
+        signupError.style.display = 'none';
+        signupSuccess.style.display = 'none';
+        signupFullNameError.textContent = '';
+        signupEmailError.textContent = '';
+        signupUsernameError.textContent = '';
+        signupPasswordError.textContent = '';
+        signupConfirmPasswordError.textContent = '';
+
+        // Remove error classes
+        signupFullNameInput.classList.remove('sf-input--error');
+        signupEmailInput.classList.remove('sf-input--error');
+        signupUsernameInput.classList.remove('sf-input--error');
+        signupPasswordInput.classList.remove('sf-input--error');
+        signupConfirmPasswordInput.classList.remove('sf-input--error');
+
+        // Get form values
+        const fullName = signupFullNameInput.value.trim();
+        const email = signupEmailInput.value.trim();
+        const username = signupUsernameInput.value.trim();
+        const password = signupPasswordInput.value;
+        const confirmPassword = signupConfirmPasswordInput.value;
+        const acceptTerms = termsCheckbox.checked;
+
+        // Client-side validation
+        let hasError = false;
+
+        if (!fullName) {
+          signupFullNameError.textContent = 'Full name is required';
+          signupFullNameInput.classList.add('sf-input--error');
+          hasError = true;
+        }
+
+        if (!email) {
+          signupEmailError.textContent = 'Email is required';
+          signupEmailInput.classList.add('sf-input--error');
+          hasError = true;
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+          signupEmailError.textContent = 'Invalid email format';
+          signupEmailInput.classList.add('sf-input--error');
+          hasError = true;
+        }
+
+        if (!username) {
+          signupUsernameError.textContent = 'Username is required';
+          signupUsernameInput.classList.add('sf-input--error');
+          hasError = true;
+        } else if (username.length < 3) {
+          signupUsernameError.textContent = 'Username must be at least 3 characters';
+          signupUsernameInput.classList.add('sf-input--error');
+          hasError = true;
+        } else if (!/^[a-zA-Z0-9_-]+$/.test(username)) {
+          signupUsernameError.textContent = 'Username can only contain letters, numbers, hyphens, and underscores';
+          signupUsernameInput.classList.add('sf-input--error');
+          hasError = true;
+        }
+
+        if (!password) {
+          signupPasswordError.textContent = 'Password is required';
+          signupPasswordInput.classList.add('sf-input--error');
+          hasError = true;
+        } else if (password.length < 8) {
+          signupPasswordError.textContent = 'Password must be at least 8 characters';
+          signupPasswordInput.classList.add('sf-input--error');
+          hasError = true;
+        } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]/.test(password)) {
+          signupPasswordError.textContent = 'Password must contain uppercase, lowercase, number, and special character';
+          signupPasswordInput.classList.add('sf-input--error');
+          hasError = true;
+        }
+
+        if (!confirmPassword) {
+          signupConfirmPasswordError.textContent = 'Please confirm your password';
+          signupConfirmPasswordInput.classList.add('sf-input--error');
+          hasError = true;
+        } else if (password !== confirmPassword) {
+          signupConfirmPasswordError.textContent = 'Passwords do not match';
+          signupConfirmPasswordInput.classList.add('sf-input--error');
+          hasError = true;
+        }
+
+        if (!acceptTerms) {
+          signupErrorMsg.textContent = 'You must accept the terms and conditions';
+          signupError.style.display = 'flex';
+          hasError = true;
+        }
+
+        if (hasError) return;
+
+        // Disable submit button and show loading state
+        signupSubmitBtn.disabled = true;
+        signupBtnText.textContent = 'Creating Account...';
+
+        try {
+          // Get reCAPTCHA token
+          const siteKey = document.querySelector('script[src*="recaptcha"]')?.src.match(/render=([^&]+)/)?.[1];
+          let recaptchaToken = '';
+          
+          if (siteKey && typeof grecaptcha !== 'undefined') {
+            try {
+              recaptchaToken = await grecaptcha.execute(siteKey, { action: 'signup' });
+            } catch (recaptchaError) {
+              console.error('reCAPTCHA error:', recaptchaError);
+              signupErrorMsg.textContent = 'Security verification failed. Please refresh the page and try again.';
+              signupError.style.display = 'flex';
+              signupSubmitBtn.disabled = false;
+              signupBtnText.textContent = 'Create Account';
+              return;
+            }
+          }
+
+          // Get anti-forgery token
+          const tokenInput = signupForm.querySelector('input[name="__RequestVerificationToken"]');
+          const token = tokenInput ? tokenInput.value : '';
+
+          const response = await fetch('/Account/RegisterAjax', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'RequestVerificationToken': token
+            },
+            body: JSON.stringify({
+              fullName: fullName,
+              email: email,
+              userName: username,
+              password: password,
+              confirmPassword: confirmPassword,
+              acceptTerms: acceptTerms,
+              recaptchaToken: recaptchaToken
+            })
+          });
+
+          const result = await response.json();
+
+          if (result.success) {
+            // Success! Show success message
+            signupSuccessMsg.textContent = result.message || 'Account created successfully!';
+            signupSuccess.style.display = 'flex';
+            signupBtnText.textContent = 'Success!';
+
+            // Redirect to dashboard after 1.5 seconds
+            setTimeout(() => {
+              window.location.href = result.redirectUrl || '/Dashboard';
+            }, 1500);
+          } else {
+            // Show error message
+            signupErrorMsg.textContent = result.message || 'Registration failed. Please try again.';
+            signupError.style.display = 'flex';
+
+            // Re-enable submit button
+            signupSubmitBtn.disabled = false;
+            signupBtnText.textContent = 'Create Account';
+          }
+
+        } catch (error) {
+          console.error('Signup error:', error);
+          signupErrorMsg.textContent = 'An error occurred. Please try again.';
+          signupError.style.display = 'flex';
+
+          // Re-enable submit button
+          signupSubmitBtn.disabled = false;
+          signupBtnText.textContent = 'Create Account';
+        }
+      });
+
+      // Clear field errors on input
+      if (signupFullNameInput) {
+        signupFullNameInput.addEventListener('input', function () {
+          signupFullNameError.textContent = '';
+          this.classList.remove('sf-input--error');
+        });
+      }
+
+      if (signupEmailInput) {
+        signupEmailInput.addEventListener('input', function () {
+          signupEmailError.textContent = '';
+          this.classList.remove('sf-input--error');
+        });
+      }
+
+      if (signupUsernameInput) {
+        signupUsernameInput.addEventListener('input', function () {
+          signupUsernameError.textContent = '';
+          this.classList.remove('sf-input--error');
+        });
+      }
+
+      if (signupPasswordInput) {
+        signupPasswordInput.addEventListener('input', function () {
+          signupPasswordError.textContent = '';
+          this.classList.remove('sf-input--error');
+        });
+      }
+
+      if (signupConfirmPasswordInput) {
+        signupConfirmPasswordInput.addEventListener('input', function () {
+          signupConfirmPasswordError.textContent = '';
           this.classList.remove('sf-input--error');
         });
       }

@@ -117,14 +117,14 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             .HasOne(w => w.CreatedBy)
             .WithMany(u => u.CreatedWorkOrders)
             .HasForeignKey(w => w.CreatedByUserId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.SetNull);
 
-        // ── ProductionPlan → ApplicationUser: restrict ────────
+        // ── ProductionPlan → ApplicationUser: set null on user delete
         builder.Entity<ProductionPlan>()
             .HasOne(p => p.CreatedBy)
             .WithMany(u => u.CreatedPlans)
             .HasForeignKey(p => p.CreatedByUserId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.SetNull);
 
         // ── ProductionLog → ApplicationUser: restrict ─────────
         builder.Entity<ProductionLog>()

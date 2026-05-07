@@ -51,4 +51,8 @@ public class AuditLog
     public string? IpAddress { get; set; }
 
     public DateTime Timestamp { get; set; } = DateTime.UtcNow;
+
+    /// <summary>Multi-tenant: Links this audit log to a specific Admin's workspace.</summary>
+    [MaxLength(450)]
+    public string? TenantId { get; set; }
 }

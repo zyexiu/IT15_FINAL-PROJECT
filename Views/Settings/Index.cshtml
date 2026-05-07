@@ -1,0 +1,308 @@
+@inject IConfiguration Configuration
+@{
+    ViewData["Title"] = "Settings";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+}
+
+<div class="dash-page-header">
+    <div>
+        <h1 class="dash-page-title">System Settings</h1>
+        <p class="dash-page-subtitle">Configure system-wide settings and preferences</p>
+    </div>
+</div>
+
+<div class="dash-settings-container">
+    <!-- Email Settings Card -->
+    <div class="dash-form-card">
+        <div class="dash-form-header">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            <div>
+                <h2 class="dash-form-title">Email Configuration</h2>
+                <p class="dash-form-subtitle">SMTP settings for sending emails</p>
+            </div>
+        </div>
+        <div class="dash-settings-content">
+            <div class="dash-settings-row">
+                <div class="dash-settings-label">
+                    <strong>SMTP Server</strong>
+                    <span class="dash-settings-desc">Mail server hostname</span>
+                </div>
+                <div class="dash-settings-value">
+                    <code>@(Configuration["EmailSettings:SmtpServer"] ?? "Not configured")</code>
+                </div>
+            </div>
+            <div class="dash-settings-row">
+                <div class="dash-settings-label">
+                    <strong>SMTP Port</strong>
+                    <span class="dash-settings-desc">Mail server port</span>
+                </div>
+                <div class="dash-settings-value">
+                    <code>@(Configuration["EmailSettings:SmtpPort"] ?? "Not configured")</code>
+                </div>
+            </div>
+            <div class="dash-settings-row">
+                <div class="dash-settings-label">
+                    <strong>From Email</strong>
+                    <span class="dash-settings-desc">Sender email address</span>
+                </div>
+                <div class="dash-settings-value">
+                    <code>@(Configuration["EmailSettings:FromEmail"] ?? "Not configured")</code>
+                </div>
+            </div>
+            <div class="dash-settings-row">
+                <div class="dash-settings-label">
+                    <strong>From Name</strong>
+                    <span class="dash-settings-desc">Sender display name</span>
+                </div>
+                <div class="dash-settings-value">
+                    <code>@(Configuration["EmailSettings:FromName"] ?? "Not configured")</code>
+                </div>
+            </div>
+            <div class="dash-settings-actions">
+                <span class="dash-settings-note">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                    Email settings are configured in appsettings.json
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- reCAPTCHA Settings Card -->
+    <div class="dash-form-card">
+        <div class="dash-form-header">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <div>
+                <h2 class="dash-form-title">reCAPTCHA Configuration</h2>
+                <p class="dash-form-subtitle">Google reCAPTCHA v3 settings</p>
+            </div>
+        </div>
+        <div class="dash-settings-content">
+            <div class="dash-settings-row">
+                <div class="dash-settings-label">
+                    <strong>Site Key</strong>
+                    <span class="dash-settings-desc">Public key for client-side</span>
+                </div>
+                <div class="dash-settings-value">
+                    <code>@(Configuration["RecaptchaSettings:SiteKey"]?.Substring(0, 20) ?? "Not configured")...</code>
+                </div>
+            </div>
+            <div class="dash-settings-row">
+                <div class="dash-settings-label">
+                    <strong>Secret Key</strong>
+                    <span class="dash-settings-desc">Private key for server-side</span>
+                </div>
+                <div class="dash-settings-value">
+                    <code>••••••••••••••••••••</code>
+                    <span class="dash-badge dash-badge--success">Configured</span>
+                </div>
+            </div>
+            <div class="dash-settings-row">
+                <div class="dash-settings-label">
+                    <strong>Minimum Score</strong>
+                    <span class="dash-settings-desc">Threshold for verification (0.0 - 1.0)</span>
+                </div>
+                <div class="dash-settings-value">
+                    <code>@(Configuration["RecaptchaSettings:MinimumScore"] ?? "0.5")</code>
+                </div>
+            </div>
+            <div class="dash-settings-actions">
+                <span class="dash-settings-note">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                    reCAPTCHA settings are configured in appsettings.json
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- System Information Card -->
+    <div class="dash-form-card">
+        <div class="dash-form-header">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            <div>
+                <h2 class="dash-form-title">System Information</h2>
+                <p class="dash-form-subtitle">Application details and environment</p>
+            </div>
+        </div>
+        <div class="dash-settings-content">
+            <div class="dash-settings-row">
+                <div class="dash-settings-label">
+                    <strong>Application Name</strong>
+                    <span class="dash-settings-desc">System identifier</span>
+                </div>
+                <div class="dash-settings-value">
+                    <code>SnackFlow MES</code>
+                </div>
+            </div>
+            <div class="dash-settings-row">
+                <div class="dash-settings-label">
+                    <strong>Version</strong>
+                    <span class="dash-settings-desc">Current application version</span>
+                </div>
+                <div class="dash-settings-value">
+                    <code>1.0.0</code>
+                </div>
+            </div>
+            <div class="dash-settings-row">
+                <div class="dash-settings-label">
+                    <strong>Environment</strong>
+                    <span class="dash-settings-desc">Runtime environment</span>
+                </div>
+                <div class="dash-settings-value">
+                    <code>@(Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production")</code>
+                </div>
+            </div>
+            <div class="dash-settings-row">
+                <div class="dash-settings-label">
+                    <strong>.NET Version</strong>
+                    <span class="dash-settings-desc">Runtime version</span>
+                </div>
+                <div class="dash-settings-value">
+                    <code>@Environment.Version</code>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .dash-settings-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            max-width: 1000px;
+            margin: 0 auto; /* Center the container */
+        }
+
+        .dash-settings-content {
+            padding: 0;
+        }
+
+        .dash-settings-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            gap: 2rem;
+        }
+
+        .dash-settings-row:last-child {
+            border-bottom: none;
+        }
+
+        .dash-settings-label {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+            flex: 1;
+        }
+
+        .dash-settings-label strong {
+            font-size: 0.9375rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .dash-settings-desc {
+            font-size: 0.8125rem;
+            color: var(--text-secondary);
+        }
+
+        .dash-settings-value {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex-shrink: 0;
+        }
+
+        .dash-settings-value code {
+            font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+            font-size: 0.875rem;
+            padding: 0.375rem 0.75rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-primary);
+        }
+
+        .dash-settings-actions {
+            padding: 1rem 1.5rem;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+        }
+
+        .dash-settings-note {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.8125rem;
+            color: var(--text-secondary);
+        }
+
+        .dash-settings-note svg {
+            flex-shrink: 0;
+            opacity: 0.7;
+        }
+
+        .dash-badge-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .dash-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border-radius: 999px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .dash-badge--primary {
+            background: rgba(246, 192, 0, 0.15);
+            color: #F6C000;
+        }
+
+        .dash-badge--info {
+            background: rgba(59, 130, 246, 0.15);
+            color: #3B82F6;
+        }
+
+        .dash-badge--warning {
+            background: rgba(245, 158, 11, 0.15);
+            color: #F59E0B;
+        }
+
+        .dash-badge--success {
+            background: rgba(16, 185, 129, 0.15);
+            color: #10B981;
+        }
+
+        .dash-badge--secondary {
+            background: rgba(107, 122, 141, 0.15);
+            color: #6B7A8D;
+        }
+
+        @@media (max-width: 768px) {
+            .dash-settings-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .dash-settings-value {
+                width: 100%;
+            }
+
+            .dash-settings-value code {
+                flex: 1;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+        }
+    </style>
+}

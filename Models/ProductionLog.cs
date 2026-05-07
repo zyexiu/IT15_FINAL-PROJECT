@@ -53,4 +53,8 @@ public class ProductionLog
     public ApplicationUser? RecordedBy { get; set; }
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+    /// <summary>Multi-tenant: Links this production log to a specific Admin's workspace.</summary>
+    [Required, MaxLength(450)]
+    public string TenantId { get; set; } = string.Empty;
 }

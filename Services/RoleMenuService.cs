@@ -95,6 +95,14 @@ public class RoleMenuService
                 Action = "Index",
                 Icon = "users",
                 Section = "ADMINISTRATION"
+            },
+            new MenuItem
+            {
+                Title = "Settings",
+                Controller = "Settings",
+                Action = "Index",
+                Icon = "settings",
+                Section = "ADMINISTRATION"
             }
         };
     }

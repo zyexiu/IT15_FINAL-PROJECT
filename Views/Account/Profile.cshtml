@@ -1,0 +1,115 @@
+@model SnackFlowMES.ViewModels.ProfileViewModel
+@{
+    ViewData["Title"] = "My Profile";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+}
+
+<div class="dash-page-header">
+    <div>
+        <h1 class="dash-page-title">My Profile</h1>
+        <p class="dash-page-subtitle">Manage your account information</p>
+    </div>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="dash-alert dash-alert--success">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        @TempData["Success"]
+    </div>
+}
+
+<div class="dash-form-container">
+    <div class="dash-form-card">
+        <div class="dash-form-header">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <div>
+                <h2 class="dash-form-title">Profile Information</h2>
+                <p class="dash-form-subtitle">Update your personal details</p>
+            </div>
+        </div>
+
+        <form asp-action="Profile" method="post" class="dash-form">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="dash-alert dash-alert--error"></div>
+
+            <!-- Full Name -->
+            <div class="dash-form-group">
+                <label asp-for="FullName" class="dash-form-label">Full Name</label>
+                <input asp-for="FullName" class="dash-form-input" placeholder="Enter your full name" />
+                <span asp-validation-for="FullName" class="dash-form-error"></span>
+            </div>
+
+            <!-- Username -->
+            <div class="dash-form-group">
+                <label asp-for="UserName" class="dash-form-label">Username</label>
+                <input asp-for="UserName" class="dash-form-input" placeholder="Enter your username" />
+                <span asp-validation-for="UserName" class="dash-form-error"></span>
+                <small class="dash-form-hint">Letters, numbers, hyphens, and underscores only</small>
+            </div>
+
+            <!-- Email -->
+            <div class="dash-form-group">
+                <label asp-for="Email" class="dash-form-label">Email Address</label>
+                <input asp-for="Email" type="email" class="dash-form-input" placeholder="Enter your email" />
+                <span asp-validation-for="Email" class="dash-form-error"></span>
+            </div>
+
+            <!-- Role (Read-only) -->
+            <div class="dash-form-group">
+                <label class="dash-form-label">Role</label>
+                <div class="dash-form-readonly">
+                    <span class="dash-badge dash-badge--primary">@Model.Role</span>
+                </div>
+                <small class="dash-form-hint">Your role cannot be changed</small>
+            </div>
+
+            <!-- Account Created (Read-only) -->
+            <div class="dash-form-group">
+                <label class="dash-form-label">Member Since</label>
+                <div class="dash-form-readonly">
+                    @Model.CreatedAt.ToString("MMMM dd, yyyy")
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="dash-form-actions">
+                <button type="submit" class="dash-btn dash-btn--primary">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                    Save Changes
+                </button>
+                <a asp-action="Index" asp-controller="Dashboard" class="dash-btn dash-btn--secondary">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Quick Actions Card -->
+    <div class="dash-form-card">
+        <div class="dash-form-header">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            <div>
+                <h2 class="dash-form-title">Quick Actions</h2>
+                <p class="dash-form-subtitle">Manage your account security</p>
+            </div>
+        </div>
+
+        <div class="dash-quick-actions">
+            <a asp-action="ChangePassword" class="dash-quick-action-item">
+                <div class="dash-quick-action-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                </div>
+                <div>
+                    <div class="dash-quick-action-title">Change Password</div>
+                    <div class="dash-quick-action-desc">Update your account password</div>
+                </div>
+                <svg class="dash-quick-action-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

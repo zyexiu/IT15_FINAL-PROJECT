@@ -76,6 +76,68 @@ public class WorkOrderController : Controller
     [Authorize(Roles = "Admin,Planner")]
     public async Task<IActionResult> Create(WorkOrderFormViewModel model)
     {
+        // ═══════════════════════════════════════════════════════
+        // VALIDATION: Must have BOM
+        // ═══════════════════════════════════════════════════════
+        if (model.BomId == 0)
+        {
+            ModelState.AddModelError("BomId", "BOM is required. You cannot create a work order without a Bill of Materials.");
+            await PopulateDropdowns();
+            return View(model);
+        }
+
+        // Verify BOM exists and is for the selected item
+        var bom = await _db.BillsOfMaterials
+            .Include(b => b.BomLines)
+            .FirstOrDefaultAsync(b => b.BomId == model.BomId);
+
+        if (bom == null)
+        {
+            ModelState.AddModelError("BomId", "Selected BOM not found.");
+            await PopulateDropdowns();
+            return View(model);
+        }
+
+        if (bom.ItemId != model.ItemId)
+        {
+            ModelState.AddModelError("BomId", "Selected BOM does not match the selected item.");
+            await PopulateDropdowns();
+            return View(model);
+        }
+
+        // Check if BOM has materials
+        if (bom.BomLines == null || !bom.BomLines.Any())
+        {
+            ModelState.AddModelError("BomId", "Selected BOM has no materials defined. Please add materials to the BOM first.");
+            await PopulateDropdowns();
+            return View(model);
+        }
+
+        // ═══════════════════════════════════════════════════════
+        // STOCK CHECKING: Warn if not enough materials
+        // ═══════════════════════════════════════════════════════
+        var batchMultiplier = model.PlannedQty / bom.BatchOutputQty;
+        var shortages = new List<string>();
+
+        foreach (var bomLine in bom.BomLines)
+        {
+            var requiredQty = bomLine.QtyPerBatch * batchMultiplier;
+            var balance = await _db.InventoryBalances
+                .Include(b => b.Item)
+                .FirstOrDefaultAsync(b => b.ItemId == bomLine.ItemId);
+
+            if (balance == null || (balance.QtyOnHand - balance.QtyReserved) < requiredQty)
+            {
+                var available = balance?.QtyOnHand - balance?.QtyReserved ?? 0;
+                shortages.Add($"{bomLine.Item?.ItemName}: Need {requiredQty:F2}{bomLine.UnitOfMeasure}, Available {available:F2}{bomLine.UnitOfMeasure}");
+            }
+        }
+
+        if (shortages.Any())
+        {
+            TempData["Warning"] = $"⚠️ Material Shortage Detected! {string.Join("; ", shortages)}. Work order will be created but you may not have enough materials.";
+        }
+
         if (!ModelState.IsValid)
         {
             await PopulateDropdowns();
@@ -188,12 +250,19 @@ public class WorkOrderController : Controller
     // ── POST /WorkOrder/UpdateStatus ─────────────────────────
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> UpdateStatus(int id, string status)
+    public async Task<IActionResult> UpdateStatus(int id, string status, decimal? actualQty = null)
     {
-        var wo = await _db.WorkOrders.FindAsync(id);
+        var wo = await _db.WorkOrders
+            .Include(w => w.Bom)
+                .ThenInclude(b => b!.BomLines!)
+                    .ThenInclude(bl => bl.Item)
+            .Include(w => w.Item)
+            .FirstOrDefaultAsync(w => w.WorkOrderId == id);
+
         if (wo == null)
             return NotFound();
 
+        var oldStatus = wo.Status;
         wo.Status = status;
         wo.UpdatedAt = DateTime.UtcNow;
 
@@ -203,11 +272,176 @@ public class WorkOrderController : Controller
         else if (status == "Completed" && wo.ActualEnd == null)
             wo.ActualEnd = DateTime.UtcNow;
 
+        // Update actual quantity if provided
+        if (actualQty.HasValue && actualQty.Value > 0)
+            wo.ActualQty = actualQty.Value;
+
+        // ═══════════════════════════════════════════════════════
+        // AUTOMATIC INVENTORY UPDATES
+        // ═══════════════════════════════════════════════════════
+
+        // When RELEASING work order: Reserve materials
+        if (status == "Released" && oldStatus == "Draft")
+        {
+            if (wo.Bom?.BomLines != null)
+            {
+                foreach (var bomLine in wo.Bom.BomLines)
+                {
+                    var balance = await _db.InventoryBalances
+                        .FirstOrDefaultAsync(b => b.ItemId == bomLine.ItemId);
+
+                    if (balance != null)
+                    {
+                        // Calculate required quantity based on work order qty
+                        var batchMultiplier = wo.PlannedQty / wo.Bom.BatchOutputQty;
+                        var requiredQty = bomLine.QtyPerBatch * batchMultiplier;
+
+                        balance.QtyReserved += requiredQty;
+                        balance.LastUpdated = DateTime.UtcNow;
+                    }
+                }
+            }
+        }
+
+        // When STARTING production: Issue materials (deduct from inventory)
+        if (status == "InProgress" && oldStatus == "Released")
+        {
+            if (wo.Bom?.BomLines != null)
+            {
+                foreach (var bomLine in wo.Bom.BomLines)
+                {
+                    var balance = await _db.InventoryBalances
+                        .FirstOrDefaultAsync(b => b.ItemId == bomLine.ItemId);
+
+                    if (balance != null)
+                    {
+                        // Calculate required quantity
+                        var batchMultiplier = wo.PlannedQty / wo.Bom.BatchOutputQty;
+                        var requiredQty = bomLine.QtyPerBatch * batchMultiplier;
+
+                        // Deduct from on-hand and reserved
+                        balance.QtyOnHand -= requiredQty;
+                        balance.QtyReserved -= requiredQty;
+                        balance.LastUpdated = DateTime.UtcNow;
+
+                        // Create inventory ledger entry
+                        var ledger = new InventoryLedger
+                        {
+                            ItemId = bomLine.ItemId,
+                            MovementType = "WoIssue",
+                            Qty = -requiredQty,
+                            UnitOfMeasure = bomLine.UnitOfMeasure,
+                            BalanceAfter = balance.QtyOnHand,
+                            WorkOrderId = wo.WorkOrderId,
+                            Reference = wo.WoNumber,
+                            Notes = $"Materials issued for {wo.WoNumber}",
+                            PostedAt = DateTime.UtcNow
+                        };
+                        _db.InventoryLedgers.Add(ledger);
+                    }
+                }
+            }
+        }
+
+        // When COMPLETING work order: Add finished goods to inventory
+        if (status == "Completed" && oldStatus == "InProgress")
+        {
+            if (wo.ActualQty > 0)
+            {
+                // Find or create inventory balance for finished good
+                var balance = await _db.InventoryBalances
+                    .FirstOrDefaultAsync(b => b.ItemId == wo.ItemId);
+
+                if (balance == null)
+                {
+                    // Create new balance if doesn't exist
+                    balance = new InventoryBalance
+                    {
+                        ItemId = wo.ItemId,
+                        QtyOnHand = 0,
+                        QtyReserved = 0,
+                        LastUpdated = DateTime.UtcNow
+                    };
+                    _db.InventoryBalances.Add(balance);
+                    await _db.SaveChangesAsync(); // Save to get BalanceId
+                }
+
+                // Add finished goods to inventory
+                balance.QtyOnHand += wo.ActualQty;
+                balance.LastUpdated = DateTime.UtcNow;
+
+                // Create inventory ledger entry
+                var ledger = new InventoryLedger
+                {
+                    ItemId = wo.ItemId,
+                    MovementType = "ProductionOutput",
+                    Qty = wo.ActualQty,
+                    UnitOfMeasure = wo.UnitOfMeasure,
+                    BalanceAfter = balance.QtyOnHand,
+                    WorkOrderId = wo.WorkOrderId,
+                    Reference = wo.WoNumber,
+                    Notes = $"Production output from {wo.WoNumber}",
+                    PostedAt = DateTime.UtcNow
+                };
+                _db.InventoryLedgers.Add(ledger);
+            }
+            else
+            {
+                TempData["Warning"] = "Work order completed but no actual quantity recorded. Inventory not updated.";
+            }
+        }
+
         await _db.SaveChangesAsync();
 
-        _log.LogInformation("Work order {WoNumber} status changed to {Status}", wo.WoNumber, status);
-        TempData["Success"] = $"Work order {wo.WoNumber} status updated to {status}.";
+        _log.LogInformation("Work order {WoNumber} status changed from {OldStatus} to {NewStatus}", wo.WoNumber, oldStatus, status);
+        TempData["Success"] = $"Work order {wo.WoNumber} status updated to {status}. Inventory automatically updated.";
         return RedirectToAction(nameof(Details), new { id });
+    }
+
+    // ── POST /WorkOrder/Delete/5 ─────────────────────────────
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Admin,Planner")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var wo = await _db.WorkOrders
+            .Include(w => w.Materials)
+            .FirstOrDefaultAsync(w => w.WorkOrderId == id);
+
+        if (wo == null)
+            return NotFound();
+
+        var woNumber = wo.WoNumber;
+
+        // Safety check: Only allow deletion of Draft or Cancelled work orders
+        if (wo.Status != "Draft" && wo.Status != "Cancelled")
+        {
+            TempData["Error"] = $"Cannot delete work order {woNumber}. Only Draft or Cancelled work orders can be deleted. Current status: {wo.Status}";
+            return RedirectToAction(nameof(Details), new { id });
+        }
+
+        try
+        {
+            // Delete related materials first
+            if (wo.Materials != null && wo.Materials.Any())
+            {
+                _db.WorkOrderMaterials.RemoveRange(wo.Materials);
+            }
+
+            // Delete work order
+            _db.WorkOrders.Remove(wo);
+            await _db.SaveChangesAsync();
+
+            _log.LogInformation("Work order {WoNumber} deleted", woNumber);
+            TempData["Success"] = $"Work order {woNumber} has been permanently deleted.";
+            return RedirectToAction(nameof(Index));
+        }
+        catch (Exception ex)
+        {
+            _log.LogError(ex, "Error deleting work order {WoNumber}", woNumber);
+            TempData["Error"] = $"An error occurred while deleting work order {woNumber}. Please try again.";
+            return RedirectToAction(nameof(Details), new { id });
+        }
     }
 
     // ── Helper: Populate dropdowns ───────────────────────────
@@ -221,14 +455,22 @@ public class WorkOrderController : Controller
                 .ToListAsync(),
             "ItemId", "ItemName");
 
-        // BOMs
-        ViewBag.Boms = new SelectList(
-            await _db.BillsOfMaterials
-                .Include(b => b.Item)
-                .Where(b => b.IsActive)
-                .Select(b => new { b.BomId, BomName = b.Item!.ItemName + " - " + b.Version })
-                .ToListAsync(),
-            "BomId", "BomName");
+        // BOMs with ItemId for filtering
+        var boms = await _db.BillsOfMaterials
+            .Include(b => b.Item)
+            .Where(b => b.IsActive)
+            .Select(b => new
+            {
+                b.BomId,
+                b.ItemId,
+                BomName = b.Item!.ItemName + " - " + b.Version
+            })
+            .ToListAsync();
+
+        ViewBag.Boms = new SelectList(boms, "BomId", "BomName");
+        
+        // Pass BOM data as JSON for JavaScript filtering
+        ViewBag.BomData = System.Text.Json.JsonSerializer.Serialize(boms);
 
         ViewBag.Statuses = new SelectList(new[]
         {

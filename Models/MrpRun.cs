@@ -32,4 +32,8 @@ public class MrpRun
 
     // ── Navigation ──────────────────────────────────────────
     public ICollection<MrpRequirement>? Requirements { get; set; }
+
+    /// <summary>Multi-tenant: Links this MRP run to a specific Admin's workspace.</summary>
+    [Required, MaxLength(450)]
+    public string TenantId { get; set; } = string.Empty;
 }

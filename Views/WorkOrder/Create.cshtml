@@ -170,11 +170,69 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
-        // Client-side validation to catch issues
+        // BOM data from server
+        const bomData = @Html.Raw(ViewBag.BomData ?? "[]");
+        
+        // Auto-filter BOMs based on selected Finished Good
         document.addEventListener('DOMContentLoaded', function() {
+            const itemSelect = document.querySelector('[name="ItemId"]');
+            const bomSelect = document.querySelector('[name="BomId"]');
             const form = document.getElementById('workOrderForm');
             const submitBtn = document.getElementById('submitBtn');
 
+            // Store all BOM options
+            let allBomOptions = [];
+            if (bomData && bomData.length > 0) {
+                allBomOptions = bomData.map(bom => ({
+                    value: bom.BomId,
+                    text: bom.BomName,
+                    itemId: bom.ItemId
+                }));
+            }
+
+            // Filter BOMs when Finished Good changes
+            if (itemSelect && bomSelect) {
+                itemSelect.addEventListener('change', function() {
+                    const selectedItemId = parseInt(this.value);
+                    
+                    // Clear current BOM selection
+                    bomSelect.value = '';
+                    
+                    // Remove all options except the first one (placeholder)
+                    while (bomSelect.options.length > 1) {
+                        bomSelect.remove(1);
+                    }
+                    
+                    if (selectedItemId) {
+                        // Filter and add matching BOMs
+                        const matchingBoms = allBomOptions.filter(bom => bom.itemId === selectedItemId);
+                        
+                        if (matchingBoms.length > 0) {
+                            matchingBoms.forEach(bom => {
+                                const option = new Option(bom.text, bom.value);
+                                bomSelect.add(option);
+                            });
+                            bomSelect.disabled = false;
+                        } else {
+                            // No matching BOMs found
+                            const option = new Option('No BOMs available for this item', '');
+                            option.disabled = true;
+                            bomSelect.add(option);
+                            bomSelect.disabled = true;
+                        }
+                    } else {
+                        // No item selected - disable BOM dropdown
+                        bomSelect.disabled = true;
+                    }
+                });
+                
+                // Disable BOM dropdown initially
+                if (!itemSelect.value) {
+                    bomSelect.disabled = true;
+                }
+            }
+
+            // Client-side validation
             if (form && submitBtn) {
                 form.addEventListener('submit', function(e) {
                     // Validate required fields
@@ -238,8 +296,7 @@
 
             // Log form state for debugging
             console.log('WorkOrder Create form loaded');
-            console.log('Form ID:', form?.id);
-            console.log('Submit button:', submitBtn);
+            console.log('BOM data loaded:', allBomOptions.length, 'BOMs');
         });
     </script>
 }

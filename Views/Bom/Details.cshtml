@@ -42,19 +42,19 @@
 <!-- BOM Header Info -->
 <div class="dash-grid" style="margin-bottom: 24px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
     <div class="dash-card">
-        <div style="font-size: 12px; color: #6B7A8D; font-weight: 600; margin-bottom: 4px;">BATCH OUTPUT</div>
-        <div style="font-size: 24px; font-weight: 700; color: #0F1C26;">@Model.BatchOutputQty <span style="font-size: 16px;">@Model.BatchOutputUom</span></div>
+        <div class="dash-card-label">BATCH OUTPUT</div>
+        <div class="dash-card-value">@Model.BatchOutputQty <span style="font-size: 16px;">@Model.BatchOutputUom</span></div>
     </div>
     <div class="dash-card">
-        <div style="font-size: 12px; color: #6B7A8D; font-weight: 600; margin-bottom: 4px;">MACHINE HOURS</div>
-        <div style="font-size: 24px; font-weight: 700; color: #0F1C26;">@(Model.EstMachineHours > 0 ? $"{Model.EstMachineHours:F2}h" : "—")</div>
+        <div class="dash-card-label">MACHINE HOURS</div>
+        <div class="dash-card-value">@(Model.EstMachineHours > 0 ? $"{Model.EstMachineHours:F2}h" : "—")</div>
     </div>
     <div class="dash-card">
-        <div style="font-size: 12px; color: #6B7A8D; font-weight: 600; margin-bottom: 4px;">LABOR HOURS</div>
-        <div style="font-size: 24px; font-weight: 700; color: #0F1C26;">@(Model.EstLaborHours > 0 ? $"{Model.EstLaborHours:F2}h" : "—")</div>
+        <div class="dash-card-label">LABOR HOURS</div>
+        <div class="dash-card-value">@(Model.EstLaborHours > 0 ? $"{Model.EstLaborHours:F2}h" : "—")</div>
     </div>
     <div class="dash-card">
-        <div style="font-size: 12px; color: #6B7A8D; font-weight: 600; margin-bottom: 4px;">STATUS</div>
+        <div class="dash-card-label">STATUS</div>
         <div>
             @if (Model.IsActive)
             {
@@ -71,15 +71,15 @@
 @if (!string.IsNullOrEmpty(Model.Notes))
 {
     <div class="dash-card" style="margin-bottom: 24px;">
-        <h3 style="margin: 0 0 8px 0; font-size: 14px; font-weight: 700; color: #0F1C26;">Notes</h3>
-        <p style="margin: 0; color: #6B7A8D; line-height: 1.6;">@Model.Notes</p>
+        <h3 class="dash-card-title">Notes</h3>
+        <p class="dash-card-text">@Model.Notes</p>
     </div>
 }
 
 <!-- Materials Section -->
 <div class="dash-card">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <h2 style="margin: 0; font-size: 16px; font-weight: 700; color: #0F1C26;">Materials in BOM</h2>
+        <h2 class="dash-section-title">Materials in BOM</h2>
         <button type="button" class="dash-btn dash-btn--primary" onclick="toggleAddLineForm()">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             Add Material
@@ -87,11 +87,11 @@
     </div>
 
     <!-- Add Material Form -->
-    <form asp-action="AddLine" method="post" id="addLineForm" style="display: @(showAddLineForm ? "block" : "none"); margin-bottom: 24px; padding: 20px; background: #F9FAFB; border-radius: 8px; border: 1px solid #E4E9EF;">
+    <form asp-action="AddLine" method="post" id="addLineForm" class="dash-add-form" style="display: @(showAddLineForm ? "block" : "none");">
         @Html.AntiForgeryToken()
         <input type="hidden" name="BomId" value="@Model.BomId" />
 
-        <h3 style="margin: 0 0 16px 0; font-size: 14px; font-weight: 700; color: #0F1C26;">Add Material to BOM</h3>
+        <h3 class="dash-form-title">Add Material to BOM</h3>
 
         <div class="dash-form-row">
             <div class="dash-form-group">
@@ -188,6 +188,54 @@
     display: grid;
 }
 
+.dash-card-label {
+    font-size: 12px;
+    color: #6B7A8D;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.dash-card-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: #0F1C26;
+}
+
+.dash-card-title {
+    margin: 0 0 8px 0;
+    font-size: 14px;
+    font-weight: 700;
+    color: #0F1C26;
+}
+
+.dash-card-text {
+    margin: 0;
+    color: #6B7A8D;
+    line-height: 1.6;
+}
+
+.dash-section-title {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 700;
+    color: #0F1C26;
+}
+
+.dash-add-form {
+    margin-bottom: 24px;
+    padding: 20px;
+    background: #F9FAFB;
+    border-radius: 8px;
+    border: 1px solid #E4E9EF;
+}
+
+.dash-form-title {
+    margin: 0 0 16px 0;
+    font-size: 14px;
+    font-weight: 700;
+    color: #0F1C26;
+}
+
 .dash-table-container {
     background: white;
     border-radius: 12px;
@@ -253,6 +301,64 @@
 .dash-btn--danger:hover {
     background: #FCA5A5;
     border-color: #F87171;
+}
+
+/* Dark Mode Styles */
+html[data-theme="dark"] .dash-card-label {
+    color: #94a3b8;
+}
+
+html[data-theme="dark"] .dash-card-value {
+    color: #e5eef8;
+}
+
+html[data-theme="dark"] .dash-card-title {
+    color: #e5eef8;
+}
+
+html[data-theme="dark"] .dash-card-text {
+    color: #94a3b8;
+}
+
+html[data-theme="dark"] .dash-section-title {
+    color: #e5eef8;
+}
+
+html[data-theme="dark"] .dash-add-form {
+    background: #0f1419 !important;
+    border-color: #2d3748 !important;
+}
+
+html[data-theme="dark"] .dash-form-title {
+    color: #e5eef8 !important;
+}
+
+html[data-theme="dark"] .dash-table-container {
+    background: #1a2332;
+    border-color: #2d3748;
+}
+
+html[data-theme="dark"] .dash-table thead {
+    background: #0f1419;
+    border-color: #2d3748;
+}
+
+html[data-theme="dark"] .dash-table th {
+    color: #e5eef8;
+}
+
+html[data-theme="dark"] .dash-table td {
+    border-color: #2d3748;
+    color: #cbd5e0;
+}
+
+html[data-theme="dark"] .dash-table tbody tr:hover {
+    background: #0f1419;
+}
+
+html[data-theme="dark"] .dash-badge--secondary {
+    background: #2d3748;
+    color: #cbd5e0;
 }
 </style>
 

@@ -72,6 +72,90 @@
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
                             <span id="sf-login-btn-text">Sign In</span>
                         </button>
+                        
+                        <!-- Sign Up Link -->
+                        <div class="sf-auth-switch">
+                            <span class="sf-auth-switch-text">Don't have an account?</span>
+                            <button type="button" class="sf-auth-switch-link" id="sf-show-signup">Sign Up</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Sign Up Panel -->
+                <div id="sf-signup-panel" class="sf-login-panel sf-signup-panel" role="dialog" aria-modal="true" aria-label="Sign up" aria-hidden="true" style="display:none;">
+                    <div class="sf-login-header">
+                        <img src="~/images/snackflow-logo.png" alt="" class="sf-login-logo" aria-hidden="true" />
+                        <span class="sf-login-title">Create Your Account</span>
+                    </div>
+                    <form class="sf-login-form" id="sf-signup-form" novalidate>
+                        @Html.AntiForgeryToken()
+                        <div id="sf-signup-error" class="sf-login-error" style="display:none;" role="alert">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                            <span id="sf-signup-error-msg"></span>
+                        </div>
+                        <div id="sf-signup-success" class="sf-login-success" style="display:none;" role="alert">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                            <span id="sf-signup-success-msg"></span>
+                        </div>
+                        
+                        <div class="sf-field">
+                            <label for="sf-signup-fullname" class="sf-field-label">Full Name</label>
+                            <input id="sf-signup-fullname" type="text" name="fullname" class="sf-input" placeholder="John Doe" autocomplete="name" />
+                            <span class="sf-field-error" id="sf-signup-fullname-error"></span>
+                        </div>
+                        
+                        <div class="sf-field">
+                            <label for="sf-signup-email" class="sf-field-label">Email Address</label>
+                            <input id="sf-signup-email" type="email" name="email" class="sf-input" placeholder="john@company.com" autocomplete="email" />
+                            <span class="sf-field-error" id="sf-signup-email-error"></span>
+                        </div>
+                        
+                        <div class="sf-field">
+                            <label for="sf-signup-username" class="sf-field-label">Username</label>
+                            <input id="sf-signup-username" type="text" name="username" class="sf-input" placeholder="johndoe" autocomplete="username" />
+                            <span class="sf-field-error" id="sf-signup-username-error"></span>
+                        </div>
+                        
+                        <div class="sf-field">
+                            <label for="sf-signup-password" class="sf-field-label">Password</label>
+                            <div class="sf-password-wrap">
+                                <input id="sf-signup-password" type="password" name="password" class="sf-input" placeholder="••••••••" autocomplete="new-password" />
+                                <button type="button" class="sf-password-toggle" id="sf-signup-password-toggle" aria-label="Toggle password visibility" tabindex="-1">
+                                    <svg class="sf-eye-show" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                    <svg class="sf-eye-hide" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                                </button>
+                            </div>
+                            <span class="sf-field-error" id="sf-signup-password-error"></span>
+                            <span class="sf-field-hint">At least 8 characters with uppercase, lowercase, number, and special character</span>
+                        </div>
+                        
+                        <div class="sf-field">
+                            <label for="sf-signup-confirm-password" class="sf-field-label">Confirm Password</label>
+                            <div class="sf-password-wrap">
+                                <input id="sf-signup-confirm-password" type="password" name="confirmPassword" class="sf-input" placeholder="••••••••" autocomplete="new-password" />
+                                <button type="button" class="sf-password-toggle" id="sf-signup-confirm-password-toggle" aria-label="Toggle password visibility" tabindex="-1">
+                                    <svg class="sf-eye-show" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                    <svg class="sf-eye-hide" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                                </button>
+                            </div>
+                            <span class="sf-field-error" id="sf-signup-confirm-password-error"></span>
+                        </div>
+                        
+                        <label class="sf-remember">
+                            <input type="checkbox" name="terms" class="sf-checkbox" id="sf-terms" />
+                            <span>I agree to the Terms of Service and Privacy Policy</span>
+                        </label>
+                        
+                        <button type="submit" class="sf-btn sf-btn--primary sf-btn--full" id="sf-signup-submit">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+                            <span id="sf-signup-btn-text">Create Account</span>
+                        </button>
+                        
+                        <!-- Sign In Link -->
+                        <div class="sf-auth-switch">
+                            <span class="sf-auth-switch-text">Already have an account?</span>
+                            <button type="button" class="sf-auth-switch-link" id="sf-show-login">Sign In</button>
+                        </div>
                     </form>
                 </div>
             </div>
@@ -94,86 +178,67 @@
         <div class="sf-hero-overlay"></div>
     </div>
 
-    <div class="sf-hero-inner">
-
-        <!-- Left: copy -->
-        <div class="sf-hero-copy">
-            <p class="sf-eyebrow sf-reveal">
+    <div class="sf-hero-inner sf-hero-inner--centered">
+        <div class="sf-hero-center-copy">
+            <p class="sf-eyebrow sf-eyebrow--hero-center sf-reveal">
                 <span class="sf-eyebrow-dot" aria-hidden="true"></span>
-                Built for snack food manufacturing
+                SnackFlow MES
             </p>
-            <h1 id="sf-hero-heading" class="sf-hero-h1 sf-reveal sf-reveal--delay-1">
-                Manage production.<br />
-                Track work order.
+            <h1 id="sf-hero-heading" class="sf-hero-h1 sf-hero-h1--center sf-reveal sf-reveal--delay-1">
+                Plan and manage your<br />
+                production in one place.
             </h1>
-            <p class="sf-hero-lead sf-reveal sf-reveal--delay-2">
-                SnackFlow helps small snack manufacturers plan production, track work orders, and monitor daily operations in one system.
+            <p class="sf-hero-lead sf-hero-lead--center sf-reveal sf-reveal--delay-2">
+                SnackFlow helps small snack manufacturers plan production, track work orders, and monitor daily operations in one system. 
                 It keeps everything organized so teams can work more efficiently and avoid delays.
             </p>
-            <div class="sf-hero-cta-row sf-reveal sf-reveal--delay-3">
-                <a href="#features" class="sf-btn sf-btn--primary sf-btn--lg">
-                    Get Started
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-                </a>
-                <a href="#about" class="sf-btn sf-btn--ghost sf-btn--lg">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
-                    View Demo
-                </a>
+
+            <div class="sf-hero-cta-row sf-hero-cta-row--center sf-reveal sf-reveal--delay-3">
+                <a href="#features" class="sf-btn sf-btn--primary sf-btn--lg">Explore Features</a>
+                <a href="#about" class="sf-btn sf-btn--ghost sf-btn--lg">See How It Works</a>
             </div>
 
-            <!-- Stats row -->
-            <div class="sf-stats sf-reveal sf-reveal--delay-4" role="list">
-                <div class="sf-stat" role="listitem">
-                    <span class="sf-stat-value"></span>
-                    <span class="sf-stat-label">Track Work Orders in Real-Time</span>
-                </div>
-                <div class="sf-stat-divider" aria-hidden="true"></div>
-                <div class="sf-stat" role="listitem">
-                    <span class="sf-stat-value"></span>
-                    <span class="sf-stat-label">Improve Production Planning</span>
-                </div>
-                <div class="sf-stat-divider" aria-hidden="true"></div>
-                <div class="sf-stat" role="listitem">
-                    <span class="sf-stat-value"></span>
-                    <span class="sf-stat-label">Monitor Shop Floor Activity</span>
-                </div>
+            <div class="sf-hero-pill-row sf-reveal sf-reveal--delay-4" role="list" aria-label="Key platform highlights">
+                
             </div>
         </div>
 
-        <!-- Right: dashboard card mockup -->
-        <div class="sf-hero-visual sf-reveal sf-reveal--delay-2" aria-hidden="true">
-            <div class="sf-mockup">
-                <!-- Work order card -->
-                <div class="sf-mock-card sf-mock-card--wo">
-                    <div class="sf-mock-card-header">
-                        <span class="sf-mock-label">WORK ORDER</span>
-                        <span class="sf-mock-badge sf-mock-badge--running">RUNNING</span>
-                    </div>
-                    <div class="sf-mock-title">WO-2041 · Sea Salt Chips</div>
-                    <div class="sf-mock-progress-track">
-                        <div class="sf-mock-progress-bar" style="width:76%"></div>
-                    </div>
-                    <div class="sf-mock-progress-label">1,820 / 2,400 bags</div>
-                </div>
+        <div class="sf-hero-console sf-reveal sf-reveal--delay-4" aria-hidden="true">
+            <div class="sf-hero-console-top">
+                <span class="sf-hero-console-dot"></span>
+                <span class="sf-hero-console-title">Live Plant Snapshot</span>
+                <span class="sf-hero-console-time">Updated 09:30</span>
+            </div>
 
-                <!-- Throughput card -->
-                <div class="sf-mock-card sf-mock-card--throughput">
-                    <div class="sf-mock-label">LINE 2 · THROUGHPUT</div>
-                    <div class="sf-mock-big-value">1,240<span class="sf-mock-unit">/hr</span></div>
-                    <div class="sf-mock-bars" aria-hidden="true">
-                        <span style="height:30%"></span>
-                        <span style="height:55%"></span>
-                        <span style="height:45%"></span>
-                        <span style="height:70%"></span>
-                        <span style="height:60%"></span>
-                        <span style="height:85%"></span>
-                        <span style="height:75%"></span>
-                        <span style="height:90%"></span>
+            <div class="sf-hero-console-grid">
+                <article class="sf-console-card">
+                    <div class="sf-console-card-head">
+                        <span class="sf-console-label">Work Order Running</span>
+                        <span class="sf-console-badge">RUNNING</span>
                     </div>
-                </div>
+                    <h3 class="sf-console-title">WO-2041 · Sea Salt Chips</h3>
+                    <div class="sf-console-progress-track">
+                        <span class="sf-console-progress-fill" style="width:76%"></span>
+                    </div>
+                    <p class="sf-console-sub">1,820 / 2,400 bags</p>
+                </article>
+
+                <article class="sf-console-card">
+                    <span class="sf-console-label">Line 2 Throughput</span>
+                    <p class="sf-console-kpi">1,240<span>/hr</span></p>
+                    <div class="sf-console-bars">
+                        <span style="height:36%"></span>
+                        <span style="height:52%"></span>
+                        <span style="height:44%"></span>
+                        <span style="height:68%"></span>
+                        <span style="height:61%"></span>
+                        <span style="height:83%"></span>
+                        <span style="height:73%"></span>
+                        <span style="height:88%"></span>
+                    </div>
+                </article>
             </div>
         </div>
-
     </div>
 </section>
 

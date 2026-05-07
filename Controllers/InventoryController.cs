@@ -23,20 +23,48 @@ public class InventoryController : Controller
     }
 
     // ── GET /Inventory ───────────────────────────────────────
-    public async Task<IActionResult> Index(string? type = null)
+    public async Task<IActionResult> Index(string? type = null, string? q = null, string? lowstock = null)
     {
-        var query = _db.Items
+        var baseQuery = _db.Items
             .Include(i => i.InventoryBalance)
             .AsQueryable();
 
+        // compute counts for tabs (total, per type)
+        ViewBag.TotalCount = await baseQuery.CountAsync();
+        ViewBag.RawMaterialCount = await baseQuery.CountAsync(i => i.ItemType == "RawMaterial");
+        ViewBag.PackagingCount = await baseQuery.CountAsync(i => i.ItemType == "Packaging");
+        ViewBag.FinishedGoodCount = await baseQuery.CountAsync(i => i.ItemType == "FinishedGood");
+        ViewBag.SemiFinishedCount = await baseQuery.CountAsync(i => i.ItemType == "SemiFinished");
+
+        var query = baseQuery;
+
         if (!string.IsNullOrEmpty(type))
             query = query.Where(i => i.ItemType == type);
+
+        if (!string.IsNullOrWhiteSpace(q))
+        {
+            var t = q.Trim().ToLower();
+            query = query.Where(i => i.ItemName.ToLower().Contains(t)
+                || i.ItemCode.ToLower().Contains(t)
+                || (i.Category != null && i.Category.ToLower().Contains(t)));
+        }
+
+        if (!string.IsNullOrWhiteSpace(lowstock) && lowstock == "normal")
+        {
+            query = query.Where(i => i.ReorderPoint <= 0 || (i.InventoryBalance == null || i.InventoryBalance.QtyOnHand > i.ReorderPoint));
+        }
+        else if (!string.IsNullOrWhiteSpace(lowstock) && lowstock == "low")
+        {
+            query = query.Where(i => i.ReorderPoint > 0 && (i.InventoryBalance != null && i.InventoryBalance.QtyOnHand <= i.ReorderPoint));
+        }
 
         var items = await query
             .OrderBy(i => i.ItemName)
             .ToListAsync();
 
         ViewBag.TypeFilter = type;
+        ViewBag.Q = q ?? string.Empty;
+        ViewBag.LowStock = string.IsNullOrWhiteSpace(lowstock) ? "all" : lowstock;
         return View(items);
     }
 

@@ -15,101 +15,6 @@
     </div>
 </div>
 
-<!-- ══ MAIN MENU ══════════════════════════════════════════ -->
-<div class="dash-main-menu">
-    <div class="dash-menu-section-title">Main Menu</div>
-    
-    <div class="dash-menu-grid">
-        <!-- Work Orders Module -->
-        <div class="dash-menu-card dash-menu-card--blue">
-            <div class="dash-menu-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
-            </div>
-            <div class="dash-menu-body">
-                <h3 class="dash-menu-title">Work Orders</h3>
-                <p class="dash-menu-description">Create and manage production orders</p>
-                <div class="dash-menu-actions">
-                    <a href="/WorkOrder" class="dash-menu-btn dash-menu-btn--primary">View All</a>
-                    <a href="/WorkOrder/Create" class="dash-menu-btn dash-menu-btn--secondary">+ Create</a>
-                </div>
-            </div>
-        </div>
-
-        <!-- Production Planning Module -->
-        <div class="dash-menu-card dash-menu-card--amber">
-            <div class="dash-menu-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6-3 6 3m0 0v6m0-6l-6 3-6-3m0 0v6m0-6l6 3 6-3m0 0v6m0-6l-6 3-6-3"/></svg>
-            </div>
-            <div class="dash-menu-body">
-                <h3 class="dash-menu-title">Production Planning</h3>
-                <p class="dash-menu-description">MRP and production scheduling</p>
-                <div class="dash-menu-actions">
-                    <a href="/ProductionPlan" class="dash-menu-btn dash-menu-btn--primary">View Plans</a>
-                </div>
-            </div>
-        </div>
-
-        <!-- BOM Module -->
-        <div class="dash-menu-card dash-menu-card--orange">
-            <div class="dash-menu-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 3 7 12 12 21 7 12 2"/><polyline points="3 12 12 17 21 12"/><polyline points="3 17 12 22 21 17"/></svg>
-            </div>
-            <div class="dash-menu-body">
-                <h3 class="dash-menu-title">Bill of Materials</h3>
-                <p class="dash-menu-description">Define recipes and component lists</p>
-                <div class="dash-menu-actions">
-                    <a href="/Bom" class="dash-menu-btn dash-menu-btn--primary">View All</a>
-                    <a href="/Bom/Create" class="dash-menu-btn dash-menu-btn--secondary">+ Create BOM</a>
-                </div>
-            </div>
-        </div>
-
-        <!-- Inventory Module -->
-        <div class="dash-menu-card dash-menu-card--purple">
-            <div class="dash-menu-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.04 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
-            </div>
-            <div class="dash-menu-body">
-                <h3 class="dash-menu-title">Inventory</h3>
-                <p class="dash-menu-description">Manage materials and stock levels</p>
-                <div class="dash-menu-actions">
-                    <a href="/Inventory" class="dash-menu-btn dash-menu-btn--primary">View All</a>
-                    <a href="/Inventory/Create" class="dash-menu-btn dash-menu-btn--secondary">+ Add Item</a>
-                </div>
-            </div>
-        </div>
-
-        <!-- Users Module -->
-        <div class="dash-menu-card dash-menu-card--green">
-            <div class="dash-menu-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-            </div>
-            <div class="dash-menu-body">
-                <h3 class="dash-menu-title">Users</h3>
-                <p class="dash-menu-description">User accounts and permissions</p>
-                <div class="dash-menu-actions">
-                    <a href="/Users" class="dash-menu-btn dash-menu-btn--primary">View All</a>
-                    <a href="/Users/Create" class="dash-menu-btn dash-menu-btn--secondary">+ Add User</a>
-                </div>
-            </div>
-        </div>
-
-        <!-- Reports Module -->
-        <div class="dash-menu-card dash-menu-card--teal">
-            <div class="dash-menu-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-            </div>
-            <div class="dash-menu-body">
-                <h3 class="dash-menu-title">Reports</h3>
-                <p class="dash-menu-description">Analytics and system reports</p>
-                <div class="dash-menu-actions">
-                    <a href="/Report" class="dash-menu-btn dash-menu-btn--primary">View Reports</a>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
 <!-- ══ KPI CARDS ════════════════════════════════════════════ -->
 <div class="dash-kpi-grid">
     <div class="dash-kpi-card dash-kpi-role-admin">
@@ -185,15 +90,15 @@
 
         @if (!Model.RecentWorkOrders.Any())
         {
-            <div class="dash-empty">
+            <div class="wo-empty">
                 <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                 <p>No work orders yet. Create your first work order to get started.</p>
             </div>
         }
         else
         {
-            <div class="dash-table-wrap">
-                <table class="dash-table" role="table">
+            <div class="wo-table-wrapper">
+                <table class="wo-table" role="table">
                     <thead>
                         <tr>
                             <th>WO Number</th>
@@ -209,14 +114,14 @@
                         @foreach (var wo in Model.RecentWorkOrders)
                         {
                             <tr>
-                                <td class="dash-table-mono"><a href="/WorkOrder/Details/@wo.WorkOrderId">@wo.WoNumber</a></td>
-                                <td class="dash-table-primary">@wo.ItemName</td>
-                                <td>@(wo.ProductionLine ?? "—")</td>
-                                <td>@wo.PlannedQty.ToString("N0") @wo.UnitOfMeasure</td>
-                                <td>@wo.ActualQty.ToString("N0") @wo.UnitOfMeasure</td>
-                                <td>@wo.ScheduledStart.ToString("MMM dd, yyyy")</td>
+                                <td class="wo-table-mono"><a href="/WorkOrder/Details/@wo.WorkOrderId">@wo.WoNumber</a></td>
+                                <td class="wo-table-primary">@wo.ItemName</td>
+                                <td class="wo-table-muted">@(wo.ProductionLine ?? "—")</td>
+                                <td class="wo-table-muted">@wo.PlannedQty.ToString("N0") @wo.UnitOfMeasure</td>
+                                <td class="wo-table-muted">@wo.ActualQty.ToString("N0") @wo.UnitOfMeasure</td>
+                                <td class="wo-table-muted">@wo.ScheduledStart.ToString("MMM dd, yyyy")</td>
                                 <td>
-                                    <span class="dash-badge dash-badge--@wo.Status.ToLower()">
+                                    <span class="wo-badge wo-badge--@wo.Status.ToLower()">
                                         @wo.Status
                                     </span>
                                 </td>

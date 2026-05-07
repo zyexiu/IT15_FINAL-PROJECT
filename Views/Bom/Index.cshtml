@@ -207,4 +207,87 @@ else
     background: #FCA5A5;
     border-color: #F87171;
 }
+
+html[data-theme="dark"] .dash-table-container {
+    background: var(--dash-surface);
+    border-color: var(--dash-border-color);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
+}
+
+html[data-theme="dark"] .dash-table thead {
+    background: var(--dash-surface-alt);
+    border-bottom-color: var(--dash-border-color);
+}
+
+html[data-theme="dark"] .dash-table th {
+    color: var(--dash-text-muted);
+}
+
+html[data-theme="dark"] .dash-table td {
+    color: var(--dash-text-color);
+    border-bottom-color: var(--dash-border-color);
+}
+
+html[data-theme="dark"] .dash-table tbody tr:hover td {
+    background-color: var(--dash-surface-alt) !important;
+}
+
+html[data-theme="dark"] .dash-table-row--disabled {
+    background: var(--dash-surface);
+}
+
+html[data-theme="dark"] .dash-table-row--disabled:hover {
+    background: var(--dash-surface-alt);
+}
+
+html[data-theme="dark"] .dash-table-row--disabled td {
+    opacity: 0.7;
+}
+
+html[data-theme="dark"] .dash-badge {
+    background: rgba(99, 102, 241, 0.14);
+    color: #c7d2fe;
+}
+
+html[data-theme="dark"] .dash-badge--success {
+    background: rgba(16, 185, 129, 0.16);
+    color: #a7f3d0;
+}
+
+html[data-theme="dark"] .dash-badge--secondary {
+    background: rgba(148, 163, 184, 0.14);
+    color: #e2e8f0;
+}
+
+html[data-theme="dark"] .dash-text-small {
+    color: var(--dash-text-muted);
+}
+
+html[data-theme="dark"] .dash-btn--secondary {
+    background: transparent;
+    color: var(--dash-text-color);
+    border-color: var(--dash-border-color);
+}
+
+html[data-theme="dark"] .dash-btn--secondary:hover {
+    background: rgba(246, 192, 0, 0.08);
+    border-color: rgba(246, 192, 0, 0.3);
+}
+
+html[data-theme="dark"] .dash-btn--danger {
+    background: rgba(153, 27, 27, 0.16);
+    color: #fca5a5;
+    border-color: rgba(239, 68, 68, 0.28);
+}
+
+html[data-theme="dark"] .dash-btn--danger:hover {
+    background: rgba(239, 68, 68, 0.22);
+    border-color: rgba(239, 68, 68, 0.38);
+}
+
+html[data-theme="dark"] .dash-table td code {
+    background: var(--dash-surface-alt) !important;
+    color: var(--dash-text-color) !important;
+    border: 1px solid var(--dash-border-color);
+}
 </style>

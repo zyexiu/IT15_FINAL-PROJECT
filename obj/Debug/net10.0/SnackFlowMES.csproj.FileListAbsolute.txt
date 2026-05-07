@@ -292,13 +292,9 @@ C:\xampp2\htdocs\SnackFlowMES\SnackFlowMES\bin\Debug\net10.0\ru\Microsoft.CodeAn
 C:\xampp2\htdocs\SnackFlowMES\SnackFlowMES\bin\Debug\net10.0\tr\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
 C:\xampp2\htdocs\SnackFlowMES\SnackFlowMES\bin\Debug\net10.0\zh-Hans\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
 C:\xampp2\htdocs\SnackFlowMES\SnackFlowMES\bin\Debug\net10.0\zh-Hant\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
-C:\xampp2\htdocs\SnackFlowMES\SnackFlowMES\obj\Debug\net10.0\compressed\w2lb693fpj-{0}-nd0io5a4xa-nd0io5a4xa.gz
 c:\xampp2\htdocs\SnackFlowMES\SnackFlowMES\obj\Debug\net10.0\compressed\1xt6feo8fs-{0}-jl4dm7dgb8-jl4dm7dgb8.gz
 c:\xampp2\htdocs\SnackFlowMES\SnackFlowMES\obj\Debug\net10.0\compressed\1ph7o8ro87-{0}-u8gq1w97mk-u8gq1w97mk.gz
-C:\xampp2\htdocs\SnackFlowMES\SnackFlowMES\obj\Debug\net10.0\compressed\zqvgrlflgs-{0}-326uagwzs2-326uagwzs2.gz
 C:\xampp2\htdocs\SnackFlowMES\SnackFlowMES\obj\Debug\net10.0\compressed\5wyeu6dyot-{0}-3zsidwmtqk-3zsidwmtqk.gz
-c:\xampp2\htdocs\SnackFlowMES\SnackFlowMES\obj\Debug\net10.0\compressed\33jhnf81n6-{0}-ian2sratf2-ian2sratf2.gz
-C:\xampp2\htdocs\SnackFlowMES\SnackFlowMES\obj\Debug\net10.0\compressed\gyw0xpil92-{0}-3bqcl8r6pn-3bqcl8r6pn.gz
 c:\xampp2\htdocs\SnackFlowMES\SnackFlowMES\obj\Debug\net10.0\SnackFlowMES.sourcelink.json
 c:\xampp2\htdocs\SnackFlowMES\SnackFlowMES\bin\Debug\net10.0\Microsoft.Data.Sqlite.dll
 c:\xampp2\htdocs\SnackFlowMES\SnackFlowMES\bin\Debug\net10.0\Microsoft.EntityFrameworkCore.Sqlite.dll
@@ -326,3 +322,8 @@ c:\xampp2\htdocs\SnackFlowMES\SnackFlowMES\bin\Debug\net10.0\runtimes\win-arm\na
 c:\xampp2\htdocs\SnackFlowMES\SnackFlowMES\bin\Debug\net10.0\runtimes\win-arm64\native\e_sqlite3.dll
 c:\xampp2\htdocs\SnackFlowMES\SnackFlowMES\bin\Debug\net10.0\runtimes\win-x64\native\e_sqlite3.dll
 c:\xampp2\htdocs\SnackFlowMES\SnackFlowMES\bin\Debug\net10.0\runtimes\win-x86\native\e_sqlite3.dll
+C:\xampp2\htdocs\SnackFlowMES\SnackFlowMES\obj\Debug\net10.0\compressed\pmhaviuut4-{0}-r3csd2jntp-r3csd2jntp.gz
+C:\xampp2\htdocs\SnackFlowMES\SnackFlowMES\obj\Debug\net10.0\compressed\zqvgrlflgs-{0}-hesk11pvdm-hesk11pvdm.gz
+C:\xampp2\htdocs\SnackFlowMES\SnackFlowMES\obj\Debug\net10.0\compressed\33jhnf81n6-{0}-u4evwuctnz-u4evwuctnz.gz
+C:\xampp2\htdocs\SnackFlowMES\SnackFlowMES\obj\Debug\net10.0\compressed\w2lb693fpj-{0}-jf7pksi8h9-jf7pksi8h9.gz
+C:\xampp2\htdocs\SnackFlowMES\SnackFlowMES\obj\Debug\net10.0\compressed\gyw0xpil92-{0}-638o9s94sf-638o9s94sf.gz
