@@ -29,7 +29,7 @@
             @foreach (var statusOption in ViewBag.StatusOptions as List<string>)
             {
                 var isActive = ViewBag.CurrentStatus == statusOption;
-                <a asp-action="Index" asp-route-status="@statusOption" 
+                <a asp-action="Index" asp-route-status="@statusOption" asp-route-search="@ViewBag.SearchTerm"
                    class="dash-filter-btn @(isActive ? "dash-filter-btn--active" : "")">
                     @statusOption
                 </a>
@@ -38,11 +38,23 @@
     </div>
     @if (ViewBag.CurrentStatus != "All")
     {
-        <a asp-action="Index" class="dash-filter-clear">
+        <a asp-action="Index" asp-route-search="@ViewBag.SearchTerm" class="dash-filter-clear">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             Clear Filter
         </a>
     }
+</div>
+
+<!-- Search -->
+<div class="dash-tabs-row" style="margin-top: 16px;">
+    <form method="get" action="@Url.Action("Index")" class="dash-search-form">
+        <input type="hidden" name="status" value="@ViewBag.CurrentStatus" />
+        <div class="dash-search-input-wrap">
+            <input type="text" name="search" placeholder="Search items" value="@ViewBag.SearchTerm" aria-label="Search production plans" />
+            <button type="button" class="dash-search-clear @(string.IsNullOrEmpty(ViewBag.SearchTerm) ? "is-hidden" : "")" aria-label="Clear search" onclick="const input=this.parentElement.querySelector('input[name=search]'); input.value=''; this.form.submit();">×</button>
+        </div>
+        <button type="submit" class="dash-btn dash-btn--secondary dash-btn--sm">Search</button>
+    </form>
 </div>
 
 @if (TempData["Success"] != null)

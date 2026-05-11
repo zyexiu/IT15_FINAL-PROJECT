@@ -27,7 +27,7 @@ public class WorkOrderController : Controller
     }
 
     // ── GET /WorkOrder ───────────────────────────────────────
-    public async Task<IActionResult> Index(string? status = null)
+    public async Task<IActionResult> Index(string? status = null, string? search = null)
     {
         var query = _db.WorkOrders
             .Include(w => w.Item)
@@ -37,11 +37,21 @@ public class WorkOrderController : Controller
         if (!string.IsNullOrEmpty(status))
             query = query.Where(w => w.Status == status);
 
+        if (!string.IsNullOrEmpty(search))
+        {
+            query = query.Where(w =>
+                w.WoNumber.Contains(search) ||
+                (w.Item != null && w.Item.ItemName.Contains(search)) ||
+                (w.ProductionLine != null && w.ProductionLine.Contains(search))
+            );
+        }
+
         var workOrders = await query
             .OrderByDescending(w => w.CreatedAt)
             .ToListAsync();
 
         ViewBag.StatusFilter = status;
+        ViewBag.SearchTerm = search;
         return View(workOrders);
     }
 
@@ -58,6 +68,23 @@ public class WorkOrderController : Controller
 
         if (wo == null)
             return NotFound();
+
+        // Check if QC result exists
+        var hasQcResult = await _db.QcResults.AnyAsync(q => q.WorkOrderId == id);
+        ViewBag.HasQcResult = hasQcResult;
+
+        // Load downtime reports for this work order
+        var downtimeReports = await _db.DowntimeReports
+            .Include(d => d.ReportedBy)
+            .Include(d => d.ResolvedBy)
+            .Where(d => d.WorkOrderId == id)
+            .OrderByDescending(d => d.ReportedAt)
+            .ToListAsync();
+        ViewBag.DowntimeReports = downtimeReports;
+
+        // Calculate total downtime
+        var totalDowntime = downtimeReports.Sum(d => d.DurationMinutes);
+        ViewBag.TotalDowntime = totalDowntime;
 
         return View(wo);
     }
@@ -442,6 +469,119 @@ public class WorkOrderController : Controller
             TempData["Error"] = $"An error occurred while deleting work order {woNumber}. Please try again.";
             return RedirectToAction(nameof(Details), new { id });
         }
+    }
+
+    // ── GET /WorkOrder/LogProduction/5 ──────────────────────
+    [Authorize(Roles = "Operator,Admin")]
+    public async Task<IActionResult> LogProduction(int id)
+    {
+        var user = await _users.GetUserAsync(User);
+        if (user == null) return Unauthorized();
+
+        var wo = await _db.WorkOrders
+            .Include(w => w.Item)
+            .FirstOrDefaultAsync(w => w.WorkOrderId == id);
+
+        if (wo == null) return NotFound();
+
+        // Only allow logging for Released or InProgress work orders
+        if (wo.Status != "Released" && wo.Status != "InProgress")
+        {
+            TempData["Error"] = "Production can only be logged for Released or In Progress work orders.";
+            return RedirectToAction(nameof(Details), new { id });
+        }
+
+        // Get existing production logs
+        var logs = await _db.ProductionLogs
+            .Include(l => l.RecordedBy)
+            .Where(l => l.WorkOrderId == id)
+            .OrderByDescending(l => l.LogDate)
+            .ThenByDescending(l => l.CreatedAt)
+            .ToListAsync();
+
+        ViewBag.WorkOrder = wo;
+        ViewBag.ProductionLogs = logs;
+        ViewBag.TotalProduced = logs.Sum(l => l.ProducedQty);
+        ViewBag.TotalScrap = logs.Sum(l => l.ScrapQty);
+        ViewBag.RemainingQty = wo.PlannedQty - logs.Sum(l => l.ProducedQty);
+
+        return View();
+    }
+
+    // ── POST /WorkOrder/LogProduction ───────────────────────
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Operator,Admin")]
+    public async Task<IActionResult> LogProduction(int workOrderId, decimal producedQty, decimal scrapQty, string shift, decimal laborHours, decimal machineHours, string? notes)
+    {
+        var user = await _users.GetUserAsync(User);
+        if (user == null) return Unauthorized();
+
+        var wo = await _db.WorkOrders
+            .FirstOrDefaultAsync(w => w.WorkOrderId == workOrderId);
+
+        if (wo == null) return NotFound();
+
+        // Validate quantities
+        if (producedQty <= 0)
+        {
+            TempData["Error"] = "Produced quantity must be greater than zero.";
+            return RedirectToAction(nameof(LogProduction), new { id = workOrderId });
+        }
+
+        // Create production log
+        var log = new ProductionLog
+        {
+            WorkOrderId = workOrderId,
+            LogDate = DateTime.UtcNow,
+            Shift = shift,
+            ProducedQty = producedQty,
+            ScrapQty = scrapQty,
+            UnitOfMeasure = wo.UnitOfMeasure,
+            LaborHours = laborHours,
+            MachineHours = machineHours,
+            Notes = notes,
+            RecordedByUserId = user.Id,
+            TenantId = user.TenantId ?? user.Id
+        };
+
+        _db.ProductionLogs.Add(log);
+
+        // Update work order actual quantity
+        wo.ActualQty += producedQty;
+
+        await _db.SaveChangesAsync();
+
+        TempData["Success"] = $"Production logged: {producedQty:N2} {wo.UnitOfMeasure} produced.";
+        return RedirectToAction(nameof(LogProduction), new { id = workOrderId });
+    }
+
+    // ── POST /WorkOrder/DeleteLog/5 ─────────────────────────
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> DeleteLog(int id, int workOrderId)
+    {
+        var user = await _users.GetUserAsync(User);
+        if (user == null) return Unauthorized();
+
+        var log = await _db.ProductionLogs
+            .Include(l => l.WorkOrder)
+            .FirstOrDefaultAsync(l => l.LogId == id);
+
+        if (log == null) return NotFound();
+
+        // Update work order actual quantity
+        if (log.WorkOrder != null)
+        {
+            log.WorkOrder.ActualQty -= log.ProducedQty;
+        }
+
+        _db.ProductionLogs.Remove(log);
+        await _db.SaveChangesAsync();
+
+        TempData["Success"] = "Production log deleted successfully.";
+        return RedirectToAction(nameof(LogProduction), new { id = workOrderId });
     }
 
     // ── Helper: Populate dropdowns ───────────────────────────

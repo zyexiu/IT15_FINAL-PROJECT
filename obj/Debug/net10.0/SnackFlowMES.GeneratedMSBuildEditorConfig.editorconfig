@@ -90,6 +90,26 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGFzaGJvYXJkXEluZGV4UUMuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/xampp2/htdocs/SnackFlowMES/SnackFlowMES/Views/Dashboard/_AdminCharts.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGFzaGJvYXJkXF9BZG1pbkNoYXJ0cy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/xampp2/htdocs/SnackFlowMES/SnackFlowMES/Views/Downtime/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRG93bnRpbWVcQ3JlYXRlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/xampp2/htdocs/SnackFlowMES/SnackFlowMES/Views/Downtime/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRG93bnRpbWVcRGV0YWlscy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/xampp2/htdocs/SnackFlowMES/SnackFlowMES/Views/Downtime/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRG93bnRpbWVcSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/xampp2/htdocs/SnackFlowMES/SnackFlowMES/Views/Downtime/Resolve.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRG93bnRpbWVcUmVzb2x2ZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/xampp2/htdocs/SnackFlowMES/SnackFlowMES/Views/Home/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
@@ -114,6 +134,18 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSW52ZW50b3J5XEluZGV4LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/xampp2/htdocs/SnackFlowMES/SnackFlowMES/Views/MaterialRequest/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWF0ZXJpYWxSZXF1ZXN0XENyZWF0ZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/xampp2/htdocs/SnackFlowMES/SnackFlowMES/Views/MaterialRequest/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWF0ZXJpYWxSZXF1ZXN0XERldGFpbHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/xampp2/htdocs/SnackFlowMES/SnackFlowMES/Views/MaterialRequest/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWF0ZXJpYWxSZXF1ZXN0XEluZGV4LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/xampp2/htdocs/SnackFlowMES/SnackFlowMES/Views/ProductionPlan/AddLine.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvZHVjdGlvblBsYW5cQWRkTGluZS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
@@ -134,6 +166,22 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvZHVjdGlvblBsYW5cSW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/xampp2/htdocs/SnackFlowMES/SnackFlowMES/Views/Qc/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUWNcRGV0YWlscy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/xampp2/htdocs/SnackFlowMES/SnackFlowMES/Views/Qc/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUWNcRWRpdC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/xampp2/htdocs/SnackFlowMES/SnackFlowMES/Views/Qc/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUWNcSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/xampp2/htdocs/SnackFlowMES/SnackFlowMES/Views/Qc/RecordInspection.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUWNcUmVjb3JkSW5zcGVjdGlvbi5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/xampp2/htdocs/SnackFlowMES/SnackFlowMES/Views/Report/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUmVwb3J0XEluZGV4LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
@@ -152,6 +200,10 @@ build_metadata.AdditionalFiles.CssScope =
 
 [C:/xampp2/htdocs/SnackFlowMES/SnackFlowMES/Views/Shared/_LandingLayout.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9MYW5kaW5nTGF5b3V0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/xampp2/htdocs/SnackFlowMES/SnackFlowMES/Views/Shared/_NotificationPanel.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9Ob3RpZmljYXRpb25QYW5lbC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/xampp2/htdocs/SnackFlowMES/SnackFlowMES/Views/Shared/_ValidationScriptsPartial.cshtml]
@@ -184,6 +236,10 @@ build_metadata.AdditionalFiles.CssScope =
 
 [C:/xampp2/htdocs/SnackFlowMES/SnackFlowMES/Views/WorkOrder/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcV29ya09yZGVyXEluZGV4LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/xampp2/htdocs/SnackFlowMES/SnackFlowMES/Views/WorkOrder/LogProduction.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcV29ya09yZGVyXExvZ1Byb2R1Y3Rpb24uY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/xampp2/htdocs/SnackFlowMES/SnackFlowMES/Views/_ViewImports.cshtml]

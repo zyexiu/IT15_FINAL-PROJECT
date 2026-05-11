@@ -73,6 +73,95 @@ public class DashboardController : Controller
             CurrentUserRole = role
         };
 
+        // ── Load notifications for dashboard ─────────────────
+        if (user != null)
+        {
+            var tenantId = user.TenantId;
+            if (string.IsNullOrWhiteSpace(tenantId))
+            {
+                tenantId = roles.Contains("Admin") ? user.Id : user.Id;
+            }
+
+            // Get user-specific notifications
+            var userNotifications = await _db.Notifications
+                .Where(n => n.RecipientUserId == user.Id && !n.IsRead && (string.IsNullOrEmpty(n.TenantId) || n.TenantId == tenantId))
+                .OrderByDescending(n => n.CreatedAt)
+                .Take(10)
+                .ToListAsync();
+
+            // Get role-based notifications - filter by TenantId
+            var roleNotifications = await _db.Notifications
+                .Where(n => n.RecipientRole == role && !n.IsRead && (string.IsNullOrEmpty(n.TenantId) || n.TenantId == tenantId))
+                .OrderByDescending(n => n.CreatedAt)
+                .Take(10)
+                .ToListAsync();
+
+            // Combine and pass to view
+            ViewBag.Notifications = userNotifications
+                .Concat(roleNotifications)
+                .OrderByDescending(n => n.CreatedAt)
+                .ToList();
+        }
+
+        // ── Load QC-specific data for QC dashboard ───────────
+        if (role == "QC")
+        {
+            // Get QC inspection counts
+            var today = DateTime.Today;
+            ViewBag.InspectionsToday = await _db.QcResults
+                .CountAsync(q => q.InspectedAt.Date == today);
+            
+            ViewBag.TotalInspections = await _db.QcResults.CountAsync();
+            ViewBag.PassedInspections = await _db.QcResults
+                .CountAsync(q => q.Result == "Pass");
+            
+            // Get work orders that have QC results
+            ViewBag.QcResults = await _db.QcResults
+                .Select(q => q.WorkOrderId)
+                .Distinct()
+                .ToListAsync();
+        }
+
+        // ── Load downtime data for Admin and Manager ─────────
+        if (role == "Admin" || role == "Manager")
+        {
+            ViewBag.OpenDowntimeCount = await _db.DowntimeReports
+                .CountAsync(d => d.Status == "Open" && d.OrganizationId == (user.TenantId ?? user.Id));
+        }
+
+        // ── Prepare chart data for Admin and Manager ─────────
+        if (role == "Admin" || role == "Manager")
+        {
+            // Production trend (last 7 days)
+            var sevenDaysAgo = DateTime.Today.AddDays(-6);
+            var productionTrend = await _db.WorkOrders
+                .Where(w => w.CreatedAt >= sevenDaysAgo)
+                .GroupBy(w => w.CreatedAt.Date)
+                .Select(g => new { Date = g.Key, Count = g.Count() })
+                .OrderBy(x => x.Date)
+                .ToListAsync();
+
+            // Fill in missing dates with 0
+            var trendData = new List<object>();
+            for (int i = 0; i < 7; i++)
+            {
+                var date = DateTime.Today.AddDays(-6 + i);
+                var count = productionTrend.FirstOrDefault(p => p.Date == date)?.Count ?? 0;
+                trendData.Add(new { date = date.ToString("MMM dd"), count });
+            }
+            ViewBag.ProductionTrend = System.Text.Json.JsonSerializer.Serialize(trendData);
+
+            // Downtime by reason (if any downtime exists)
+            var downtimeByReason = await _db.DowntimeReports
+                .Where(d => d.OrganizationId == (user.TenantId ?? user.Id))
+                .GroupBy(d => d.Reason)
+                .Select(g => new { reason = g.Key, count = g.Count(), duration = g.Sum(d => d.DurationMinutes) })
+                .OrderByDescending(x => x.duration)
+                .Take(5)
+                .ToListAsync();
+            ViewBag.DowntimeByReason = System.Text.Json.JsonSerializer.Serialize(downtimeByReason);
+        }
+
         // Return role-specific view if it exists, otherwise default
         var viewName = role switch
         {

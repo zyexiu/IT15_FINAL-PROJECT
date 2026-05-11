@@ -84,4 +84,5 @@ public class WorkOrder
     public ICollection<QcResult>?          QcResults      { get; set; }
     public WorkOrderCost?                  Cost           { get; set; }
     public ICollection<InventoryLedger>?   InventoryLedgers { get; set; }
+    public ICollection<DowntimeReport>?    DowntimeReports { get; set; }
 }

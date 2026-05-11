@@ -43,6 +43,9 @@ public class Item
 
     public bool IsActive { get; set; } = true;
 
+    /// <summary>Soft delete flag - archived items can be permanently deleted.</summary>
+    public bool IsArchived { get; set; } = false;
+
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 

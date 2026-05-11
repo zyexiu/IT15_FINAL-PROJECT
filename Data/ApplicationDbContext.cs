@@ -48,6 +48,15 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     // ── Security: Audit Log ─────────────────────────────────
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
 
+    // ── Notification System ─────────────────────────────────
+    public DbSet<Notification> Notifications => Set<Notification>();
+
+    // ── Material Request System ─────────────────────────────
+    public DbSet<MaterialRequest> MaterialRequests => Set<MaterialRequest>();
+
+    // ── Downtime Reporting ──────────────────────────────────
+    public DbSet<DowntimeReport> DowntimeReports => Set<DowntimeReport>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder); // Identity tables first
@@ -146,5 +155,54 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             .WithMany(u => u.AuditLogs)
             .HasForeignKey(a => a.UserId)
             .OnDelete(DeleteBehavior.SetNull);
+
+        // ── Notification → ApplicationUser (Recipient): restrict ─
+        builder.Entity<Notification>()
+            .HasOne(n => n.RecipientUser)
+            .WithMany(u => u.ReceivedNotifications)
+            .HasForeignKey(n => n.RecipientUserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // ── Notification → ApplicationUser (Creator): set null ────
+        builder.Entity<Notification>()
+            .HasOne(n => n.CreatedBy)
+            .WithMany(u => u.CreatedNotifications)
+            .HasForeignKey(n => n.CreatedByUserId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        // ── MaterialRequest → ApplicationUser (Requester): restrict
+        builder.Entity<MaterialRequest>()
+            .HasOne(m => m.RequestedBy)
+            .WithMany(u => u.MaterialRequests)
+            .HasForeignKey(m => m.RequestedByUserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // ── MaterialRequest → ApplicationUser (Approver): set null
+        builder.Entity<MaterialRequest>()
+            .HasOne(m => m.ApprovedBy)
+            .WithMany()
+            .HasForeignKey(m => m.ApprovedByUserId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        // ── DowntimeReport → ApplicationUser (Reporter): restrict
+        builder.Entity<DowntimeReport>()
+            .HasOne(d => d.ReportedBy)
+            .WithMany(u => u.DowntimeReports)
+            .HasForeignKey(d => d.ReportedByUserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // ── DowntimeReport → ApplicationUser (Resolver): set null
+        builder.Entity<DowntimeReport>()
+            .HasOne(d => d.ResolvedBy)
+            .WithMany()
+            .HasForeignKey(d => d.ResolvedByUserId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        // ── DowntimeReport → WorkOrder: restrict
+        builder.Entity<DowntimeReport>()
+            .HasOne(d => d.WorkOrder)
+            .WithMany(w => w.DowntimeReports)
+            .HasForeignKey(d => d.WorkOrderId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

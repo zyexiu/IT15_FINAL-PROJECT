@@ -35,7 +35,7 @@ public class RoleMenuService
         );
     }
 
-    // ── Admin: Full Access ───────────────────────────────────
+    // ── Admin: System Administration Focus ──────────────────
     private static List<MenuItem> GetAdminMenu()
     {
         return new List<MenuItem>
@@ -46,51 +46,11 @@ public class RoleMenuService
                 Controller = "Dashboard",
                 Action = "Index",
                 Icon = "dashboard",
-                Section = "MAIN MENU"
+                Section = "OVERVIEW"
             },
             new MenuItem
             {
-                Title = "Work Orders",
-                Controller = "WorkOrder",
-                Action = "Index",
-                Icon = "file-text",
-                Section = "MAIN MENU"
-            },
-            new MenuItem
-            {
-                Title = "Production Planning",
-                Controller = "ProductionPlan",
-                Action = "Index",
-                Icon = "calendar",
-                Section = "MAIN MENU"
-            },
-            new MenuItem
-            {
-                Title = "Bill of Materials",
-                Controller = "Bom",
-                Action = "Index",
-                Icon = "layers",
-                Section = "MAIN MENU"
-            },
-            new MenuItem
-            {
-                Title = "Inventory",
-                Controller = "Inventory",
-                Action = "Index",
-                Icon = "package",
-                Section = "MAIN MENU"
-            },
-            new MenuItem
-            {
-                Title = "Reports",
-                Controller = "Report",
-                Action = "Index",
-                Icon = "bar-chart",
-                Section = "MAIN MENU"
-            },
-            new MenuItem
-            {
-                Title = "Users",
+                Title = "User Management",
                 Controller = "Users",
                 Action = "Index",
                 Icon = "users",
@@ -98,7 +58,39 @@ public class RoleMenuService
             },
             new MenuItem
             {
-                Title = "Settings",
+                Title = "Material Request",
+                Controller = "MaterialRequest",
+                Action = "Index",
+                Icon = "shopping-cart",
+                Section = "ADMINISTRATION"
+            },
+            new MenuItem
+            {
+                Title = "Downtime Reports",
+                Controller = "Downtime",
+                Action = "Index",
+                Icon = "alert-circle",
+                Section = "ADMINISTRATION"
+            },
+            new MenuItem
+            {
+                Title = "Inventory Master",
+                Controller = "Inventory",
+                Action = "Index",
+                Icon = "package",
+                Section = "ADMINISTRATION"
+            },
+            new MenuItem
+            {
+                Title = "Reports & Analytics",
+                Controller = "Report",
+                Action = "Index",
+                Icon = "bar-chart",
+                Section = "ADMINISTRATION"
+            },
+            new MenuItem
+            {
+                Title = "System Settings",
                 Controller = "Settings",
                 Action = "Index",
                 Icon = "settings",
@@ -107,7 +99,7 @@ public class RoleMenuService
         };
     }
 
-    // ── Planner: Production Planning & Work Orders ───────────
+    // ── Planner: Production Planning & Scheduling ────────────
     private static List<MenuItem> GetPlannerMenu()
     {
         return new List<MenuItem>
@@ -118,7 +110,7 @@ public class RoleMenuService
                 Controller = "Dashboard",
                 Action = "Index",
                 Icon = "dashboard",
-                Section = "MAIN MENU"
+                Section = "OVERVIEW"
             },
             new MenuItem
             {
@@ -126,15 +118,7 @@ public class RoleMenuService
                 Controller = "ProductionPlan",
                 Action = "Index",
                 Icon = "calendar",
-                Section = "MAIN MENU"
-            },
-            new MenuItem
-            {
-                Title = "Bill of Materials",
-                Controller = "Bom",
-                Action = "Index",
-                Icon = "layers",
-                Section = "MAIN MENU"
+                Section = "PLANNING"
             },
             new MenuItem
             {
@@ -142,7 +126,31 @@ public class RoleMenuService
                 Controller = "WorkOrder",
                 Action = "Index",
                 Icon = "file-text",
-                Section = "MAIN MENU"
+                Section = "PLANNING"
+            },
+            new MenuItem
+            {
+                Title = "Bill of Materials",
+                Controller = "Bom",
+                Action = "Index",
+                Icon = "layers",
+                Section = "PLANNING"
+            },
+            new MenuItem
+            {
+                Title = "Material Request",
+                Controller = "MaterialRequest",
+                Action = "Index",
+                Icon = "shopping-cart",
+                Section = "PLANNING"
+            },
+            new MenuItem
+            {
+                Title = "Inventory",
+                Controller = "Inventory",
+                Action = "Index",
+                Icon = "package",
+                Section = "RESOURCES"
             },
             new MenuItem
             {
@@ -150,12 +158,12 @@ public class RoleMenuService
                 Controller = "Report",
                 Action = "Index",
                 Icon = "bar-chart",
-                Section = "MAIN MENU"
+                Section = "RESOURCES"
             }
         };
     }
 
-    // ── Operator: View & Update Work Orders ──────────────────
+    // ── Operator: Production Floor Execution ─────────────────
     private static List<MenuItem> GetOperatorMenu()
     {
         return new List<MenuItem>
@@ -166,7 +174,7 @@ public class RoleMenuService
                 Controller = "Dashboard",
                 Action = "Index",
                 Icon = "dashboard",
-                Section = "MAIN MENU"
+                Section = "OVERVIEW"
             },
             new MenuItem
             {
@@ -174,12 +182,20 @@ public class RoleMenuService
                 Controller = "WorkOrder",
                 Action = "Index",
                 Icon = "file-text",
-                Section = "MAIN MENU"
+                Section = "PRODUCTION"
+            },
+            new MenuItem
+            {
+                Title = "Report Downtime",
+                Controller = "Downtime",
+                Action = "Create",
+                Icon = "alert-circle",
+                Section = "PRODUCTION"
             }
         };
     }
 
-    // ── QC: Quality Control ───────────────────────────────────
+    // ── QC: Quality Control & Inspection ─────────────────────
     private static List<MenuItem> GetQCMenu()
     {
         return new List<MenuItem>
@@ -190,20 +206,28 @@ public class RoleMenuService
                 Controller = "Dashboard",
                 Action = "Index",
                 Icon = "dashboard",
-                Section = "MAIN MENU"
+                Section = "OVERVIEW"
             },
             new MenuItem
             {
-                Title = "Quality Control",
+                Title = "Quality Inspection",
                 Controller = "WorkOrder",
                 Action = "Index",
                 Icon = "check-circle",
-                Section = "MAIN MENU"
+                Section = "QUALITY CONTROL"
+            },
+            new MenuItem
+            {
+                Title = "Inspection History",
+                Controller = "Qc",
+                Action = "Index",
+                Icon = "file-text",
+                Section = "QUALITY CONTROL"
             }
         };
     }
 
-    // ── Manager: Reports Only (Read-Only) ────────────────────
+    // ── Manager: Business Analytics & Monitoring ─────────────
     private static List<MenuItem> GetManagerMenu()
     {
         return new List<MenuItem>
@@ -214,15 +238,15 @@ public class RoleMenuService
                 Controller = "Dashboard",
                 Action = "Index",
                 Icon = "dashboard",
-                Section = "MAIN MENU"
+                Section = "OVERVIEW"
             },
             new MenuItem
             {
-                Title = "Reports",
+                Title = "Reports & Analytics",
                 Controller = "Report",
                 Action = "Index",
                 Icon = "bar-chart",
-                Section = "MAIN MENU"
+                Section = "ANALYTICS"
             },
             new MenuItem
             {
@@ -230,7 +254,31 @@ public class RoleMenuService
                 Controller = "WorkOrder",
                 Action = "Index",
                 Icon = "activity",
-                Section = "MAIN MENU"
+                Section = "MONITORING"
+            },
+            new MenuItem
+            {
+                Title = "Downtime Reports",
+                Controller = "Downtime",
+                Action = "Index",
+                Icon = "alert-circle",
+                Section = "MONITORING"
+            },
+            new MenuItem
+            {
+                Title = "Production Planning",
+                Controller = "ProductionPlan",
+                Action = "Index",
+                Icon = "calendar",
+                Section = "MONITORING"
+            },
+            new MenuItem
+            {
+                Title = "Inventory Status",
+                Controller = "Inventory",
+                Action = "Index",
+                Icon = "package",
+                Section = "MONITORING"
             }
         };
     }

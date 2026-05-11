@@ -1,0 +1,223 @@
+@model SnackFlowMES.Models.MaterialRequest
+@{
+    ViewData["Title"] = $"Material Request MR-{Model.RequestId:D4}";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+}
+
+<div class="dash-page-header">
+    <div>
+        <h1 class="dash-page-title">Material Request MR-@Model.RequestId.ToString("D4")</h1>
+        <p class="dash-page-subtitle">@Model.Item?.ItemName</p>
+    </div>
+    <a asp-action="Index" class="dash-btn dash-btn--secondary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        Back to List
+    </a>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="dash-alert dash-alert--success">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        @TempData["Success"]
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="dash-alert dash-alert--error">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+        @TempData["Error"]
+    </div>
+}
+
+<div class="dash-detail-grid">
+    <!-- Main Details -->
+    <div class="dash-detail-card">
+        <div class="dash-detail-header">
+            <h2 class="dash-detail-title">Request Details</h2>
+            @{
+                var statusClass = Model.Status switch
+                {
+                    "Pending" => "dash-badge--draft",
+                    "Approved" => "dash-badge--released",
+                    "Fulfilled" => "dash-badge--completed",
+                    "Rejected" => "dash-badge--cancelled",
+                    _ => ""
+                };
+            }
+            <span class="dash-badge @statusClass">@Model.Status</span>
+        </div>
+
+        <div class="dash-detail-body">
+            <div class="dash-detail-row">
+                <span class="dash-detail-label">Item</span>
+                <span class="dash-detail-value">
+                    <a href="/Inventory/Details/@Model.ItemId">@Model.Item?.ItemName</a>
+                </span>
+            </div>
+
+            <div class="dash-detail-row">
+                <span class="dash-detail-label">Item Code</span>
+                <span class="dash-detail-value dash-detail-value--mono">@Model.Item?.ItemCode</span>
+            </div>
+
+            <div class="dash-detail-row">
+                <span class="dash-detail-label">Requested Quantity</span>
+                <span class="dash-detail-value dash-detail-value--highlight">@Model.RequestedQty.ToString("N2") @Model.UnitOfMeasure</span>
+            </div>
+
+            <div class="dash-detail-row">
+                <span class="dash-detail-label">Reason</span>
+                <span class="dash-detail-value">@Model.Reason</span>
+            </div>
+
+            <div class="dash-detail-row">
+                <span class="dash-detail-label">Priority</span>
+                <span class="dash-detail-value">
+                    @{
+                        var priorityColor = Model.Priority switch
+                        {
+                            "Critical" => "#EF4444",
+                            "High" => "#F59E0B",
+                            "Medium" => "#3B82F6",
+                            _ => "#6B7280"
+                        };
+                    }
+                    <span style="font-weight:600;color:@priorityColor;">@Model.Priority</span>
+                </span>
+            </div>
+
+            @if (Model.RequiredByDate.HasValue)
+            {
+                <div class="dash-detail-row">
+                    <span class="dash-detail-label">Required By</span>
+                    <span class="dash-detail-value">@Model.RequiredByDate.Value.ToString("MMMM dd, yyyy")</span>
+                </div>
+            }
+
+            @if (!string.IsNullOrEmpty(Model.Notes))
+            {
+                <div class="dash-detail-row">
+                    <span class="dash-detail-label">Notes</span>
+                    <span class="dash-detail-value">@Model.Notes</span>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Request Timeline -->
+    <div class="dash-detail-card">
+        <div class="dash-detail-header">
+            <h2 class="dash-detail-title">Request Timeline</h2>
+        </div>
+
+        <div class="dash-detail-body">
+            <div class="dash-detail-row">
+                <span class="dash-detail-label">Requested By</span>
+                <span class="dash-detail-value">@Model.RequestedBy?.FullName</span>
+            </div>
+
+            <div class="dash-detail-row">
+                <span class="dash-detail-label">Requested Date</span>
+                <span class="dash-detail-value">@Model.RequestedAt.ToString("MMMM dd, yyyy h:mm tt")</span>
+            </div>
+
+            @if (Model.ApprovedByUserId != null)
+            {
+                <div class="dash-detail-row">
+                    <span class="dash-detail-label">@(Model.Status == "Rejected" ? "Rejected By" : "Approved By")</span>
+                    <span class="dash-detail-value">@Model.ApprovedBy?.FullName</span>
+                </div>
+
+                <div class="dash-detail-row">
+                    <span class="dash-detail-label">@(Model.Status == "Rejected" ? "Rejected Date" : "Approved Date")</span>
+                    <span class="dash-detail-value">@Model.ApprovedAt?.ToString("MMMM dd, yyyy h:mm tt")</span>
+                </div>
+
+                @if (!string.IsNullOrEmpty(Model.ApprovalNotes))
+                {
+                    <div class="dash-detail-row">
+                        <span class="dash-detail-label">@(Model.Status == "Rejected" ? "Rejection Reason" : "Approval Notes")</span>
+                        <span class="dash-detail-value">@Model.ApprovalNotes</span>
+                    </div>
+                }
+            }
+
+            @if (Model.Status == "Fulfilled")
+            {
+                <div class="dash-detail-row">
+                    <span class="dash-detail-label">Fulfilled Date</span>
+                    <span class="dash-detail-value">@Model.FulfilledAt?.ToString("MMMM dd, yyyy h:mm tt")</span>
+                </div>
+
+                <div class="dash-detail-row">
+                    <span class="dash-detail-label">Fulfilled Quantity</span>
+                    <span class="dash-detail-value dash-detail-value--highlight">@Model.FulfilledQty?.ToString("N2") @Model.UnitOfMeasure</span>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Admin Actions -->
+@if (User.IsInRole("Admin") && Model.Status == "Pending")
+{
+    <div class="dash-panel" style="margin-top:24px;">
+        <div class="dash-panel-header">
+            <h2 class="dash-panel-title">Admin Actions</h2>
+        </div>
+
+        <div style="padding:20px;">
+            <form asp-action="Approve" method="post" style="margin-bottom:16px;">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" value="@Model.RequestId" />
+                <div class="dash-form-group">
+                    <label class="dash-form-label">Approval Notes (Optional)</label>
+                    <textarea name="approvalNotes" rows="3" class="dash-form-input" placeholder="Add any notes about this approval..."></textarea>
+                </div>
+                <button type="submit" class="dash-btn dash-btn--primary" onclick="return confirm('Approve this material request?');">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    Approve Request
+                </button>
+            </form>
+
+            <form asp-action="Reject" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" value="@Model.RequestId" />
+                <div class="dash-form-group">
+                    <label class="dash-form-label">Rejection Reason (Optional)</label>
+                    <textarea name="approvalNotes" rows="3" class="dash-form-input" placeholder="Explain why this request is being rejected..."></textarea>
+                </div>
+                <button type="submit" class="dash-btn dash-btn--danger" onclick="return confirm('Reject this material request?');">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                    Reject Request
+                </button>
+            </form>
+        </div>
+    </div>
+}
+
+@if (User.IsInRole("Admin") && Model.Status == "Approved")
+{
+    <div class="dash-panel" style="margin-top:24px;">
+        <div class="dash-panel-header">
+            <h2 class="dash-panel-title">Fulfill Request</h2>
+        </div>
+
+        <div style="padding:20px;">
+            <form asp-action="Fulfill" method="post">
+                <input type="hidden" name="id" value="@Model.RequestId" />
+                <div class="dash-form-group">
+                    <label class="dash-form-label">Fulfilled Quantity *</label>
+                    <input type="number" name="fulfilledQty" step="0.01" value="@Model.RequestedQty" class="dash-form-input" required />
+                    <small class="dash-form-help">Enter the actual quantity fulfilled (may differ from requested)</small>
+                </div>
+                <button type="submit" class="dash-btn dash-btn--primary" onclick="return confirm('Mark this request as fulfilled?');">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    Mark as Fulfilled
+                </button>
+            </form>
+        </div>
+    </div>
+}

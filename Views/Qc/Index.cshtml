@@ -1,0 +1,108 @@
+@model IEnumerable<SnackFlowMES.Models.QcResult>
+@{
+    ViewData["Title"] = "QC Inspections";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+    var resultFilter = ViewBag.ResultFilter as string;
+}
+
+<div class="dash-page-header">
+    <div>
+        <h1 class="dash-page-title">QC Inspections</h1>
+        <p class="dash-page-subtitle">Quality control inspection history</p>
+    </div>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="dash-alert dash-alert--success">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        @TempData["Success"]
+    </div>
+}
+
+<!-- Result filter tabs -->
+<div class="dash-tabs">
+    <a href="@Url.Action("Index")" class="dash-tab @(string.IsNullOrEmpty(resultFilter) ? "dash-tab--active" : "")">
+        All (@Model.Count())
+    </a>
+    <a href="@Url.Action("Index", new { result = "Pass" })" class="dash-tab @(resultFilter == "Pass" ? "dash-tab--active" : "")">
+        Pass (@Model.Count(q => q.Result == "Pass"))
+    </a>
+    <a href="@Url.Action("Index", new { result = "Fail" })" class="dash-tab @(resultFilter == "Fail" ? "dash-tab--active" : "")">
+        Fail (@Model.Count(q => q.Result == "Fail"))
+    </a>
+    <a href="@Url.Action("Index", new { result = "ConditionalPass" })" class="dash-tab @(resultFilter == "ConditionalPass" ? "dash-tab--active" : "")">
+        Conditional Pass (@Model.Count(q => q.Result == "ConditionalPass"))
+    </a>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="dash-empty-state">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        <h3>No QC inspections found</h3>
+        <p>@(string.IsNullOrEmpty(resultFilter) ? "No inspections have been recorded yet." : $"No inspections with result '{resultFilter}'.")</p>
+    </div>
+}
+else
+{
+    <div class="dash-table-wrap">
+        <table class="dash-table">
+            <thead>
+                <tr>
+                    <th>QC ID</th>
+                    <th>Work Order</th>
+                    <th>Product</th>
+                    <th>Result</th>
+                    <th>Check Type</th>
+                    <th>Disposition</th>
+                    <th>Inspector</th>
+                    <th>Inspected Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var qc in Model)
+                {
+                    var resultClass = qc.Result switch
+                    {
+                        "Pass" => "dash-badge--completed",
+                        "Fail" => "dash-badge--cancelled",
+                        "ConditionalPass" => "dash-badge--released",
+                        _ => ""
+                    };
+
+                    var dispositionColor = qc.Disposition switch
+                    {
+                        "Accept" => "#10B981",
+                        "Rework" => "#F59E0B",
+                        "Reject" => "#EF4444",
+                        _ => "#6B7280"
+                    };
+
+                    <tr>
+                        <td class="dash-table-mono">
+                            <a href="@Url.Action("Details", new { id = qc.QcResultId })">QC-@qc.QcResultId.ToString("D4")</a>
+                        </td>
+                        <td class="dash-table-mono">
+                            <a href="/WorkOrder/Details/@qc.WorkOrderId">@qc.WorkOrder?.WoNumber</a>
+                        </td>
+                        <td class="dash-table-primary">@qc.WorkOrder?.Item?.ItemName</td>
+                        <td>
+                            <span class="dash-badge @resultClass">@qc.Result</span>
+                        </td>
+                        <td>@(qc.CheckType ?? "—")</td>
+                        <td>
+                            <span style="font-weight:600;color:@dispositionColor;">@(qc.Disposition ?? "—")</span>
+                        </td>
+                        <td>@qc.InspectedBy?.FullName</td>
+                        <td>@qc.InspectedAt.ToString("MMM dd, yyyy h:mm tt")</td>
+                        <td>
+                            <a href="@Url.Action("Details", new { id = qc.QcResultId })" class="dash-btn dash-btn--secondary dash-btn--sm">View</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

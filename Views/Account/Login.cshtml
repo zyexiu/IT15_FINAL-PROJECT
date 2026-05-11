@@ -15,6 +15,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="~/css/snackflow.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/auth.css" asp-append-version="true" />
+    <!-- Google reCAPTCHA v2 -->
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 <body class="auth-body">
 
@@ -74,10 +76,21 @@
                 <span>Remember me for 8 hours</span>
             </label>
 
-            <button type="submit" class="auth-submit">
+            <button type="button" class="auth-submit" id="auth-submit-btn">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
                 Sign In
             </button>
+
+            <!-- reCAPTCHA v2 Checkbox (hidden by default, appears after clicking Sign In) -->
+            <div id="recaptcha-container" class="auth-recaptcha-container" style="display: none; opacity: 0;">
+                <div class="g-recaptcha" 
+                     data-sitekey="@ViewBag.RecaptchaSiteKey" 
+                     data-theme="light" 
+                     data-callback="onRecaptchaSuccess"
+                     data-expired-callback="onRecaptchaExpired"
+                     data-error-callback="onRecaptchaError"></div>
+                <input type="hidden" asp-for="RecaptchaToken" id="recaptcha-response" />
+            </div>
         </form>
 
         <!-- Sign up prompt (UI only) -->
@@ -132,6 +145,8 @@
     </div>
 
     <script>
+        console.log('=== reCAPTCHA v2 Implementation ===');
+        
         // Toggle password visibility
         const pwdInput = document.getElementById('auth-password');
         const eyeBtn   = document.getElementById('auth-eye-btn');
@@ -146,8 +161,119 @@
                 if (eyeHide) eyeHide.style.display = isText ? 'none' : '';
             });
         }
+
+        // Get form elements
+        const usernameInput = document.getElementById('Username');
+        const passwordInput = document.getElementById('Password');
+        const recaptchaContainer = document.getElementById('recaptcha-container');
+        const submitBtn = document.getElementById('auth-submit-btn');
+        const recaptchaResponseInput = document.getElementById('recaptcha-response');
+        const loginForm = document.querySelector('form[action*="Login"]');
         
-        // Toggle sign-up area (UI only) — Simple and robust
+        let recaptchaShown = false;
+        let recaptchaCompleted = false;
+
+        console.log('Elements found:', {
+            usernameInput: !!usernameInput,
+            passwordInput: !!passwordInput,
+            recaptchaContainer: !!recaptchaContainer,
+            submitBtn: !!submitBtn,
+            loginForm: !!loginForm
+        });
+
+        // Handle Sign In button click
+        if (submitBtn) {
+            submitBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const usernameValue = usernameInput ? usernameInput.value.trim() : '';
+                const passwordValue = passwordInput ? passwordInput.value.trim() : '';
+
+                console.log('Sign In clicked - Username:', usernameValue, 'Password:', passwordValue ? '***' : '(empty)');
+
+                // Validate fields
+                if (!usernameValue) {
+                    alert('Please enter your username or email.');
+                    usernameInput.focus();
+                    return;
+                }
+
+                if (!passwordValue) {
+                    alert('Please enter your password.');
+                    passwordInput.focus();
+                    return;
+                }
+
+                // If reCAPTCHA not shown yet, show it
+                if (!recaptchaShown) {
+                    console.log('✅ Showing reCAPTCHA for the first time');
+                    recaptchaContainer.style.display = 'flex';
+                    setTimeout(() => {
+                        recaptchaContainer.style.opacity = '1';
+                    }, 10);
+                    recaptchaShown = true;
+                    
+                    // Change button text to indicate waiting for reCAPTCHA
+                    submitBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg> Complete reCAPTCHA';
+                    return;
+                }
+
+                // If reCAPTCHA shown but not completed
+                if (recaptchaShown && !recaptchaCompleted) {
+                    console.log('❌ reCAPTCHA not completed yet');
+                    alert('Please complete the reCAPTCHA verification.');
+                    return;
+                }
+
+                // If reCAPTCHA completed, submit the form
+                if (recaptchaCompleted) {
+                    console.log('✅ reCAPTCHA completed - Submitting form');
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Signing in...';
+                    loginForm.submit();
+                }
+            });
+        }
+
+        // reCAPTCHA callback when user completes the challenge
+        window.onRecaptchaSuccess = function(token) {
+            console.log('✅ reCAPTCHA completed successfully');
+            recaptchaCompleted = true;
+            if (recaptchaResponseInput) {
+                recaptchaResponseInput.value = token;
+            }
+            
+            // Change button back to "Sign In" and enable it
+            if (submitBtn) {
+                submitBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg> Sign In';
+                submitBtn.style.opacity = '1';
+            }
+        };
+
+        // reCAPTCHA expired callback
+        window.onRecaptchaExpired = function() {
+            console.log('⚠️ reCAPTCHA expired');
+            recaptchaCompleted = false;
+            if (recaptchaResponseInput) {
+                recaptchaResponseInput.value = '';
+            }
+            if (submitBtn) {
+                submitBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg> Complete reCAPTCHA';
+            }
+            alert('reCAPTCHA expired. Please verify again.');
+        };
+
+        // reCAPTCHA error callback
+        window.onRecaptchaError = function() {
+            console.log('❌ reCAPTCHA error');
+            recaptchaCompleted = false;
+            if (recaptchaResponseInput) {
+                recaptchaResponseInput.value = '';
+            }
+            alert('reCAPTCHA error. Please try again.');
+        };
+        
+        // Toggle sign-up area (UI only)
         const showSignupBtn = document.getElementById('show-signup');
         const signupArea = document.getElementById('auth-signup-area');
         const signupCancel = document.getElementById('auth-signup-cancel');
@@ -157,17 +283,13 @@
                 e.preventDefault();
                 const isCurrentlyHidden = signupArea.style.display === 'none';
                 if (isCurrentlyHidden) {
-                    // Show signup area
                     signupArea.style.display = 'block';
                     signupArea.removeAttribute('aria-hidden');
                     showSignupBtn.textContent = "Already have an account? Back to Sign In";
-                    console.log('Signup area shown');
                 } else {
-                    // Hide signup area
                     signupArea.style.display = 'none';
                     signupArea.setAttribute('aria-hidden', 'true');
                     showSignupBtn.innerHTML = "Don't have an account? <strong>Sign Up</strong>";
-                    console.log('Signup area hidden');
                 }
             });
         }
@@ -178,11 +300,10 @@
                 signupArea.style.display = 'none';
                 signupArea.setAttribute('aria-hidden', 'true');
                 showSignupBtn.innerHTML = "Don't have an account? <strong>Sign Up</strong>";
-                console.log('Signup area cancelled');
             });
         }
         
-        console.log('Auth script loaded - signup elements:', { showSignupBtn, signupArea, signupCancel });
+        console.log('✅ reCAPTCHA script initialized');
     </script>
 </body>
 </html>

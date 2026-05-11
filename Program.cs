@@ -92,6 +92,9 @@ builder.Services.AddScoped<TenantService>();
 // ── Role Menu Service ────────────────────────────────────────
 builder.Services.AddScoped<RoleMenuService>();
 
+// ── Notification Service ─────────────────────────────────────
+builder.Services.AddScoped<NotificationService>();
+
 // ── MVC ──────────────────────────────────────────────────────
 builder.Services.AddControllersWithViews(options =>
 {

@@ -10,41 +10,12 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
     </div>
     <div class="dash-role-welcome-content">
-        <h1 class="dash-role-welcome-title">Welcome, Production Planner</h1>
-        <p class="dash-role-welcome-subtitle">Plan production schedules, create work orders, and optimize manufacturing operations.</p>
+        <h1 class="dash-role-welcome-title">Production Planning</h1>
+        <p class="dash-role-welcome-subtitle">Create production plans, schedule work orders, manage BOMs, and optimize manufacturing operations. Your role focuses on planning and scheduling, not floor execution.</p>
     </div>
 </div>
 
-<!-- Quick Actions -->
-<div class="dash-quick-actions">
-    <a href="/WorkOrder/Create" class="dash-quick-action">
-        <div class="dash-quick-action-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
-        </div>
-        <div class="dash-quick-action-content">
-            <div class="dash-quick-action-title">Create Work Order</div>
-            <div class="dash-quick-action-subtitle">New production order</div>
-        </div>
-    </a>
-    <a href="/ProductionPlan" class="dash-quick-action">
-        <div class="dash-quick-action-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-        </div>
-        <div class="dash-quick-action-content">
-            <div class="dash-quick-action-title">Production Plans</div>
-            <div class="dash-quick-action-subtitle">View all plans</div>
-        </div>
-    </a>
-    <a href="/Report" class="dash-quick-action">
-        <div class="dash-quick-action-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-        </div>
-        <div class="dash-quick-action-content">
-            <div class="dash-quick-action-title">View Reports</div>
-            <div class="dash-quick-action-subtitle">Production analytics</div>
-        </div>
-    </a>
-</div>
+
 
 <!-- ══ KPI CARDS ════════════════════════════════════════════ -->
 <div class="dash-kpi-grid">
@@ -80,31 +51,41 @@
             <span class="dash-kpi-sub">Successfully closed</span>
         </div>
     </div>
-
-    <div class="dash-kpi-card dash-kpi-role-planner">
-        <div class="dash-kpi-icon dash-kpi-icon--purple" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-        </div>
-        <div class="dash-kpi-body">
-            <span class="dash-kpi-label">Draft Orders</span>
-            <span class="dash-kpi-value">@Model.DraftCount</span>
-            <span class="dash-kpi-sub">Pending release</span>
-        </div>
-    </div>
 </div>
 
-<!-- ══ BOTTOM ROW: Table + Status Chart ═════════════════════ -->
+<!-- ══ ANALYTICS ROW ════════════════════════════════════════ -->
 <div class="dash-row">
-    <!-- Recent Work Orders table -->
+    <!-- Order Status Analytics -->
     <div class="dash-panel dash-panel--wide">
         <div class="dash-panel-header">
             <h2 class="dash-panel-title">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                Recent Work Orders
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                Order Status Analytics
             </h2>
-            <a href="/WorkOrder" class="dash-panel-action">View all →</a>
         </div>
 
+        <div class="dash-analytics-container">
+            <canvas id="orderStatusChart" height="100"></canvas>
+        </div>
+
+        <div class="dash-analytics-stats">
+            <div class="dash-analytics-stat">
+                <span class="dash-analytics-stat-label">Total Orders</span>
+                <span class="dash-analytics-stat-value">@Model.TotalWorkOrders</span>
+            </div>
+            <div class="dash-analytics-stat">
+                <span class="dash-analytics-stat-label">Completion Rate</span>
+                <span class="dash-analytics-stat-value">
+                    @(Model.TotalWorkOrders > 0
+                        ? $"{(Model.CompletedOrders * 100.0 / Model.TotalWorkOrders):F0}%"
+                        : "—")
+                </span>
+            </div>
+            <div class="dash-analytics-stat">
+                <span class="dash-analytics-stat-label">Active Now</span>
+                <span class="dash-analytics-stat-value dash-analytics-stat-active">@Model.ActiveProduction</span>
+            </div>
+        </div>
         @if (!Model.RecentWorkOrders.Any())
         {
             <div class="dash-empty">
@@ -149,73 +130,129 @@
             </div>
         }
     </div>
-
-    <!-- Status breakdown panel -->
-    <div class="dash-panel dash-panel--narrow">
-        <div class="dash-panel-header">
-            <h2 class="dash-panel-title">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-                Order Status
-            </h2>
-        </div>
-
-        <div class="dash-status-list">
-            <div class="dash-status-row">
-                <div class="dash-status-dot dash-status-dot--draft"></div>
-                <span class="dash-status-label">Draft</span>
-                <span class="dash-status-count">@Model.DraftCount</span>
-                <div class="dash-status-bar-track">
-                    <div class="dash-status-bar dash-status-bar--draft"
-                         style="width:@(Model.TotalWorkOrders > 0 ? (Model.DraftCount * 100 / Model.TotalWorkOrders) : 0)%"></div>
-                </div>
-            </div>
-            <div class="dash-status-row">
-                <div class="dash-status-dot dash-status-dot--released"></div>
-                <span class="dash-status-label">Released</span>
-                <span class="dash-status-count">@Model.ReleasedCount</span>
-                <div class="dash-status-bar-track">
-                    <div class="dash-status-bar dash-status-bar--released"
-                         style="width:@(Model.TotalWorkOrders > 0 ? (Model.ReleasedCount * 100 / Model.TotalWorkOrders) : 0)%"></div>
-                </div>
-            </div>
-            <div class="dash-status-row">
-                <div class="dash-status-dot dash-status-dot--inprogress"></div>
-                <span class="dash-status-label">In Progress</span>
-                <span class="dash-status-count">@Model.InProgressCount</span>
-                <div class="dash-status-bar-track">
-                    <div class="dash-status-bar dash-status-bar--inprogress"
-                         style="width:@(Model.TotalWorkOrders > 0 ? (Model.InProgressCount * 100 / Model.TotalWorkOrders) : 0)%"></div>
-                </div>
-            </div>
-            <div class="dash-status-row">
-                <div class="dash-status-dot dash-status-dot--completed"></div>
-                <span class="dash-status-label">Completed</span>
-                <span class="dash-status-count">@Model.CompletedCount</span>
-                <div class="dash-status-bar-track">
-                    <div class="dash-status-bar dash-status-bar--completed"
-                         style="width:@(Model.TotalWorkOrders > 0 ? (Model.CompletedCount * 100 / Model.TotalWorkOrders) : 0)%"></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Production summary -->
-        <div class="dash-summary-box">
-            <div class="dash-summary-row">
-                <span>Total Orders</span>
-                <strong>@Model.TotalWorkOrders</strong>
-            </div>
-            <div class="dash-summary-row">
-                <span>Completion Rate</span>
-                <strong>
-                    @(Model.TotalWorkOrders > 0
-                        ? $"{(Model.CompletedOrders * 100.0 / Model.TotalWorkOrders):F0}%"
-                        : "—")
-                </strong>
-            </div>
-            <div class="dash-summary-row">
-                <span>Active Now</span>
-                <strong class="dash-summary-active">@Model.ActiveProduction</strong>
-            </div>
-        </div>
-    </div>
 </div>
+
+<style>
+.dash-analytics-container {
+    position: relative;
+    width: 100%;
+    height: 300px;
+    margin-bottom: 24px;
+    padding: 16px;
+    background: var(--bg-secondary);
+    border-radius: 12px;
+}
+
+.dash-analytics-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    padding: 28px 0;
+    border-top: 1px solid var(--border-color);
+}
+
+.dash-analytics-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    text-align: center;
+}
+
+.dash-analytics-stat-label {
+    font-size: 0.813rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}
+
+.dash-analytics-stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.dash-analytics-stat-active {
+    color: #F59E0B;
+}
+
+@@media (max-width: 768px) {
+    .dash-analytics-stats {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+        padding: 20px 0;
+    }
+
+    .dash-analytics-stat-value {
+        font-size: 1.5rem;
+    }
+}
+</style>
+
+<script>
+// Initialize Order Status Chart
+document.addEventListener('DOMContentLoaded', function() {
+    const chartCanvas = document.getElementById('orderStatusChart');
+    if (!chartCanvas) return;
+
+    // Check if Chart.js is available
+    if (typeof Chart === 'undefined') {
+        console.log('Chart.js not loaded, skipping chart initialization');
+        return;
+    }
+
+    const ctx = chartCanvas.getContext('2d');
+    const darkMode = document.documentElement.getAttribute('data-theme') === 'dark';
+    
+    const textColor = darkMode ? '#B0BEC5' : '#6B7280';
+    const gridColor = darkMode ? '#37474F' : '#E5E7EB';
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['Draft', 'Released', 'In Progress', 'Completed'],
+            datasets: [{
+                label: 'Work Orders',
+                data: [@Model.DraftCount, @Model.ReleasedCount, @Model.InProgressCount, @Model.CompletedCount],
+                fill: true,
+                tension: 0.4,
+                backgroundColor: darkMode ? 'rgba(59,130,246,0.16)' : 'rgba(59,130,246,0.12)',
+                borderColor: 'rgba(59,130,246,0.95)',
+                borderWidth: 2,
+                pointRadius: 5,
+                pointBackgroundColor: 'rgba(59,130,246,0.95)'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        color: textColor,
+                        stepSize: 1
+                    },
+                    grid: {
+                        color: gridColor,
+                        drawBorder: false
+                    }
+                },
+                x: {
+                    ticks: {
+                        color: textColor
+                    },
+                    grid: {
+                        display: false,
+                        drawBorder: false
+                    }
+                }
+            }
+        }
+    });
+});
+</script>

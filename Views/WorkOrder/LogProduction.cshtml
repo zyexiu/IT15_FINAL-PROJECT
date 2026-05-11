@@ -1,0 +1,325 @@
+@{
+    var wo = ViewBag.WorkOrder as SnackFlowMES.Models.WorkOrder;
+    var logs = ViewBag.ProductionLogs as List<SnackFlowMES.Models.ProductionLog> ?? new List<SnackFlowMES.Models.ProductionLog>();
+    var totalProduced = ViewBag.TotalProduced as decimal? ?? 0;
+    var totalScrap = ViewBag.TotalScrap as decimal? ?? 0;
+    var remainingQty = ViewBag.RemainingQty as decimal? ?? 0;
+    
+    ViewData["Title"] = $"Log Production - {wo?.WoNumber}";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+}
+
+<div class="dash-page-header">
+    <div>
+        <h1 class="dash-page-title">Log Production</h1>
+        <p class="dash-page-subtitle">@wo?.WoNumber - @wo?.Item?.ItemName</p>
+    </div>
+    <div style="display:flex;gap:8px;">
+        <a href="/WorkOrder/Details/@wo?.WorkOrderId" class="dash-btn dash-btn--secondary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+            Back to Work Order
+        </a>
+    </div>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="dash-alert dash-alert--success">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        @TempData["Success"]
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="dash-alert dash-alert--error">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+        @TempData["Error"]
+    </div>
+}
+
+<!-- Progress Summary Cards -->
+<div class="dash-grid-3" style="margin-bottom:24px;">
+    <div class="dash-kpi-card">
+        <div class="dash-kpi-icon" style="background:#E0F2FE;color:#0284C7;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        </div>
+        <div class="dash-kpi-content">
+            <div class="dash-kpi-value">@totalProduced.ToString("N2")</div>
+            <div class="dash-kpi-label">Total Produced</div>
+            <div class="dash-kpi-subtitle">@wo?.UnitOfMeasure</div>
+        </div>
+    </div>
+
+    <div class="dash-kpi-card">
+        <div class="dash-kpi-icon" style="background:#FEF3C7;color:#D97706;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        </div>
+        <div class="dash-kpi-content">
+            <div class="dash-kpi-value">@remainingQty.ToString("N2")</div>
+            <div class="dash-kpi-label">Remaining</div>
+            <div class="dash-kpi-subtitle">Target: @wo?.PlannedQty.ToString("N2") @wo?.UnitOfMeasure</div>
+        </div>
+    </div>
+
+    <div class="dash-kpi-card">
+        <div class="dash-kpi-icon" style="background:#FEE2E2;color:#DC2626;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+        </div>
+        <div class="dash-kpi-content">
+            <div class="dash-kpi-value">@totalScrap.ToString("N2")</div>
+            <div class="dash-kpi-label">Total Scrap</div>
+            <div class="dash-kpi-subtitle">@((totalProduced > 0 ? (totalScrap / totalProduced * 100) : 0).ToString("N1"))% scrap rate</div>
+        </div>
+    </div>
+</div>
+
+<!-- Progress Bar -->
+<div class="dash-card" style="margin-bottom:24px;">
+    <div style="padding:20px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <span style="font-weight:600;color:var(--text-primary);">Production Progress</span>
+            <span style="font-weight:600;color:#3B82F6;">@((totalProduced / wo?.PlannedQty * 100 ?? 0).ToString("N1"))%</span>
+        </div>
+        <div style="width:100%;height:12px;background:#E4E9EF;border-radius:6px;overflow:hidden;">
+            <div style="width:@((totalProduced / wo?.PlannedQty * 100 ?? 0).ToString("N1"))%;height:100%;background:linear-gradient(90deg, #3B82F6, #2563EB);transition:width 0.3s ease;"></div>
+        </div>
+    </div>
+</div>
+
+<div class="dash-grid-2">
+    <!-- Left: Quick Log Entry Form -->
+    <div class="dash-card">
+        <div class="dash-card-header">
+            <h2 class="dash-card-title">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Log Production
+            </h2>
+        </div>
+        <form asp-action="LogProduction" method="post" class="production-log-form">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="workOrderId" value="@wo?.WorkOrderId" />
+
+            <div class="dash-form-group">
+                <label class="dash-form-label">Produced Quantity *</label>
+                <input type="number" name="producedQty" class="dash-form-input mobile-input" 
+                       step="0.01" min="0.01" required 
+                       placeholder="Enter quantity produced"
+                       autofocus />
+                <span class="dash-form-hint">@wo?.UnitOfMeasure</span>
+            </div>
+
+            <div class="dash-form-group">
+                <label class="dash-form-label">Scrap Quantity</label>
+                <input type="number" name="scrapQty" class="dash-form-input mobile-input" 
+                       step="0.01" min="0" value="0" 
+                       placeholder="Enter scrap quantity" />
+                <span class="dash-form-hint">@wo?.UnitOfMeasure (optional)</span>
+            </div>
+
+            <div class="dash-form-group">
+                <label class="dash-form-label">Shift *</label>
+                <select name="shift" class="dash-form-input mobile-input" required>
+                    <option value="">Select shift</option>
+                    <option value="Morning">Morning</option>
+                    <option value="Afternoon">Afternoon</option>
+                    <option value="Night">Night</option>
+                </select>
+            </div>
+
+            <div class="dash-grid-2">
+                <div class="dash-form-group">
+                    <label class="dash-form-label">Labor Hours</label>
+                    <input type="number" name="laborHours" class="dash-form-input mobile-input" 
+                           step="0.5" min="0" value="0" 
+                           placeholder="0.0" />
+                </div>
+
+                <div class="dash-form-group">
+                    <label class="dash-form-label">Machine Hours</label>
+                    <input type="number" name="machineHours" class="dash-form-input mobile-input" 
+                           step="0.5" min="0" value="0" 
+                           placeholder="0.0" />
+                </div>
+            </div>
+
+            <div class="dash-form-group">
+                <label class="dash-form-label">Notes</label>
+                <textarea name="notes" class="dash-form-input mobile-input" 
+                          rows="3" 
+                          placeholder="Optional notes about this production run..."></textarea>
+            </div>
+
+            <button type="submit" class="dash-btn dash-btn--primary dash-btn--full mobile-btn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                Log Production
+            </button>
+        </form>
+    </div>
+
+    <!-- Right: Production History -->
+    <div class="dash-card">
+        <div class="dash-card-header">
+            <h2 class="dash-card-title">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                Production History
+            </h2>
+            <span class="dash-badge dash-badge--primary">@logs.Count logs</span>
+        </div>
+
+        @if (!logs.Any())
+        {
+            <div style="padding:60px 20px;text-align:center;color:var(--text-secondary);">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.3;margin-bottom:16px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                <p style="margin:0;font-size:0.875rem;">No production logged yet</p>
+                <p style="margin:8px 0 0 0;font-size:0.75rem;opacity:0.7;">Use the form to log your first production run</p>
+            </div>
+        }
+        else
+        {
+            <div class="dash-list">
+                @foreach (var log in logs)
+                {
+                    var goodQty = log.ProducedQty - log.ScrapQty;
+                    var scrapRate = log.ProducedQty > 0 ? (log.ScrapQty / log.ProducedQty * 100) : 0;
+
+                    <div class="dash-list-item" style="align-items:flex-start;padding:16px;">
+                        <div style="flex:1;">
+                            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+                                <span style="display:inline-block;padding:4px 10px;border-radius:12px;font-size:0.75rem;font-weight:600;color:white;background:#3B82F6;">
+                                    @log.Shift
+                                </span>
+                                <span style="font-size:0.75rem;color:var(--text-secondary);">
+                                    @log.LogDate.ToString("MMM dd, yyyy HH:mm")
+                                </span>
+                            </div>
+                            
+                            <div style="display:flex;gap:16px;margin-bottom:8px;">
+                                <div>
+                                    <div style="font-size:1.25rem;font-weight:700;color:#10B981;">
+                                        @log.ProducedQty.ToString("N2")
+                                    </div>
+                                    <div style="font-size:0.75rem;color:var(--text-secondary);">Produced</div>
+                                </div>
+                                @if (log.ScrapQty > 0)
+                                {
+                                    <div>
+                                        <div style="font-size:1.25rem;font-weight:700;color:#EF4444;">
+                                            @log.ScrapQty.ToString("N2")
+                                        </div>
+                                        <div style="font-size:0.75rem;color:var(--text-secondary);">Scrap (@scrapRate.ToString("N1")%)</div>
+                                    </div>
+                                }
+                            </div>
+
+                            @if (log.LaborHours > 0 || log.MachineHours > 0)
+                            {
+                                <div style="display:flex;gap:12px;margin-bottom:8px;font-size:0.75rem;color:var(--text-secondary);">
+                                    @if (log.LaborHours > 0)
+                                    {
+                                        <span>👷 @log.LaborHours.ToString("N1")h labor</span>
+                                    }
+                                    @if (log.MachineHours > 0)
+                                    {
+                                        <span>⚙️ @log.MachineHours.ToString("N1")h machine</span>
+                                    }
+                                </div>
+                            }
+
+                            @if (!string.IsNullOrEmpty(log.Notes))
+                            {
+                                <div style="margin-top:8px;padding:8px 12px;background:var(--bg-secondary);border-radius:6px;font-size:0.813rem;color:var(--text-secondary);">
+                                    @log.Notes
+                                </div>
+                            }
+
+                            <div style="margin-top:8px;font-size:0.75rem;color:var(--text-secondary);">
+                                Recorded by @log.RecordedBy?.FullName
+                            </div>
+                        </div>
+
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <form asp-action="DeleteLog" method="post" style="margin:0;" onsubmit="return confirm('Delete this production log entry?');">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@log.LogId" />
+                                <input type="hidden" name="workOrderId" value="@wo?.WorkOrderId" />
+                                <button type="submit" class="dash-btn dash-btn--danger" style="padding:6px 12px;font-size:0.75rem;">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                                    Delete
+                                </button>
+                            </form>
+                        }
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+<style>
+/* Mobile-optimized styles */
+.mobile-input {
+    min-height: 48px;
+    font-size: 16px; /* Prevents zoom on iOS */
+}
+
+.mobile-btn {
+    min-height: 48px;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.production-log-form {
+    padding: 20px;
+}
+
+/* Responsive adjustments */
+@@media (max-width: 768px) {
+    .dash-grid-2 {
+        grid-template-columns: 1fr;
+    }
+
+    .dash-kpi-card {
+        padding: 16px;
+    }
+
+    .dash-kpi-value {
+        font-size: 1.5rem;
+    }
+
+    .dash-list-item {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .dash-page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+}
+
+/* Touch-friendly buttons */
+@@media (hover: none) and (pointer: coarse) {
+    .dash-btn {
+        min-height: 48px;
+        padding: 12px 20px;
+    }
+
+    .dash-form-input,
+    .dash-form-select {
+        min-height: 48px;
+        font-size: 16px;
+    }
+}
+
+/* Progress bar animation */
+@@keyframes progressGrow {
+    from { width: 0; }
+}
+
+.dash-card:first-of-type .dash-card-header + div > div > div {
+    animation: progressGrow 1s ease-out;
+}
+</style>

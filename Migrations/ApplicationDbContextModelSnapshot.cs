@@ -388,6 +388,81 @@ namespace SnackFlowMES.Migrations
                     b.ToTable("BomLines");
                 });
 
+            modelBuilder.Entity("SnackFlowMES.Models.DowntimeReport", b =>
+                {
+                    b.Property<int>("DowntimeId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("DowntimeId"));
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<int>("DurationMinutes")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("EndTime")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("OrganizationId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<string>("ProductionLine")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<DateTime>("ReportedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("ReportedByUserId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("varchar(450)");
+
+                    b.Property<string>("Resolution")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<DateTime?>("ResolvedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("ResolvedByUserId")
+                        .HasMaxLength(450)
+                        .HasColumnType("varchar(450)");
+
+                    b.Property<DateTime>("StartTime")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<int>("WorkOrderId")
+                        .HasColumnType("int");
+
+                    b.HasKey("DowntimeId");
+
+                    b.HasIndex("ReportedByUserId");
+
+                    b.HasIndex("ResolvedByUserId");
+
+                    b.HasIndex("WorkOrderId");
+
+                    b.ToTable("DowntimeReports");
+                });
+
             modelBuilder.Entity("SnackFlowMES.Models.InventoryBalance", b =>
                 {
                     b.Property<int>("BalanceId")
@@ -503,6 +578,9 @@ namespace SnackFlowMES.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("tinyint(1)");
 
+                    b.Property<bool>("IsArchived")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<string>("ItemCode")
                         .IsRequired()
                         .HasMaxLength(30)
@@ -544,6 +622,88 @@ namespace SnackFlowMES.Migrations
                         .HasDatabaseName("IX_Items_ItemCode");
 
                     b.ToTable("Items");
+                });
+
+            modelBuilder.Entity("SnackFlowMES.Models.MaterialRequest", b =>
+                {
+                    b.Property<int>("RequestId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("RequestId"));
+
+                    b.Property<string>("ApprovalNotes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("varchar(1000)");
+
+                    b.Property<DateTime?>("ApprovedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("ApprovedByUserId")
+                        .HasMaxLength(450)
+                        .HasColumnType("varchar(450)");
+
+                    b.Property<DateTime?>("FulfilledAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<decimal?>("FulfilledQty")
+                        .HasColumnType("decimal(12,4)");
+
+                    b.Property<int>("ItemId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("varchar(1000)");
+
+                    b.Property<string>("Priority")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<DateTime>("RequestedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("RequestedByUserId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("varchar(450)");
+
+                    b.Property<decimal>("RequestedQty")
+                        .HasColumnType("decimal(12,4)");
+
+                    b.Property<DateTime?>("RequiredByDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("varchar(450)");
+
+                    b.Property<string>("UnitOfMeasure")
+                        .IsRequired()
+                        .HasMaxLength(15)
+                        .HasColumnType("varchar(15)");
+
+                    b.HasKey("RequestId");
+
+                    b.HasIndex("ApprovedByUserId");
+
+                    b.HasIndex("ItemId");
+
+                    b.HasIndex("RequestedByUserId");
+
+                    b.ToTable("MaterialRequests");
                 });
 
             modelBuilder.Entity("SnackFlowMES.Models.MrpRequirement", b =>
@@ -619,6 +779,80 @@ namespace SnackFlowMES.Migrations
                     b.HasIndex("PlanId");
 
                     b.ToTable("MrpRuns");
+                });
+
+            modelBuilder.Entity("SnackFlowMES.Models.Notification", b =>
+                {
+                    b.Property<int>("NotificationId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("NotificationId"));
+
+                    b.Property<string>("ActionUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("CreatedByUserId")
+                        .HasMaxLength(450)
+                        .HasColumnType("varchar(450)");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("varchar(1000)");
+
+                    b.Property<string>("Priority")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<DateTime?>("ReadAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("RecipientRole")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<string>("RecipientUserId")
+                        .HasMaxLength(450)
+                        .HasColumnType("varchar(450)");
+
+                    b.Property<int?>("RelatedEntityId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("RelatedEntityType")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("varchar(450)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.HasKey("NotificationId");
+
+                    b.HasIndex("CreatedByUserId");
+
+                    b.HasIndex("RecipientUserId");
+
+                    b.ToTable("Notifications");
                 });
 
             modelBuilder.Entity("SnackFlowMES.Models.PlanLine", b =>
@@ -1109,6 +1343,32 @@ namespace SnackFlowMES.Migrations
                     b.Navigation("Item");
                 });
 
+            modelBuilder.Entity("SnackFlowMES.Models.DowntimeReport", b =>
+                {
+                    b.HasOne("SnackFlowMES.Models.ApplicationUser", "ReportedBy")
+                        .WithMany("DowntimeReports")
+                        .HasForeignKey("ReportedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("SnackFlowMES.Models.ApplicationUser", "ResolvedBy")
+                        .WithMany()
+                        .HasForeignKey("ResolvedByUserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("SnackFlowMES.Models.WorkOrder", "WorkOrder")
+                        .WithMany("DowntimeReports")
+                        .HasForeignKey("WorkOrderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("ReportedBy");
+
+                    b.Navigation("ResolvedBy");
+
+                    b.Navigation("WorkOrder");
+                });
+
             modelBuilder.Entity("SnackFlowMES.Models.InventoryBalance", b =>
                 {
                     b.HasOne("SnackFlowMES.Models.Item", "Item")
@@ -1136,6 +1396,32 @@ namespace SnackFlowMES.Migrations
                     b.Navigation("Item");
 
                     b.Navigation("WorkOrder");
+                });
+
+            modelBuilder.Entity("SnackFlowMES.Models.MaterialRequest", b =>
+                {
+                    b.HasOne("SnackFlowMES.Models.ApplicationUser", "ApprovedBy")
+                        .WithMany()
+                        .HasForeignKey("ApprovedByUserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("SnackFlowMES.Models.Item", "Item")
+                        .WithMany()
+                        .HasForeignKey("ItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SnackFlowMES.Models.ApplicationUser", "RequestedBy")
+                        .WithMany("MaterialRequests")
+                        .HasForeignKey("RequestedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("ApprovedBy");
+
+                    b.Navigation("Item");
+
+                    b.Navigation("RequestedBy");
                 });
 
             modelBuilder.Entity("SnackFlowMES.Models.MrpRequirement", b =>
@@ -1166,6 +1452,23 @@ namespace SnackFlowMES.Migrations
                         .IsRequired();
 
                     b.Navigation("Plan");
+                });
+
+            modelBuilder.Entity("SnackFlowMES.Models.Notification", b =>
+                {
+                    b.HasOne("SnackFlowMES.Models.ApplicationUser", "CreatedBy")
+                        .WithMany("CreatedNotifications")
+                        .HasForeignKey("CreatedByUserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("SnackFlowMES.Models.ApplicationUser", "RecipientUser")
+                        .WithMany("ReceivedNotifications")
+                        .HasForeignKey("RecipientUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("CreatedBy");
+
+                    b.Navigation("RecipientUser");
                 });
 
             modelBuilder.Entity("SnackFlowMES.Models.PlanLine", b =>
@@ -1301,13 +1604,21 @@ namespace SnackFlowMES.Migrations
                 {
                     b.Navigation("AuditLogs");
 
+                    b.Navigation("CreatedNotifications");
+
                     b.Navigation("CreatedPlans");
 
                     b.Navigation("CreatedWorkOrders");
 
+                    b.Navigation("DowntimeReports");
+
+                    b.Navigation("MaterialRequests");
+
                     b.Navigation("ProductionLogs");
 
                     b.Navigation("QcResults");
+
+                    b.Navigation("ReceivedNotifications");
                 });
 
             modelBuilder.Entity("SnackFlowMES.Models.BillOfMaterials", b =>
@@ -1352,6 +1663,8 @@ namespace SnackFlowMES.Migrations
             modelBuilder.Entity("SnackFlowMES.Models.WorkOrder", b =>
                 {
                     b.Navigation("Cost");
+
+                    b.Navigation("DowntimeReports");
 
                     b.Navigation("InventoryLedgers");
 

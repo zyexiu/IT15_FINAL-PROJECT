@@ -33,17 +33,13 @@
 </div>
 
 <!-- Search -->
-<div class="dash-card" style="margin-bottom: 24px;">
-    <form asp-action="Index" method="get" class="dash-form" style="gap: 12px; flex-direction: row; align-items: flex-end;">
-        <div class="dash-form-group" style="flex: 1; gap: 4px;">
-            <label for="search" class="dash-label">Search BOMs</label>
-            <input type="text" name="search" id="search" class="dash-input" placeholder="Search by product name or version..." value="@ViewBag.SearchTerm" />
+<div class="dash-tabs-row" style="margin-bottom: 24px;">
+    <form method="get" action="@Url.Action("Index")" class="dash-search-form">
+        <div class="dash-search-input-wrap">
+            <input type="text" name="search" placeholder="Search items" value="@ViewBag.SearchTerm" aria-label="Search BOMs" />
+            <button type="button" class="dash-search-clear @(string.IsNullOrEmpty(ViewBag.SearchTerm) ? "is-hidden" : "")" aria-label="Clear search" onclick="const input=this.parentElement.querySelector('input[name=search]'); input.value=''; this.form.submit();">×</button>
         </div>
-        <button type="submit" class="dash-btn dash-btn--secondary">Search</button>
-        @if (!string.IsNullOrEmpty(ViewBag.SearchTerm))
-        {
-            <a asp-action="Index" class="dash-btn dash-btn--secondary">Clear</a>
-        }
+        <button type="submit" class="dash-btn dash-btn--secondary dash-btn--sm">Search</button>
     </form>
 </div>
 

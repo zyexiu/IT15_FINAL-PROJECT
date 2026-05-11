@@ -29,21 +29,33 @@
 
 <!-- Status filter tabs -->
 <div class="dash-tabs">
-    <a href="@Url.Action("Index")" class="dash-tab @(string.IsNullOrEmpty(statusFilter) ? "dash-tab--active" : "")">
+    <a href="@Url.Action("Index", new { search = ViewBag.SearchTerm })" class="dash-tab @(string.IsNullOrEmpty(statusFilter) ? "dash-tab--active" : "")">
         All (@Model.Count())
     </a>
-    <a href="@Url.Action("Index", new { status = "Draft" })" class="dash-tab @(statusFilter == "Draft" ? "dash-tab--active" : "")">
+    <a href="@Url.Action("Index", new { status = "Draft", search = ViewBag.SearchTerm })" class="dash-tab @(statusFilter == "Draft" ? "dash-tab--active" : "")">
         Draft (@Model.Count(w => w.Status == "Draft"))
     </a>
-    <a href="@Url.Action("Index", new { status = "Released" })" class="dash-tab @(statusFilter == "Released" ? "dash-tab--active" : "")">
+    <a href="@Url.Action("Index", new { status = "Released", search = ViewBag.SearchTerm })" class="dash-tab @(statusFilter == "Released" ? "dash-tab--active" : "")">
         Released (@Model.Count(w => w.Status == "Released"))
     </a>
-    <a href="@Url.Action("Index", new { status = "InProgress" })" class="dash-tab @(statusFilter == "InProgress" ? "dash-tab--active" : "")">
+    <a href="@Url.Action("Index", new { status = "InProgress", search = ViewBag.SearchTerm })" class="dash-tab @(statusFilter == "InProgress" ? "dash-tab--active" : "")">
         In Progress (@Model.Count(w => w.Status == "InProgress"))
     </a>
-    <a href="@Url.Action("Index", new { status = "Completed" })" class="dash-tab @(statusFilter == "Completed" ? "dash-tab--active" : "")">
+    <a href="@Url.Action("Index", new { status = "Completed", search = ViewBag.SearchTerm })" class="dash-tab @(statusFilter == "Completed" ? "dash-tab--active" : "")">
         Completed (@Model.Count(w => w.Status == "Completed"))
     </a>
+</div>
+
+<!-- Search -->
+<div class="dash-tabs-row">
+    <form method="get" action="@Url.Action("Index")" class="dash-search-form">
+        <input type="hidden" name="status" value="@(statusFilter ?? "")" />
+        <div class="dash-search-input-wrap">
+            <input type="text" name="search" placeholder="Search items" value="@ViewBag.SearchTerm" aria-label="Search work orders" />
+            <button type="button" class="dash-search-clear @(string.IsNullOrEmpty(ViewBag.SearchTerm) ? "is-hidden" : "")" aria-label="Clear search" onclick="const input=this.parentElement.querySelector('input[name=search]'); input.value=''; this.form.submit();">×</button>
+        </div>
+        <button type="submit" class="dash-btn dash-btn--secondary dash-btn--sm">Search</button>
+    </form>
 </div>
 
 @if (!Model.Any())

@@ -1,0 +1,210 @@
+@model SnackFlowMES.Models.DowntimeReport
+@{
+    ViewData["Title"] = "Resolve Downtime";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+}
+
+<div class="dash-page-header">
+    <div>
+        <h1 class="dash-page-title">Resolve Downtime Report</h1>
+        <p class="dash-page-subtitle">@Model.ProductionLine - @Model.Reason</p>
+    </div>
+</div>
+
+<div class="dash-row">
+    <!-- Downtime Summary -->
+    <div class="dash-panel dash-panel--narrow">
+        <div class="dash-panel-header">
+            <h2 class="dash-panel-title">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                Downtime Summary
+            </h2>
+        </div>
+
+        <div style="padding:20px;">
+            <div class="dash-summary-box">
+                <div class="dash-summary-row">
+                    <span>Work Order</span>
+                    <strong>@Model.WorkOrder?.WoNumber</strong>
+                </div>
+                <div class="dash-summary-row">
+                    <span>Production Line</span>
+                    <strong>@Model.ProductionLine</strong>
+                </div>
+                <div class="dash-summary-row">
+                    <span>Reason</span>
+                    <strong>@Model.Reason</strong>
+                </div>
+                <div class="dash-summary-row">
+                    <span>Duration</span>
+                    <strong style="color:#EF4444;">
+                        @{
+                            var durationHours = Model.DurationMinutes / 60.0;
+                            var durationDisplay = Model.DurationMinutes >= 60 
+                                ? $"{durationHours:F1} hours" 
+                                : $"{Model.DurationMinutes} minutes";
+                        }
+                        @durationDisplay
+                    </strong>
+                </div>
+                <div class="dash-summary-row">
+                    <span>Reported By</span>
+                    <strong>@Model.ReportedBy?.FullName</strong>
+                </div>
+            </div>
+
+            <div style="margin-top:16px;padding:16px;background:var(--bg-secondary);border-radius:8px;">
+                <h4 style="font-size:0.875rem;font-weight:600;margin:0 0 8px 0;">Description</h4>
+                <p style="margin:0;font-size:0.875rem;color:var(--text-secondary);line-height:1.6;white-space:pre-wrap;">@Model.Description</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Resolution Form -->
+    <div class="dash-panel dash-panel--wide">
+        <div class="dash-panel-header">
+            <h2 class="dash-panel-title">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                Resolution Details
+            </h2>
+        </div>
+
+        <form asp-action="Resolve" asp-route-id="@Model.DowntimeId" method="post" style="padding:20px;">
+            @Html.AntiForgeryToken()
+
+            <!-- End Time (if not set) -->
+            @if (!Model.EndTime.HasValue)
+            {
+                <div class="dash-form-group">
+                    <label for="endTime" class="dash-form-label">End Time *</label>
+                    <input type="datetime-local" name="endTime" id="endTime" class="dash-form-input" value="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" required />
+                    <small class="dash-form-help">When was the issue resolved?</small>
+                </div>
+            }
+
+            <!-- Resolution Status -->
+            <div class="dash-form-group">
+                <label for="status" class="dash-form-label">Status *</label>
+                <select name="status" id="status" class="dash-form-input" required>
+                    <option value="">-- Select Status --</option>
+                    <option value="Resolved">Resolved</option>
+                    <option value="Escalated">Escalated</option>
+                </select>
+                <small class="dash-form-help">Mark as Resolved if fixed, or Escalated if requires further attention</small>
+            </div>
+
+            <!-- Resolution Notes -->
+            <div class="dash-form-group">
+                <label for="resolution" class="dash-form-label">Resolution Notes *</label>
+                <textarea name="resolution" id="resolution" class="dash-form-input" rows="6" placeholder="Describe what was done to resolve the issue, parts replaced, actions taken, etc..." required></textarea>
+                <small class="dash-form-help">Provide detailed information about the resolution for future reference</small>
+            </div>
+
+            <!-- Info Box -->
+            <div class="dash-alert dash-alert--info">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                <div>
+                    <strong>Note:</strong> The operator who reported this issue will be notified of the resolution. Make sure to provide clear and helpful information.
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="dash-form-actions">
+                <button type="submit" class="dash-btn dash-btn--primary">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    Submit Resolution
+                </button>
+                <a href="@Url.Action("Details", new { id = Model.DowntimeId })" class="dash-btn dash-btn--secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+
+<style>
+.dash-form-group {
+    margin-bottom: 20px;
+}
+
+.dash-form-label {
+    display: block;
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+}
+
+.dash-form-input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 0.875rem;
+    color: var(--text-primary);
+    background: var(--bg-primary);
+    transition: all 0.2s;
+}
+
+.dash-form-input:focus {
+    outline: none;
+    border-color: #3B82F6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.dash-form-help {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-top: 4px;
+}
+
+.dash-form-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border-color);
+}
+
+.dash-btn--secondary {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+
+.dash-btn--secondary:hover {
+    background: var(--bg-tertiary);
+}
+
+.dash-alert {
+    padding: 16px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+}
+
+.dash-alert--info {
+    background: #DBEAFE;
+    border: 1px solid #93C5FD;
+    color: #1E40AF;
+}
+
+.dash-alert svg {
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+textarea.dash-form-input {
+    resize: vertical;
+    min-height: 100px;
+}
+
+select.dash-form-input {
+    cursor: pointer;
+}
+</style>

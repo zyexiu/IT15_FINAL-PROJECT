@@ -10,43 +10,23 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
     </div>
     <div class="dash-role-welcome-content">
-        <h1 class="dash-role-welcome-title">Welcome, Quality Control</h1>
-        <p class="dash-role-welcome-subtitle">Review completed work orders, approve outputs, and add quality remarks.</p>
+        <h1 class="dash-role-welcome-title">Quality Control</h1>
+        <p class="dash-role-welcome-subtitle">Inspect products, record quality results, and ensure production meets quality standards. Your role focuses on quality inspection, not production execution.</p>
     </div>
 </div>
 
-<!-- Quick Actions -->
-<div class="dash-quick-actions">
-    <a href="/WorkOrder?status=Completed" class="dash-quick-action">
-        <div class="dash-quick-action-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-        </div>
-        <div class="dash-quick-action-content">
-            <div class="dash-quick-action-title">Completed Orders</div>
-            <div class="dash-quick-action-subtitle">Pending QC review</div>
-        </div>
-    </a>
-    <a href="/WorkOrder?status=InProgress" class="dash-quick-action">
-        <div class="dash-quick-action-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        </div>
-        <div class="dash-quick-action-content">
-            <div class="dash-quick-action-title">In Progress</div>
-            <div class="dash-quick-action-subtitle">Monitor production</div>
-        </div>
-    </a>
-</div>
+
 
 <!-- ══ KPI CARDS ════════════════════════════════════════════ -->
 <div class="dash-kpi-grid">
     <div class="dash-kpi-card dash-kpi-role-qc">
-        <div class="dash-kpi-icon dash-kpi-icon--green" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        <div class="dash-kpi-icon dash-kpi-icon--blue" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
         </div>
         <div class="dash-kpi-body">
             <span class="dash-kpi-label">Completed Orders</span>
-            <span class="dash-kpi-value">@Model.CompletedOrders</span>
-            <span class="dash-kpi-sub">Pending QC review</span>
+            <span class="dash-kpi-value">@Model.CompletedCount</span>
+            <span class="dash-kpi-sub">Awaiting inspection</span>
         </div>
     </div>
 
@@ -57,83 +37,249 @@
         <div class="dash-kpi-body">
             <span class="dash-kpi-label">In Progress</span>
             <span class="dash-kpi-value">@Model.InProgressCount</span>
-            <span class="dash-kpi-sub">Currently in production</span>
+            <span class="dash-kpi-sub">Active production</span>
         </div>
     </div>
+
+
 
     <div class="dash-kpi-card dash-kpi-role-qc">
-        <div class="dash-kpi-icon dash-kpi-icon--blue" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <div class="dash-kpi-icon dash-kpi-icon--purple" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
         </div>
         <div class="dash-kpi-body">
-            <span class="dash-kpi-label">Total Orders</span>
-            <span class="dash-kpi-value">@Model.TotalWorkOrders</span>
-            <span class="dash-kpi-sub">All time</span>
+            <span class="dash-kpi-label">Inspections Today</span>
+            <span class="dash-kpi-value">@(ViewBag.InspectionsToday ?? 0)</span>
+            <span class="dash-kpi-sub">This shift</span>
         </div>
     </div>
 </div>
 
-<!-- ══ COMPLETED WORK ORDERS FOR QC ═════════════════════════ -->
-<div class="dash-panel">
+<!-- ══ PASS RATE PERFORMANCE CHART ════════════════════════ -->
+<div class="dash-panel" style="width:100%;margin-bottom:24px;">
     <div class="dash-panel-header">
         <h2 class="dash-panel-title">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-            Completed Work Orders - QC Review
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 20V10M12 20V4M6 20v-6"/><path d="M0 20h24" stroke-width="1"/></svg>
+            Pass Rate Performance
         </h2>
-        <a href="/WorkOrder?status=Completed" class="dash-panel-action">View all →</a>
+    </div>
+    <div style="padding:24px;height:400px;position:relative;">
+        <canvas id="passRateChart"></canvas>
+    </div>
+    <div style="padding:0 24px 24px 24px;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;">
+        <div class="dash-summary-box">
+            <div class="dash-summary-row">
+                <span>Total Inspections</span>
+                <strong>@(ViewBag.TotalInspections ?? 0)</strong>
+            </div>
+        </div>
+        <div class="dash-summary-box">
+            <div class="dash-summary-row">
+                <span>Passed</span>
+                <strong style="color:#10B981;">@(ViewBag.PassedInspections ?? 0)</strong>
+            </div>
+        </div>
+        <div class="dash-summary-box">
+            <div class="dash-summary-row">
+                <span>Failed</span>
+                <strong style="color:#EF4444;">@((ViewBag.TotalInspections ?? 0) - (ViewBag.PassedInspections ?? 0))</strong>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ══ MAIN CONTENT ROW ══════════════════════════════════════ -->
+<div class="dash-row">
+    <!-- Orders Awaiting Inspection -->
+    <div class="dash-panel dash-panel--wide">
+        <div class="dash-panel-header">
+            <h2 class="dash-panel-title">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                Orders Awaiting Inspection
+            </h2>
+            <a href="/WorkOrder?status=Completed" class="dash-panel-action">View all →</a>
+        </div>
+
+        @if (!Model.RecentWorkOrders.Any(w => w.Status == "Completed"))
+        {
+            <div class="dash-empty">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                <p>No completed orders awaiting inspection.</p>
+            </div>
+        }
+        else
+        {
+            <div class="dash-table-wrap">
+                <table class="dash-table" role="table">
+                    <thead>
+                        <tr>
+                            <th>WO Number</th>
+                            <th>Product</th>
+                            <th>Line</th>
+                            <th>Quantity</th>
+                            <th>Completed</th>
+                            <th>QC Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var wo in Model.RecentWorkOrders.Where(w => w.Status == "Completed" || w.Status == "InProgress").Take(10))
+                        {
+                            var hasQc = ViewBag.QcResults != null && ((List<int>)ViewBag.QcResults).Contains(wo.WorkOrderId);
+                            <tr>
+                                <td class="dash-table-mono"><a href="/WorkOrder/Details/@wo.WorkOrderId">@wo.WoNumber</a></td>
+                                <td class="dash-table-primary">@wo.ItemName</td>
+                                <td>@(wo.ProductionLine ?? "—")</td>
+                                <td>@wo.ActualQty.ToString("N0") @wo.UnitOfMeasure</td>
+                                <td>@wo.ScheduledStart.ToString("MMM dd, yyyy")</td>
+                                <td>
+                                    @if (hasQc)
+                                    {
+                                        <span class="dash-badge dash-badge--completed">Inspected</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="dash-badge dash-badge--draft">Pending</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (!hasQc && wo.Status == "Completed")
+                                    {
+                                        <a href="/Qc/RecordInspection?workOrderId=@wo.WorkOrderId" class="dash-action-btn dash-action-btn--primary" title="Record Inspection">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <a href="/WorkOrder/Details/@wo.WorkOrderId" class="dash-action-btn" title="View Details">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                        </a>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
     </div>
 
-    @if (!Model.RecentWorkOrders.Any(w => w.Status == "Completed"))
-    {
-        <div class="dash-empty">
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-            <p>No completed work orders pending QC review.</p>
-        </div>
-    }
-    else
-    {
-        <div class="dash-table-wrap">
-            <table class="dash-table" role="table">
-                <thead>
-                    <tr>
-                        <th>WO Number</th>
-                        <th>Product</th>
-                        <th>Line</th>
-                        <th>Planned Qty</th>
-                        <th>Actual Qty</th>
-                        <th>Variance</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var wo in Model.RecentWorkOrders.Where(w => w.Status == "Completed"))
-                    {
-                        var variance = wo.ActualQty - wo.PlannedQty;
-                        var variancePercent = wo.PlannedQty > 0 ? (variance / wo.PlannedQty * 100) : 0;
-                        <tr>
-                            <td class="dash-table-mono"><a href="/WorkOrder/Details/@wo.WorkOrderId">@wo.WoNumber</a></td>
-                            <td class="dash-table-primary">@wo.ItemName</td>
-                            <td>@(wo.ProductionLine ?? "—")</td>
-                            <td>@wo.PlannedQty.ToString("N0") @wo.UnitOfMeasure</td>
-                            <td>@wo.ActualQty.ToString("N0") @wo.UnitOfMeasure</td>
-                            <td>
-                                <span style="color:@(variance >= 0 ? "#10B981" : "#EF4444");font-weight:600;">
-                                    @(variance >= 0 ? "+" : "")@variance.ToString("N0") (@variancePercent.ToString("F1")%)
-                                </span>
-                            </td>
-                            <td>
-                                <span class="dash-badge dash-badge--completed">
-                                    @wo.Status
-                                </span>
-                            </td>
-                            <td>
-                                <a href="/WorkOrder/Details/@wo.WorkOrderId" class="dash-btn dash-btn--secondary dash-btn--sm">Review</a>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
-    }
+    <!-- Pass Rate Chart -->
 </div>
+
+<!-- Pass Rate Chart Script -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('passRateChart')?.getContext('2d');
+    if (!ctx) return;
+
+    const totalInspections = @(ViewBag.TotalInspections ?? 0);
+    const passedInspections = @(ViewBag.PassedInspections ?? 0);
+    const failedInspections = totalInspections - passedInspections;
+    const passRate = totalInspections > 0 ? (passedInspections * 100 / totalInspections) : 0;
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Pass Rate Distribution'],
+            datasets: [
+                {
+                    label: 'Passed',
+                    data: [passedInspections],
+                    backgroundColor: '#10B981',
+                    borderColor: '#059669',
+                    borderWidth: 2,
+                    borderRadius: 6,
+                    barPercentage: 0.6
+                },
+                {
+                    label: 'Failed',
+                    data: [failedInspections],
+                    backgroundColor: '#EF4444',
+                    borderColor: '#DC2626',
+                    borderWidth: 2,
+                    borderRadius: 6,
+                    barPercentage: 0.6
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            indexAxis: 'y',
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'bottom',
+                    labels: {
+                        font: { size: 13, weight: '600' },
+                        padding: 20,
+                        boxWidth: 15
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0,0,0,0.8)',
+                    padding: 12,
+                    titleFont: { size: 14, weight: 'bold' },
+                    bodyFont: { size: 13 },
+                    borderColor: 'rgba(255,255,255,0.2)',
+                    borderWidth: 1,
+                    callbacks: {
+                        label: function(ctx) {
+                            return ctx.dataset.label + ': ' + ctx.parsed.x + ' inspections';
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    stacked: true,
+                    beginAtZero: true,
+                    grid: { color: 'rgba(255,255,255,0.05)' },
+                    ticks: { font: { size: 12 }, callback: function(value) { return value; } }
+                },
+                y: {
+                    stacked: true,
+                    grid: { display: false },
+                    ticks: { font: { size: 13, weight: '600' } }
+                }
+            }
+        }
+    });
+});
+</script>
+
+<style>
+.dash-action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-primary);
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.dash-action-btn:hover {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border-color: var(--text-secondary);
+}
+
+.dash-action-btn--primary {
+    background: #3B82F6;
+    border-color: #3B82F6;
+    color: white;
+}
+
+.dash-action-btn--primary:hover {
+    background: #2563EB;
+    border-color: #2563EB;
+    color: white;
+}
+</style>

@@ -1,0 +1,123 @@
+@model SnackFlowMES.Models.MaterialRequest
+@{
+    ViewData["Title"] = "Material Request";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+    var materialItems = ViewBag.MaterialItems as IEnumerable<SnackFlowMES.Models.Item> ?? Enumerable.Empty<SnackFlowMES.Models.Item>();
+}
+
+<div class="dash-page-header">
+    <div>
+        <h1 class="dash-page-title">Material Request</h1>
+        <p class="dash-page-subtitle">Submit a request for materials</p>
+    </div>
+    <a asp-action="Index" class="dash-btn dash-btn--secondary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        Back to List
+    </a>
+</div>
+
+<div class="dash-form-container">
+    <form asp-action="Create" method="post" class="dash-form">
+        @Html.AntiForgeryToken()
+        <div asp-validation-summary="ModelOnly" class="dash-alert dash-alert--error"></div>
+
+        <div class="dash-form-section">
+            <h2 class="dash-form-section-title">Material Information</h2>
+
+            <div class="dash-form-row">
+                <div class="dash-form-group">
+                    <label asp-for="ItemId" class="dash-form-label">Item *</label>
+                    <select asp-for="ItemId" class="dash-form-input" id="mr-item-select">
+                        <option value="">-- Select Item --</option>
+                        @foreach (var item in materialItems)
+                        {
+                            <option value="@item.ItemId" data-uom="@item.UnitOfMeasure">@item.ItemName (@item.UnitOfMeasure)</option>
+                        }
+                    </select>
+                    <span asp-validation-for="ItemId" class="dash-form-error"></span>
+                </div>
+
+                <div class="dash-form-group">
+                    <label asp-for="RequestedQty" class="dash-form-label">Requested Quantity * <span id="mr-uom-label" style="font-weight:600;color:var(--dash-text-muted);"></span></label>
+                    <input asp-for="RequestedQty" type="number" step="0.01" class="dash-form-input" placeholder="0.00" />
+                    <span asp-validation-for="RequestedQty" class="dash-form-error"></span>
+                    <small class="dash-form-help">Unit: <strong id="mr-uom-text">Select item first</strong></small>
+                </div>
+            </div>
+
+            <div class="dash-form-row">
+                <div class="dash-form-group">
+                    <label asp-for="Reason" class="dash-form-label">Reason *</label>
+                    <select asp-for="Reason" asp-items="ViewBag.Reasons" class="dash-form-input">
+                        <option value="">-- Select Reason --</option>
+                    </select>
+                    <span asp-validation-for="Reason" class="dash-form-error"></span>
+                    <small class="dash-form-help">Why is this material needed?</small>
+                </div>
+
+                <div class="dash-form-group">
+                    <label asp-for="Priority" class="dash-form-label">Priority *</label>
+                    <select asp-for="Priority" asp-items="ViewBag.Priorities" class="dash-form-input">
+                        <option value="">-- Select Priority --</option>
+                    </select>
+                    <span asp-validation-for="Priority" class="dash-form-error"></span>
+                </div>
+            </div>
+
+            <div class="dash-form-group">
+                <label asp-for="RequiredByDate" class="dash-form-label">Required By Date</label>
+                <input asp-for="RequiredByDate" type="date" class="dash-form-input" />
+                <span asp-validation-for="RequiredByDate" class="dash-form-error"></span>
+                <small class="dash-form-help">When do you need this material?</small>
+            </div>
+
+            <div class="dash-form-group">
+                <label asp-for="Notes" class="dash-form-label">Notes</label>
+                <textarea asp-for="Notes" rows="4" class="dash-form-input" placeholder="Additional details or special instructions..."></textarea>
+                <span asp-validation-for="Notes" class="dash-form-error"></span>
+            </div>
+        </div>
+
+        <div class="dash-form-actions">
+            <button type="submit" class="dash-btn dash-btn--primary">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                Submit Request
+            </button>
+            <a asp-action="Index" class="dash-btn dash-btn--secondary">Cancel</a>
+        </div>
+
+        <input type="hidden" asp-for="UnitOfMeasure" id="mr-uom-hidden" />
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        (function () {
+            const itemSelect = document.getElementById('mr-item-select');
+            const uomText = document.getElementById('mr-uom-text');
+            const uomLabel = document.getElementById('mr-uom-label');
+            const uomHidden = document.getElementById('mr-uom-hidden');
+
+            if (!itemSelect || !uomText || !uomLabel || !uomHidden) return;
+
+            function updateUom() {
+                const selected = itemSelect.options[itemSelect.selectedIndex];
+                const uom = selected ? (selected.getAttribute('data-uom') || '') : '';
+
+                if (uom) {
+                    uomText.textContent = uom;
+                    uomLabel.textContent = `(${uom})`;
+                    uomHidden.value = uom;
+                } else {
+                    uomText.textContent = 'Select item first';
+                    uomLabel.textContent = '';
+                    uomHidden.value = '';
+                }
+            }
+
+            itemSelect.addEventListener('change', updateUom);
+            updateUom();
+        })();
+    </script>
+}

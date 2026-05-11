@@ -10,55 +10,35 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
     </div>
     <div class="dash-role-welcome-content">
-        <h1 class="dash-role-welcome-title">Welcome, Administrator</h1>
-        <p class="dash-role-welcome-subtitle">You have full system access. Monitor operations, manage users, and oversee all production activities.</p>
+        <h1 class="dash-role-welcome-title">System Administration</h1>
+        <p class="dash-role-welcome-subtitle">Manage users, monitor system health, and oversee organizational operations. Your role focuses on administration, not production floor work.</p>
     </div>
 </div>
 
-<!-- ══ KPI CARDS ════════════════════════════════════════════ -->
+<!-- ══ KPI CARDS - MANAGEMENT FOCUSED ══════════════════════ -->
 <div class="dash-kpi-grid">
-    <div class="dash-kpi-card dash-kpi-role-admin">
-        <div class="dash-kpi-icon dash-kpi-icon--blue" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-        </div>
-        <div class="dash-kpi-body">
-            <span class="dash-kpi-label">Total Work Orders</span>
-            <span class="dash-kpi-value">@Model.TotalWorkOrders</span>
-            <span class="dash-kpi-sub">All time</span>
-        </div>
-    </div>
-
-    <div class="dash-kpi-card dash-kpi-role-admin">
-        <div class="dash-kpi-icon dash-kpi-icon--amber" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        </div>
-        <div class="dash-kpi-body">
-            <span class="dash-kpi-label">Active Production</span>
-            <span class="dash-kpi-value">@Model.ActiveProduction</span>
-            <span class="dash-kpi-sub">Released + In Progress</span>
-        </div>
-    </div>
-
-    <div class="dash-kpi-card dash-kpi-role-admin">
-        <div class="dash-kpi-icon dash-kpi-icon--green" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-        </div>
-        <div class="dash-kpi-body">
-            <span class="dash-kpi-label">Completed Orders</span>
-            <span class="dash-kpi-value">@Model.CompletedOrders</span>
-            <span class="dash-kpi-sub">Successfully closed</span>
-        </div>
-    </div>
-
     <div class="dash-kpi-card dash-kpi-role-admin">
         <div class="dash-kpi-icon dash-kpi-icon--purple" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
         </div>
         <div class="dash-kpi-body">
-            <span class="dash-kpi-label">Total Items</span>
+            <span class="dash-kpi-label">Inventory Items</span>
             <span class="dash-kpi-value">@Model.TotalItems</span>
             <span class="dash-kpi-sub">Materials master</span>
         </div>
+        <a href="/Inventory" class="dash-kpi-link">View Inventory →</a>
+    </div>
+
+    <div class="dash-kpi-card dash-kpi-role-admin">
+        <div class="dash-kpi-icon dash-kpi-icon--amber" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        </div>
+        <div class="dash-kpi-body">
+            <span class="dash-kpi-label">Work Orders</span>
+            <span class="dash-kpi-value">@Model.TotalWorkOrders</span>
+            <span class="dash-kpi-sub">All time</span>
+        </div>
+        <a href="/WorkOrder" class="dash-kpi-link">View Orders →</a>
     </div>
 
     @if (Model.LowStockCount > 0)
@@ -70,144 +50,272 @@
             <div class="dash-kpi-body">
                 <span class="dash-kpi-label">Low Stock Alerts</span>
                 <span class="dash-kpi-value">@Model.LowStockCount</span>
-                <span class="dash-kpi-sub">Below reorder point</span>
+                <span class="dash-kpi-sub">Requires attention</span>
             </div>
+            <a href="/Inventory?lowstock=low" class="dash-kpi-link">View Alerts →</a>
+        </div>
+    }
+
+    @{
+        var openDowntime = ViewBag.OpenDowntimeCount as int? ?? 0;
+    }
+    @if (openDowntime > 0)
+    {
+        <div class="dash-kpi-card dash-kpi-card--alert dash-kpi-role-admin">
+            <div class="dash-kpi-icon dash-kpi-icon--orange" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </div>
+            <div class="dash-kpi-body">
+                <span class="dash-kpi-label">Open Downtime</span>
+                <span class="dash-kpi-value">@openDowntime</span>
+                <span class="dash-kpi-sub">Requires resolution</span>
+            </div>
+            <a href="/Downtime?status=Open" class="dash-kpi-link">View Reports →</a>
         </div>
     }
 </div>
 
-<!-- ══ BOTTOM ROW: Table + Status Chart ═════════════════════ -->
-<div class="dash-row">
-    <!-- Recent Work Orders table -->
-    <div class="dash-panel dash-panel--wide">
-        <div class="dash-panel-header">
-            <h2 class="dash-panel-title">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                Recent Work Orders
-            </h2>
-            <a href="/WorkOrder" class="dash-panel-action">View all →</a>
-        </div>
-
-        @if (!Model.RecentWorkOrders.Any())
-        {
-            <div class="wo-empty">
-                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                <p>No work orders yet. Create your first work order to get started.</p>
-            </div>
-        }
-        else
-        {
-            <div class="wo-table-wrapper">
-                <table class="wo-table" role="table">
-                    <thead>
-                        <tr>
-                            <th>WO Number</th>
-                            <th>Product</th>
-                            <th>Line</th>
-                            <th>Planned Qty</th>
-                            <th>Actual Qty</th>
-                            <th>Scheduled</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var wo in Model.RecentWorkOrders)
-                        {
-                            <tr>
-                                <td class="wo-table-mono"><a href="/WorkOrder/Details/@wo.WorkOrderId">@wo.WoNumber</a></td>
-                                <td class="wo-table-primary">@wo.ItemName</td>
-                                <td class="wo-table-muted">@(wo.ProductionLine ?? "—")</td>
-                                <td class="wo-table-muted">@wo.PlannedQty.ToString("N0") @wo.UnitOfMeasure</td>
-                                <td class="wo-table-muted">@wo.ActualQty.ToString("N0") @wo.UnitOfMeasure</td>
-                                <td class="wo-table-muted">@wo.ScheduledStart.ToString("MMM dd, yyyy")</td>
-                                <td>
-                                    <span class="wo-badge wo-badge--@wo.Status.ToLower()">
-                                        @wo.Status
-                                    </span>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-        }
-    </div>
-
-    <!-- Status breakdown panel -->
-    <div class="dash-panel dash-panel--narrow">
+<!-- ══ MANAGEMENT OVERVIEW PANELS ══════════════════════════ -->
+<div class="dash-row dash-admin-analytics-row">
+    <div class="dash-panel dash-panel--wide dash-admin-analytics-panel">
         <div class="dash-panel-header">
             <h2 class="dash-panel-title">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-                Order Status
+                Production Analytics
             </h2>
+            <span class="dash-panel-subtitle">Visual insights for management oversight</span>
         </div>
 
-        <div class="dash-status-list">
-            <div class="dash-status-row">
-                <div class="dash-status-dot dash-status-dot--draft"></div>
-                <span class="dash-status-label">Draft</span>
-                <span class="dash-status-count">@Model.DraftCount</span>
-                <div class="dash-status-bar-track">
-                    <div class="dash-status-bar dash-status-bar--draft"
-                         style="width:@(Model.TotalWorkOrders > 0 ? (Model.DraftCount * 100 / Model.TotalWorkOrders) : 0)%"></div>
+        <div class="dash-admin-analytics-grid">
+            <div class="dash-chart-card dash-admin-chart-half">
+                <h3 class="dash-chart-title">Work Order Distribution</h3>
+                <div class="dash-chart-container dash-admin-chart-container">
+                    <canvas id="statusChart"></canvas>
+                </div>
+                <div class="dash-chart-legend">
+                    <div class="dash-chart-legend-item">
+                        <span class="dash-chart-legend-dot" style="background:#6B7280;"></span>
+                        <span>Draft: @Model.DraftCount</span>
+                    </div>
+                    <div class="dash-chart-legend-item">
+                        <span class="dash-chart-legend-dot" style="background:#3B82F6;"></span>
+                        <span>Released: @Model.ReleasedCount</span>
+                    </div>
+                    <div class="dash-chart-legend-item">
+                        <span class="dash-chart-legend-dot" style="background:#F59E0B;"></span>
+                        <span>In Progress: @Model.InProgressCount</span>
+                    </div>
+                    <div class="dash-chart-legend-item">
+                        <span class="dash-chart-legend-dot" style="background:#10B981;"></span>
+                        <span>Completed: @Model.CompletedCount</span>
+                    </div>
                 </div>
             </div>
-            <div class="dash-status-row">
-                <div class="dash-status-dot dash-status-dot--released"></div>
-                <span class="dash-status-label">Released</span>
-                <span class="dash-status-count">@Model.ReleasedCount</span>
-                <div class="dash-status-bar-track">
-                    <div class="dash-status-bar dash-status-bar--released"
-                         style="width:@(Model.TotalWorkOrders > 0 ? (Model.ReleasedCount * 100 / Model.TotalWorkOrders) : 0)%"></div>
-                </div>
-            </div>
-            <div class="dash-status-row">
-                <div class="dash-status-dot dash-status-dot--inprogress"></div>
-                <span class="dash-status-label">In Progress</span>
-                <span class="dash-status-count">@Model.InProgressCount</span>
-                <div class="dash-status-bar-track">
-                    <div class="dash-status-bar dash-status-bar--inprogress"
-                         style="width:@(Model.TotalWorkOrders > 0 ? (Model.InProgressCount * 100 / Model.TotalWorkOrders) : 0)%"></div>
-                </div>
-            </div>
-            <div class="dash-status-row">
-                <div class="dash-status-dot dash-status-dot--completed"></div>
-                <span class="dash-status-label">Completed</span>
-                <span class="dash-status-count">@Model.CompletedCount</span>
-                <div class="dash-status-bar-track">
-                    <div class="dash-status-bar dash-status-bar--completed"
-                         style="width:@(Model.TotalWorkOrders > 0 ? (Model.CompletedCount * 100 / Model.TotalWorkOrders) : 0)%"></div>
-                </div>
-            </div>
-            <div class="dash-status-row">
-                <div class="dash-status-dot dash-status-dot--cancelled"></div>
-                <span class="dash-status-label">Cancelled</span>
-                <span class="dash-status-count">@Model.CancelledCount</span>
-                <div class="dash-status-bar-track">
-                    <div class="dash-status-bar dash-status-bar--cancelled"
-                         style="width:@(Model.TotalWorkOrders > 0 ? (Model.CancelledCount * 100 / Model.TotalWorkOrders) : 0)%"></div>
+
+            <div class="dash-chart-card dash-admin-chart-half">
+                <h3 class="dash-chart-title">Production Trend (Last 7 Days)</h3>
+                <div class="dash-chart-container dash-admin-chart-container">
+                    <canvas id="trendChart"></canvas>
                 </div>
             </div>
         </div>
 
-        <!-- Production summary -->
-        <div class="dash-summary-box">
-            <div class="dash-summary-row">
-                <span>Total Orders</span>
-                <strong>@Model.TotalWorkOrders</strong>
-            </div>
-            <div class="dash-summary-row">
-                <span>Completion Rate</span>
-                <strong>
-                    @(Model.TotalWorkOrders > 0
-                        ? $"{(Model.CompletedOrders * 100.0 / Model.TotalWorkOrders):F0}%"
-                        : "—")
-                </strong>
-            </div>
-            <div class="dash-summary-row">
-                <span>Active Now</span>
-                <strong class="dash-summary-active">@Model.ActiveProduction</strong>
-            </div>
+        <!-- Note for Admin -->
+        <div style="margin-top:20px;padding:16px;background:#F3F4F6;border-radius:8px;border-left:4px solid #3B82F6;">
+            <p style="margin:0;color:#374151;font-size:0.875rem;line-height:1.5;">
+                <strong>Note:</strong> As an Administrator, your focus is on system management and oversight. For detailed production floor operations, please refer to the Planner or Operator roles. Use the Reports section for comprehensive production analytics.
+            </p>
         </div>
     </div>
 </div>
+
+<style>
+/* Admin Analytics Layout */
+.dash-admin-analytics-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.dash-admin-chart-half {
+    min-width: 0;
+}
+
+.dash-admin-chart-container {
+    height: 280px;
+}
+
+.dash-chart-card {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 20px;
+    min-width: 0; /* Prevents overflow */
+    overflow: hidden; /* Ensures content doesn't spill */
+}
+
+.dash-chart-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 16px 0;
+}
+
+.dash-chart-container {
+    position: relative;
+    width: 100%;
+    height: 280px;
+    max-width: 100%; /* Prevents overflow */
+}
+
+.dash-chart-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-color);
+}
+
+.dash-chart-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.813rem;
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+
+.dash-chart-legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+/* Metrics Grid */
+/* Responsive Breakpoints */
+@@media (max-width: 1024px) {
+    .dash-admin-analytics-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@@media (max-width: 768px) {
+    .dash-chart-container {
+        height: 240px;
+    }
+
+    .dash-chart-card {
+        padding: 16px;
+    }
+}
+
+@@media (max-width: 480px) {
+    .dash-chart-container {
+        height: 200px;
+    }
+
+    .dash-chart-legend {
+        flex-direction: column;
+        gap: 8px;
+    }
+}
+</style>
+
+
+@section Scripts {
+<script>
+    // Chart.js configuration
+    Chart.defaults.font.family = 'Inter, sans-serif';
+    Chart.defaults.color = getComputedStyle(document.documentElement).getPropertyValue('--text-secondary').trim();
+
+    // Status Donut Chart
+    const statusCtx = document.getElementById('statusChart');
+    if (statusCtx) {
+        new Chart(statusCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Draft', 'Released', 'In Progress', 'Completed', 'Cancelled'],
+                datasets: [{
+                    data: [@Model.DraftCount, @Model.ReleasedCount, @Model.InProgressCount, @Model.CompletedCount, @Model.CancelledCount],
+                    backgroundColor: ['#6B7280', '#3B82F6', '#F59E0B', '#10B981', '#EF4444'],
+                    borderWidth: 0,
+                    hoverOffset: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        padding: 12,
+                        titleFont: { size: 14, weight: '600' },
+                        bodyFont: { size: 13 },
+                        callbacks: {
+                            label: function(context) {
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = total > 0 ? ((context.parsed / total) * 100).toFixed(1) : 0;
+                                return context.label + ': ' + context.parsed + ' (' + percentage + '%)';
+                            }
+                        }
+                    }
+                },
+                cutout: '65%'
+            }
+        });
+    }
+
+    // Production Trend Line Chart
+    const trendCtx = document.getElementById('trendChart');
+    if (trendCtx) {
+        const trendData = @Html.Raw(ViewBag.ProductionTrend ?? "[]");
+        new Chart(trendCtx, {
+            type: 'line',
+            data: {
+                labels: trendData.map(d => d.date),
+                datasets: [{
+                    label: 'Work Orders Created',
+                    data: trendData.map(d => d.count),
+                    borderColor: '#3B82F6',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                    pointBackgroundColor: '#3B82F6',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        padding: 12,
+                        titleFont: { size: 14, weight: '600' },
+                        bodyFont: { size: 13 }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { stepSize: 1, precision: 0 },
+                        grid: { color: 'rgba(0, 0, 0, 0.05)' }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+    }
+</script>
+}

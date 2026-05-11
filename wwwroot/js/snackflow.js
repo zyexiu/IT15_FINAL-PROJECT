@@ -227,6 +227,58 @@
     const usernameError   = document.getElementById('sf-username-error');
     const passwordError   = document.getElementById('sf-password-error');
     const rememberCheckbox = document.getElementById('sf-remember');
+    const loginRecaptchaWrap = document.getElementById('sf-login-recaptcha-wrap');
+    const loginRecaptchaError = document.getElementById('sf-login-recaptcha-error');
+
+    let loginRequiresCaptcha = false;
+    let loginAutoSubmitting = false;
+
+    function hideLoginCaptcha() {
+      loginRequiresCaptcha = false;
+      if (loginRecaptchaWrap) loginRecaptchaWrap.style.display = 'none';
+      if (loginRecaptchaError) loginRecaptchaError.textContent = '';
+      if (typeof grecaptcha !== 'undefined') {
+        try { grecaptcha.reset(); } catch (_) {}
+      }
+    }
+
+    function showLoginCaptcha(message) {
+      loginRequiresCaptcha = true;
+      if (loginRecaptchaWrap) loginRecaptchaWrap.style.display = 'flex';
+      // Don't show the prompt message text — let the reCAPTCHA widget speak for itself
+      if (loginRecaptchaError) loginRecaptchaError.textContent = '';
+      if (typeof grecaptcha !== 'undefined') {
+        try { grecaptcha.reset(); } catch (_) {}
+      }
+    }
+
+    window.sfOnLoginRecaptchaSuccess = function () {
+      if (!loginRequiresCaptcha || !loginForm || loginAutoSubmitting) return;
+      loginAutoSubmitting = true;
+      if (loginRecaptchaError) loginRecaptchaError.textContent = '';
+      loginSubmitBtn.disabled = true;
+      loginBtnText.textContent = 'Signing in...';
+
+      if (typeof loginForm.requestSubmit === 'function') {
+        loginForm.requestSubmit();
+      } else {
+        loginForm.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+      }
+
+      loginAutoSubmitting = false;
+    };
+
+    window.sfOnLoginRecaptchaExpired = function () {
+      if (loginRecaptchaError) {
+        loginRecaptchaError.textContent = 'reCAPTCHA expired. Please check again.';
+      }
+    };
+
+    window.sfOnLoginRecaptchaError = function () {
+      if (loginRecaptchaError) {
+        loginRecaptchaError.textContent = 'reCAPTCHA error. Please try again.';
+      }
+    };
 
     if (loginForm) {
       loginForm.addEventListener('submit', async function (e) {
@@ -266,17 +318,21 @@
         loginBtnText.textContent = 'Signing in...';
 
         try {
-          // Get reCAPTCHA token
-          const siteKey = document.querySelector('script[src*="recaptcha"]')?.src.match(/render=([^&]+)/)?.[1];
           let recaptchaToken = '';
-          
-          if (siteKey && typeof grecaptcha !== 'undefined') {
-            try {
-              recaptchaToken = await grecaptcha.execute(siteKey, { action: 'login' });
-            } catch (recaptchaError) {
-              console.error('reCAPTCHA error:', recaptchaError);
-              loginErrorMsg.textContent = 'Security verification failed. Please refresh the page and try again.';
+          if (loginRequiresCaptcha) {
+            if (typeof grecaptcha === 'undefined') {
+              loginErrorMsg.textContent = 'Security verification is still loading. Please try again.';
               loginError.style.display = 'flex';
+              loginSubmitBtn.disabled = false;
+              loginBtnText.textContent = 'Sign In';
+              return;
+            }
+
+            recaptchaToken = grecaptcha.getResponse();
+            if (!recaptchaToken) {
+              if (loginRecaptchaError) {
+                loginRecaptchaError.textContent = 'Please complete the reCAPTCHA checkbox.';
+              }
               loginSubmitBtn.disabled = false;
               loginBtnText.textContent = 'Sign In';
               return;
@@ -307,7 +363,12 @@
             // Success! Redirect to dashboard
             loginBtnText.textContent = 'Success!';
             window.location.href = result.redirectUrl || '/Dashboard';
+          } else if (result.requiresRecaptcha) {
+            showLoginCaptcha(result.message);
+            loginSubmitBtn.disabled = false;
+            loginBtnText.textContent = 'Sign In';
           } else {
+            hideLoginCaptcha();
             // Show error message
             loginErrorMsg.textContent = result.message || 'Login failed. Please try again.';
             loginError.style.display = 'flex';
@@ -332,6 +393,7 @@
         usernameInput.addEventListener('input', function () {
           usernameError.textContent = '';
           this.classList.remove('sf-input--error');
+          if (loginRecaptchaError) loginRecaptchaError.textContent = '';
         });
       }
 
@@ -339,6 +401,7 @@
         passwordInput.addEventListener('input', function () {
           passwordError.textContent = '';
           this.classList.remove('sf-input--error');
+          if (loginRecaptchaError) loginRecaptchaError.textContent = '';
         });
       }
     }

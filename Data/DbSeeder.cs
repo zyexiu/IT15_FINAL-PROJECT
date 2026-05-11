@@ -28,22 +28,31 @@ public static class DbSeeder
                 await roleManager.CreateAsync(new IdentityRole(role));
 
         // ── 2. Default users (one per role) ──────────────────
-        await EnsureUser(userManager, new ApplicationUser
+        // Create Admin first
+        var adminUser = new ApplicationUser
         {
             UserName = "admin@snackflow.local",
             Email    = "admin@snackflow.local",
             FullName = "System Administrator",
             EmailConfirmed = true,
-            IsActive = true
-        }, "Admin@1234!", Admin);
+            IsActive = true,
+            TenantId = null  // Admin has no tenant (their ID IS the tenant)
+        };
+        await EnsureUser(userManager, adminUser, "Admin@1234!", Admin);
 
+        // Get the admin user ID for setting as TenantId for other users
+        var admin = await userManager.FindByEmailAsync("admin@snackflow.local");
+        var adminId = admin?.Id ?? string.Empty;
+
+        // Create other users and set their TenantId to the Admin's ID
         await EnsureUser(userManager, new ApplicationUser
         {
             UserName = "planner@snackflow.local",
             Email    = "planner@snackflow.local",
             FullName = "Production Planner",
             EmailConfirmed = true,
-            IsActive = true
+            IsActive = true,
+            TenantId = adminId  // Link to Admin
         }, "Planner@1234!", Planner);
 
         await EnsureUser(userManager, new ApplicationUser
@@ -52,7 +61,8 @@ public static class DbSeeder
             Email    = "operator@snackflow.local",
             FullName = "Floor Operator",
             EmailConfirmed = true,
-            IsActive = true
+            IsActive = true,
+            TenantId = adminId  // Link to Admin
         }, "Operator@1234!", Operator);
 
         await EnsureUser(userManager, new ApplicationUser
@@ -61,7 +71,8 @@ public static class DbSeeder
             Email    = "qc@snackflow.local",
             FullName = "QC Inspector",
             EmailConfirmed = true,
-            IsActive = true
+            IsActive = true,
+            TenantId = adminId  // Link to Admin
         }, "QcUser@1234!", QC);
 
         await EnsureUser(userManager, new ApplicationUser
@@ -70,7 +81,8 @@ public static class DbSeeder
             Email    = "manager@snackflow.local",
             FullName = "Plant Manager",
             EmailConfirmed = true,
-            IsActive = true
+            IsActive = true,
+            TenantId = adminId  // Link to Admin
         }, "Manager@1234!", Manager);
 
         // ── 3. Sample Items ───────────────────────────────────
@@ -127,11 +139,21 @@ public static class DbSeeder
         string password,
         string role)
     {
-        if (await userManager.FindByEmailAsync(user.Email!) is null)
+        var existingUser = await userManager.FindByEmailAsync(user.Email!);
+        if (existingUser is null)
         {
             var result = await userManager.CreateAsync(user, password);
             if (result.Succeeded)
                 await userManager.AddToRoleAsync(user, role);
+        }
+        else
+        {
+            // Update TenantId if not set and user is not Admin
+            if (string.IsNullOrEmpty(existingUser.TenantId) && role != Admin)
+            {
+                existingUser.TenantId = user.TenantId;
+                await userManager.UpdateAsync(existingUser);
+            }
         }
     }
 }

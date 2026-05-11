@@ -1,0 +1,301 @@
+@model SnackFlowMES.Models.DowntimeReport
+@{
+    ViewData["Title"] = "Report Downtime";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+    var workOrders = ViewBag.WorkOrders as List<SnackFlowMES.Models.WorkOrder> ?? new List<SnackFlowMES.Models.WorkOrder>();
+    var selectedWo = ViewBag.SelectedWorkOrder as SnackFlowMES.Models.WorkOrder;
+}
+
+<div class="dash-page-header downtime-page-header">
+    <div>
+        <h1 class="dash-page-title">Report Downtime</h1>
+        <p class="dash-page-subtitle">Record production downtime or machine issues</p>
+    </div>
+</div>
+
+<div class="dash-panel downtime-form-panel">
+    <form asp-action="Create" method="post">
+        @Html.AntiForgeryToken()
+        
+        <div asp-validation-summary="ModelOnly" class="dash-alert dash-alert--error"></div>
+
+        <div class="downtime-form-grid">
+            <!-- Work Order Selection -->
+            <div class="dash-form-group">
+                <label asp-for="WorkOrderId" class="dash-form-label">Work Order *</label>
+                <select asp-for="WorkOrderId" id="downtimeWorkOrderId" class="dash-form-input" required>
+                    <option value="">-- Select Work Order --</option>
+                    @foreach (var wo in workOrders)
+                    {
+                        <option value="@wo.WorkOrderId" data-production-line="@wo.ProductionLine" selected="@(selectedWo != null && selectedWo.WorkOrderId == wo.WorkOrderId)">
+                            @wo.WoNumber - @wo.Item?.ItemName (@wo.Status)
+                        </option>
+                    }
+                </select>
+                <span asp-validation-for="WorkOrderId" class="dash-form-error"></span>
+            </div>
+
+            <!-- Production Line -->
+            <div class="dash-form-group">
+                <label asp-for="ProductionLine" class="dash-form-label">Production Line *</label>
+                <input asp-for="ProductionLine" id="downtimeProductionLine" class="dash-form-input" placeholder="e.g., Line 1, Line A" value="@(selectedWo?.ProductionLine ?? "")" readonly required />
+                <span asp-validation-for="ProductionLine" class="dash-form-error"></span>
+            </div>
+
+            <!-- Start Time -->
+            <div class="dash-form-group">
+                <label asp-for="StartTime" class="dash-form-label">Start Time *</label>
+                <input asp-for="StartTime" type="datetime-local" id="downtimeStartTime" class="dash-form-input" required />
+                <span asp-validation-for="StartTime" class="dash-form-error"></span>
+                <small class="dash-form-help">When did the downtime start?</small>
+            </div>
+
+            <!-- End Time (Optional) -->
+            <div class="dash-form-group">
+                <label asp-for="EndTime" class="dash-form-label">End Time (Optional)</label>
+                <input asp-for="EndTime" type="datetime-local" class="dash-form-input" />
+                <span asp-validation-for="EndTime" class="dash-form-error"></span>
+                <small class="dash-form-help">Leave blank if downtime is ongoing</small>
+            </div>
+
+            <!-- Reason -->
+            <div class="dash-form-group">
+                <label asp-for="Reason" class="dash-form-label">Reason *</label>
+                <select asp-for="Reason" class="dash-form-input" required>
+                    <option value="">-- Select Reason --</option>
+                    <option value="Machine Breakdown">Machine Breakdown</option>
+                    <option value="Material Shortage">Material Shortage</option>
+                    <option value="Power Outage">Power Outage</option>
+                    <option value="Maintenance">Maintenance</option>
+                    <option value="Changeover">Changeover</option>
+                    <option value="Other">Other</option>
+                </select>
+                <span asp-validation-for="Reason" class="dash-form-error"></span>
+            </div>
+
+            <!-- Description -->
+            <div class="dash-form-group dash-form-group--full">
+                <label asp-for="Description" class="dash-form-label">Description *</label>
+                <textarea asp-for="Description" class="dash-form-input" rows="4" placeholder="Describe the issue in detail..." required></textarea>
+                <span asp-validation-for="Description" class="dash-form-error"></span>
+                <small class="dash-form-help">Provide details about what happened and any actions taken</small>
+            </div>
+        </div>
+
+        <!-- Important Notice -->
+        <div class="dash-alert dash-alert--warning">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            <div>
+                <strong>Important:</strong> This report will be sent to Admin and Manager for review. Provide accurate information to help resolve the issue quickly.
+            </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="dash-form-actions">
+            <button type="submit" class="dash-btn dash-btn--primary">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                Submit Report
+            </button>
+            <a href="@Url.Action("Index")" class="dash-btn dash-btn--secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const workOrderSelect = document.getElementById('downtimeWorkOrderId');
+            const productionLineInput = document.getElementById('downtimeProductionLine');
+            const startTimeInput = document.getElementById('downtimeStartTime');
+
+            // Set default start time to now if empty
+            if (startTimeInput && !startTimeInput.value) {
+                const now = new Date();
+                const offset = now.getTimezoneOffset();
+                const localTime = new Date(now.getTime() - offset * 60 * 1000);
+                startTimeInput.value = localTime.toISOString().slice(0, 16);
+            }
+
+            if (!workOrderSelect || !productionLineInput) return;
+
+            const applyLineFromSelection = () => {
+                const selectedOption = workOrderSelect.options[workOrderSelect.selectedIndex];
+                const productionLine = selectedOption?.getAttribute('data-production-line') || '';
+
+                if (productionLine) {
+                    productionLineInput.value = productionLine;
+                } else if (!workOrderSelect.value) {
+                    productionLineInput.value = '';
+                }
+            };
+
+            workOrderSelect.addEventListener('change', applyLineFromSelection);
+            applyLineFromSelection();
+        });
+    </script>
+}
+
+<style>
+.downtime-page-header,
+.downtime-form-panel {
+    width: min(1120px, calc(100vw - 340px));
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.downtime-form-panel {
+    padding: 24px 26px;
+}
+
+.downtime-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px 20px;
+}
+
+.dash-form-group--full {
+    grid-column: 1 / -1;
+}
+
+.dash-form-group {
+    margin-bottom: 20px;
+}
+
+.dash-form-label {
+    display: block;
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+}
+
+.dash-form-input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 0.875rem;
+    color: var(--text-primary);
+    background: var(--bg-primary);
+    transition: all 0.2s;
+}
+
+.dash-form-input:focus {
+    outline: none;
+    border-color: #3B82F6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.dash-form-input::placeholder {
+    color: var(--text-tertiary);
+}
+
+.dash-form-help {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-top: 4px;
+}
+
+.dash-form-error {
+    display: block;
+    font-size: 0.75rem;
+    color: #EF4444;
+    margin-top: 4px;
+}
+
+.dash-form-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border-color);
+}
+
+.dash-btn--secondary {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+
+.dash-btn--secondary:hover {
+    background: var(--bg-tertiary);
+}
+
+.dash-alert {
+    padding: 16px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+}
+
+.dash-alert--warning {
+    background: rgba(245, 158, 11, 0.12);
+    border: 1px solid rgba(245, 158, 11, 0.42);
+    color: #D97706;
+}
+
+.dash-alert--error {
+    background: #FEE2E2;
+    border: 1px solid #FCA5A5;
+    color: #991B1B;
+}
+
+.dash-alert svg {
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+textarea.dash-form-input {
+    resize: vertical;
+    min-height: 100px;
+}
+
+select.dash-form-input {
+    cursor: pointer;
+}
+
+/* Read-only Production Line field styling */
+input[readonly].dash-form-input {
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    cursor: not-allowed;
+    opacity: 0.75;
+}
+
+input[readonly].dash-form-input::placeholder {
+    color: var(--text-secondary);
+    opacity: 1;
+}
+
+html[data-theme="dark"] input[readonly].dash-form-input {
+    background: #0f172a;
+    color: #cbd5e1;
+    opacity: 0.8;
+}
+
+@@media (max-width: 1200px) {
+    .downtime-page-header,
+    .downtime-form-panel {
+        width: 100%;
+    }
+}
+
+@@media (max-width: 860px) {
+    .downtime-form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .dash-form-group {
+        margin-bottom: 16px;
+    }
+
+    .downtime-form-panel {
+        padding: 18px;
+    }
+}
+</style>

@@ -1,0 +1,216 @@
+@model IEnumerable<SnackFlowMES.Models.MaterialRequest>
+@{
+    ViewData["Title"] = "Material Request";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+    var statusFilter = ViewBag.StatusFilter as string;
+}
+
+<div class="dash-page-header">
+    <div>
+        <h1 class="dash-page-title">Material Request</h1>
+        <p class="dash-page-subtitle">@(User.IsInRole("Admin") ? "Receive and process planner material requests" : "Submit and track material requests")</p>
+    </div>
+    @if (User.IsInRole("Planner"))
+    {
+        <a href="@Url.Action("Create")" class="dash-btn dash-btn--primary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            New Request
+        </a>
+    }
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="dash-alert dash-alert--success">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        @TempData["Success"]
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="dash-alert dash-alert--error">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+        @TempData["Error"]
+    </div>
+}
+
+<div class="dash-tabs">
+    <a href="?status=" class="dash-tab @(string.IsNullOrEmpty(statusFilter) ? "dash-tab--active" : "")">
+        All (@Model.Count())
+    </a>
+    <a href="?status=Pending" class="dash-tab @(statusFilter == "Pending" ? "dash-tab--active" : "")">
+        Pending (@Model.Count(m => m.Status == "Pending"))
+    </a>
+    <a href="?status=Approved" class="dash-tab @(statusFilter == "Approved" ? "dash-tab--active" : "")">
+        Approved (@Model.Count(m => m.Status == "Approved"))
+    </a>
+    <a href="?status=Fulfilled" class="dash-tab @(statusFilter == "Fulfilled" ? "dash-tab--active" : "")">
+        Fulfilled (@Model.Count(m => m.Status == "Fulfilled"))
+    </a>
+    <a href="?status=Rejected" class="dash-tab @(statusFilter == "Rejected" ? "dash-tab--active" : "")">
+        Rejected (@Model.Count(m => m.Status == "Rejected"))
+    </a>
+</div>
+
+@section Styles {
+    <style>
+        .dash-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 4px 0 22px;
+            padding: 10px;
+            background: var(--dash-surface);
+            border: 1px solid var(--dash-border-color);
+            border-radius: 14px;
+            box-shadow: 0 1px 3px rgba(15, 28, 38, 0.05);
+        }
+
+        .dash-tab {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            min-height: 40px;
+            padding: 9px 14px;
+            border-radius: 999px;
+            border: 1px solid transparent;
+            background: transparent;
+            color: var(--dash-text-muted);
+            text-decoration: none;
+            font-size: .875rem;
+            font-weight: 700;
+            line-height: 1;
+            white-space: nowrap;
+            transition: transform var(--sf-transition), background var(--sf-transition), border-color var(--sf-transition), color var(--sf-transition), box-shadow var(--sf-transition);
+        }
+
+        .dash-tab:hover {
+            color: var(--dash-text-color);
+            background: rgba(232, 119, 34, 0.08);
+            border-color: rgba(232, 119, 34, 0.18);
+            transform: translateY(-1px);
+        }
+
+        .dash-tab--active {
+            color: #0F1C26;
+            background: linear-gradient(135deg, #F6C000 0%, #E87722 100%);
+            border-color: transparent;
+            box-shadow: 0 6px 16px rgba(232, 119, 34, 0.20);
+        }
+
+        html[data-theme="dark"] .dash-tabs {
+            background: var(--dash-surface);
+            border-color: var(--dash-border-color);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
+        }
+
+        html[data-theme="dark"] .dash-tab {
+            color: var(--dash-text-muted);
+        }
+
+        html[data-theme="dark"] .dash-tab:hover {
+            color: var(--dash-text-color);
+            background: rgba(246, 192, 0, 0.08);
+            border-color: rgba(246, 192, 0, 0.18);
+        }
+
+        html[data-theme="dark"] .dash-tab--active {
+            color: #0F1C26;
+            background: linear-gradient(135deg, #F6C000 0%, #E87722 100%);
+        }
+
+        @@media (max-width: 768px) {
+            .dash-tabs {
+                gap: 8px;
+                padding: 8px;
+            }
+
+            .dash-tab {
+                min-height: 36px;
+                padding: 8px 12px;
+                font-size: .8125rem;
+            }
+        }
+    </style>
+}
+
+@if (!Model.Any())
+{
+    <div class="dash-panel">
+        <div class="dash-empty" style="padding:60px 20px;">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            <p style="margin-top:16px;font-size:1rem;">No material requests found</p>
+        </div>
+    </div>
+}
+else
+{
+    <div class="dash-panel">
+        <div class="dash-table-wrap">
+            <table class="dash-table" role="table">
+                <thead>
+                    <tr>
+                        <th>Request ID</th>
+                        <th>Item</th>
+                        <th>Requested Qty</th>
+                        <th>Reason</th>
+                        <th>Priority</th>
+                        <th>Requested By</th>
+                        <th>Requested Date</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var request in Model)
+                    {
+                        var priorityColor = request.Priority switch
+                        {
+                            "Critical" => "#EF4444",
+                            "High" => "#F59E0B",
+                            "Medium" => "#3B82F6",
+                            _ => "#6B7280"
+                        };
+
+                        var statusClass = request.Status switch
+                        {
+                            "Pending" => "dash-badge--draft",
+                            "Approved" => "dash-badge--released",
+                            "Fulfilled" => "dash-badge--completed",
+                            "Rejected" => "dash-badge--cancelled",
+                            _ => ""
+                        };
+
+                        <tr>
+                            <td class="dash-table-mono">
+                                <a href="@Url.Action("Details", new { id = request.RequestId })">MR-@request.RequestId.ToString("D4")</a>
+                            </td>
+                            <td class="dash-table-primary">@request.Item?.ItemName</td>
+                            <td>@request.RequestedQty.ToString("N2") @request.UnitOfMeasure</td>
+                            <td>@request.Reason</td>
+                            <td>
+                                <span style="display:inline-flex;align-items:center;gap:4px;font-weight:600;color:@priorityColor;">
+                                    @if (request.Priority == "Critical")
+                                    {
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                                    }
+                                    @request.Priority
+                                </span>
+                            </td>
+                            <td>@request.RequestedBy?.FullName</td>
+                            <td>@request.RequestedAt.ToString("MMM dd, yyyy")</td>
+                            <td>
+                                <span class="dash-badge @statusClass">@request.Status</span>
+                            </td>
+                            <td>
+                                <a href="@Url.Action("Details", new { id = request.RequestId })" class="dash-btn dash-btn--secondary dash-btn--sm">View</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

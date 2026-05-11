@@ -41,6 +41,9 @@ public class AccountController : Controller
         if (User.Identity?.IsAuthenticated == true)
             return RedirectToAction("Index", "Dashboard");
 
+        // Pass reCAPTCHA site key to view
+        ViewBag.RecaptchaSiteKey = _config["RecaptchaSettings:SiteKey"];
+
         return View(new LoginViewModel { ReturnUrl = returnUrl });
     }
 
@@ -50,8 +53,27 @@ public class AccountController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Login(LoginViewModel model)
     {
+        // Pass reCAPTCHA site key to view in case of validation errors
+        ViewBag.RecaptchaSiteKey = _config["RecaptchaSettings:SiteKey"];
+
         if (!ModelState.IsValid)
             return View(model);
+
+        // Validate reCAPTCHA v2 response
+        if (string.IsNullOrWhiteSpace(model.RecaptchaToken))
+        {
+            ModelState.AddModelError(string.Empty, "Please complete the reCAPTCHA verification.");
+            return View(model);
+        }
+
+        // Verify reCAPTCHA with Google
+        var isValidRecaptcha = await VerifyRecaptchaV2Async(model.RecaptchaToken);
+        if (!isValidRecaptcha)
+        {
+            _log.LogWarning("Login attempt failed reCAPTCHA v2 verification for {Username}", model.Username);
+            ModelState.AddModelError(string.Empty, "reCAPTCHA verification failed. Please try again.");
+            return View(model);
+        }
 
         // Accept either email or username
         var user = await _users.FindByEmailAsync(model.Username)
@@ -97,6 +119,47 @@ public class AccountController : Controller
         return View(model);
     }
 
+    /// <summary>
+    /// Verify reCAPTCHA v2 response with Google API
+    /// </summary>
+    private async Task<bool> VerifyRecaptchaV2Async(string response)
+    {
+        try
+        {
+            var secretKey = _config["RecaptchaSettings:SecretKey"];
+            if (string.IsNullOrWhiteSpace(secretKey))
+            {
+                _log.LogError("reCAPTCHA secret key not configured");
+                return false;
+            }
+
+            using var httpClient = new HttpClient();
+            var requestUrl = $"https://www.google.com/recaptcha/api/siteverify?secret={secretKey}&response={response}";
+            var httpResponse = await httpClient.PostAsync(requestUrl, null);
+            var jsonResponse = await httpResponse.Content.ReadAsStringAsync();
+
+            // Parse JSON response
+            var recaptchaResponse = System.Text.Json.JsonSerializer.Deserialize<RecaptchaV2Response>(jsonResponse);
+
+            if (recaptchaResponse?.Success == true)
+            {
+                _log.LogInformation("reCAPTCHA v2 verification successful");
+                return true;
+            }
+            else
+            {
+                _log.LogWarning("reCAPTCHA v2 verification failed: {Errors}", 
+                    string.Join(", ", recaptchaResponse?.ErrorCodes ?? new string[0]));
+                return false;
+            }
+        }
+        catch (Exception ex)
+        {
+            _log.LogError(ex, "Error verifying reCAPTCHA v2");
+            return false;
+        }
+    }
+
     // ── POST /Account/Logout ─────────────────────────────────
     [HttpPost]
     [Authorize]
@@ -118,25 +181,6 @@ public class AccountController : Controller
     [AllowAnonymous]
     public async Task<IActionResult> LoginAjax([FromBody] LoginViewModel model)
     {
-        // Verify reCAPTCHA token
-        if (string.IsNullOrWhiteSpace(model.RecaptchaToken))
-        {
-            _log.LogWarning("Login attempt without reCAPTCHA token - allowing for testing");
-            // Temporarily allow login without reCAPTCHA for testing
-            // TODO: Remove this bypass after reCAPTCHA is confirmed working
-        }
-        else
-        {
-            var minimumScore = _config.GetValue<double>("RecaptchaSettings:MinimumScore", 0.5);
-            var isValidRecaptcha = await _recaptcha.IsValidAsync(model.RecaptchaToken, "login", minimumScore);
-            
-            if (!isValidRecaptcha)
-            {
-                _log.LogWarning("Login attempt failed reCAPTCHA verification for {Username}", model.Username);
-                return Json(new { success = false, message = "Security verification failed. Please try again." });
-            }
-        }
-
         // Validate inputs
         if (string.IsNullOrWhiteSpace(model.Username))
             return Json(new { success = false, message = "Username is required" });
@@ -161,11 +205,52 @@ public class AccountController : Controller
             return Json(new { success = false, message = "Your account is inactive. Please contact the administrator." });
         }
 
+        // Validate credentials first, but do not sign in yet.
+        // Captcha is only requested after credentials are correct.
+        var credentialCheck = await _signIn.CheckPasswordSignInAsync(
+            user,
+            model.Password,
+            lockoutOnFailure: true);
+
+        if (credentialCheck.IsLockedOut)
+        {
+            _log.LogWarning("User {User} account locked out.", user.UserName);
+            return Json(new { success = false, message = "Account locked. Try again in 15 minutes." });
+        }
+
+        if (!credentialCheck.Succeeded)
+        {
+            return Json(new { success = false, message = "Invalid username or password" });
+        }
+
+        // Credentials are correct -> require captcha confirmation before final sign-in.
+        if (string.IsNullOrWhiteSpace(model.RecaptchaToken))
+        {
+            return Json(new
+            {
+                success = false,
+                requiresRecaptcha = true,
+                message = "Credentials verified. Please complete reCAPTCHA to continue."
+            });
+        }
+
+        var isValidRecaptcha = await VerifyRecaptchaV2Async(model.RecaptchaToken);
+        if (!isValidRecaptcha)
+        {
+            _log.LogWarning("Login attempt failed reCAPTCHA verification for {Username}", model.Username);
+            return Json(new
+            {
+                success = false,
+                requiresRecaptcha = true,
+                message = "reCAPTCHA verification failed. Please try again."
+            });
+        }
+
         var result = await _signIn.PasswordSignInAsync(
             user,
             model.Password,
             model.RememberMe,
-            lockoutOnFailure: true);
+            lockoutOnFailure: false);
 
         if (result.Succeeded)
         {
@@ -541,4 +626,22 @@ public class AccountController : Controller
 public class VerifyPasswordRequest
 {
     public string Password { get; set; } = string.Empty;
+}
+
+/// <summary>
+/// Response model for reCAPTCHA v2 verification
+/// </summary>
+public class RecaptchaV2Response
+{
+    [System.Text.Json.Serialization.JsonPropertyName("success")]
+    public bool Success { get; set; }
+
+    [System.Text.Json.Serialization.JsonPropertyName("challenge_ts")]
+    public string? ChallengeTimestamp { get; set; }
+
+    [System.Text.Json.Serialization.JsonPropertyName("hostname")]
+    public string? Hostname { get; set; }
+
+    [System.Text.Json.Serialization.JsonPropertyName("error-codes")]
+    public string[]? ErrorCodes { get; set; }
 }

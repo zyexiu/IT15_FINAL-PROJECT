@@ -26,10 +26,27 @@ public class UsersController : Controller
     }
 
     // ── GET /Users ───────────────────────────────────────────
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(string? role = null, string? status = null)
     {
         // TODO: Add tenant filtering later
-        var users = await _users.Users
+        var query = _users.Users.AsQueryable();
+
+        // Filter by role
+        if (!string.IsNullOrWhiteSpace(role) && role != "all")
+        {
+            var usersInRole = await _users.GetUsersInRoleAsync(role);
+            var userIds = usersInRole.Select(u => u.Id).ToList();
+            query = query.Where(u => userIds.Contains(u.Id));
+        }
+
+        // Filter by status
+        if (!string.IsNullOrWhiteSpace(status) && status != "all")
+        {
+            var isActive = status == "active";
+            query = query.Where(u => u.IsActive == isActive);
+        }
+
+        var users = await query
             .OrderBy(u => u.FullName)
             .ToListAsync();
 
@@ -49,6 +66,14 @@ public class UsersController : Controller
                 CreatedAt = user.CreatedAt
             });
         }
+
+        // Pass filter values to view
+        ViewBag.RoleFilter = role ?? "all";
+        ViewBag.StatusFilter = status ?? "all";
+
+        // Get all roles for filter dropdown
+        var allRoles = await _roles.Roles.Select(r => r.Name!).ToListAsync();
+        ViewBag.AllRoles = allRoles;
 
         return View(userList);
     }

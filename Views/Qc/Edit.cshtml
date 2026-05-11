@@ -1,0 +1,87 @@
+@model SnackFlowMES.Models.QcResult
+@{
+    ViewData["Title"] = $"Edit QC Inspection QC-{Model.QcResultId:D4}";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+    var workOrder = ViewBag.WorkOrder as SnackFlowMES.Models.WorkOrder;
+}
+
+<div class="dash-page-header">
+    <div>
+        <h1 class="dash-page-title">Edit QC Inspection QC-@Model.QcResultId.ToString("D4")</h1>
+        <p class="dash-page-subtitle">@workOrder?.WoNumber - @workOrder?.Item?.ItemName</p>
+    </div>
+    <a asp-action="Details" asp-route-id="@Model.QcResultId" class="dash-btn dash-btn--secondary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        Cancel
+    </a>
+</div>
+
+<div class="dash-form-container">
+    <form asp-action="Edit" method="post" class="dash-form">
+        <input type="hidden" asp-for="QcResultId" />
+        <input type="hidden" asp-for="WorkOrderId" />
+        <div asp-validation-summary="ModelOnly" class="dash-alert dash-alert--error"></div>
+
+        <div class="dash-form-section">
+            <h2 class="dash-form-section-title">Inspection Results</h2>
+
+            <div class="dash-form-row">
+                <div class="dash-form-group">
+                    <label asp-for="Result" class="dash-form-label">Inspection Result *</label>
+                    <select asp-for="Result" asp-items="ViewBag.Results" class="dash-form-input" required>
+                        <option value="">-- Select Result --</option>
+                    </select>
+                    <span asp-validation-for="Result" class="dash-form-error"></span>
+                </div>
+
+                <div class="dash-form-group">
+                    <label asp-for="CheckType" class="dash-form-label">Check Type</label>
+                    <select asp-for="CheckType" asp-items="ViewBag.CheckTypes" class="dash-form-input">
+                        <option value="">-- Select Check Type --</option>
+                    </select>
+                    <span asp-validation-for="CheckType" class="dash-form-error"></span>
+                </div>
+            </div>
+
+            <div class="dash-form-row">
+                <div class="dash-form-group">
+                    <label asp-for="SampleQty" class="dash-form-label">Sample Quantity</label>
+                    <input asp-for="SampleQty" type="number" step="0.01" class="dash-form-input" placeholder="0.00" />
+                    <span asp-validation-for="SampleQty" class="dash-form-error"></span>
+                </div>
+
+                <div class="dash-form-group">
+                    <label asp-for="DefectQty" class="dash-form-label">Defect Quantity</label>
+                    <input asp-for="DefectQty" type="number" step="0.01" class="dash-form-input" placeholder="0.00" />
+                    <span asp-validation-for="DefectQty" class="dash-form-error"></span>
+                </div>
+            </div>
+
+            <div class="dash-form-group">
+                <label asp-for="Disposition" class="dash-form-label">Disposition *</label>
+                <select asp-for="Disposition" asp-items="ViewBag.Dispositions" class="dash-form-input" required>
+                    <option value="">-- Select Disposition --</option>
+                </select>
+                <span asp-validation-for="Disposition" class="dash-form-error"></span>
+            </div>
+
+            <div class="dash-form-group">
+                <label asp-for="Notes" class="dash-form-label">Inspection Notes</label>
+                <textarea asp-for="Notes" rows="5" class="dash-form-input" placeholder="Detailed inspection findings..."></textarea>
+                <span asp-validation-for="Notes" class="dash-form-error"></span>
+            </div>
+        </div>
+
+        <div class="dash-form-actions">
+            <button type="submit" class="dash-btn dash-btn--primary">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                Save Changes
+            </button>
+            <a asp-action="Details" asp-route-id="@Model.QcResultId" class="dash-btn dash-btn--secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

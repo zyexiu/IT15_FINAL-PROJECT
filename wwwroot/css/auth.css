@@ -440,3 +440,51 @@ html[data-theme="dark"] .auth-select:focus {
   box-shadow: 0 0 0 3px rgba(246, 192, 0, 0.16);
 }
 
+
+/* ══════════════════════════════════════════════════════════
+   reCAPTCHA v2 Container
+══════════════════════════════════════════════════════════ */
+.auth-recaptcha-container {
+  margin: 16px 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  transition: opacity 0.3s ease-in-out;
+}
+
+/* Center the reCAPTCHA widget and clip the red test banner */
+.auth-recaptcha-container .g-recaptcha {
+  display: flex;
+  justify-content: center;
+  overflow: hidden;
+  max-height: 78px;
+}
+
+/* Hide the red "testing purposes" banner text above the checkbox */
+.auth-recaptcha-container .g-recaptcha > div {
+  margin-top: -2px;
+}
+
+/* Ensure reCAPTCHA is responsive */
+@media (max-width: 400px) {
+  .auth-recaptcha-container .g-recaptcha {
+    transform: scale(0.85);
+    transform-origin: center top;
+  }
+}
+
+/* Dark mode compatibility - reCAPTCHA iframe styling */
+html[data-theme="dark"] .auth-recaptcha-container {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Disabled submit button styling */
+.auth-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}

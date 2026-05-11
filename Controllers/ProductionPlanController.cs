@@ -23,7 +23,7 @@ public class ProductionPlanController : Controller
     }
 
     // ── GET /ProductionPlan ──────────────────────────────────
-    public async Task<IActionResult> Index(string? status)
+    public async Task<IActionResult> Index(string? status, string? search)
     {
         // Start with base query
         var query = _db.ProductionPlans
@@ -38,6 +38,15 @@ public class ProductionPlanController : Controller
             query = query.Where(p => p.Status == status);
         }
 
+        // Apply search filter if provided
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            query = query.Where(p =>
+                p.PlanName.Contains(search) ||
+                (p.Notes != null && p.Notes.Contains(search))
+            );
+        }
+
         // Order by created date (newest first)
         var plans = await query
             .OrderByDescending(p => p.CreatedAt)
@@ -45,12 +54,13 @@ public class ProductionPlanController : Controller
 
         // Pass current filter to view
         ViewBag.CurrentStatus = status ?? "All";
+        ViewBag.SearchTerm = search;
         ViewBag.StatusOptions = new List<string> 
         { 
             "All",
             "Draft",
             "Approved", 
-            "In Progress", 
+            "InProgress", 
             "Completed", 
             "Cancelled" 
         };

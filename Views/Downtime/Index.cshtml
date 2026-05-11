@@ -1,0 +1,312 @@
+@model IEnumerable<SnackFlowMES.Models.DowntimeReport>
+@{
+    ViewData["Title"] = "Downtime Reports";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+}
+
+<div class="dash-page-header">
+    <div>
+        <h1 class="dash-page-title">Downtime Reports</h1>
+        <p class="dash-page-subtitle">Track production downtime and machine issues</p>
+    </div>
+    <div class="dash-page-actions">
+        @if (User.IsInRole("Operator"))
+        {
+            <a href="@Url.Action("Create")" class="dash-btn dash-btn--primary">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Report Downtime
+            </a>
+        }
+    </div>
+</div>
+
+<!-- Filter Tabs -->
+<div class="dash-tabs">
+    <a href="?status=" class="dash-tab @(string.IsNullOrEmpty(ViewBag.StatusFilter) ? "dash-tab--active" : "")">
+        All (@Model.Count())
+    </a>
+    <a href="?status=Open" class="dash-tab @(ViewBag.StatusFilter == "Open" ? "dash-tab--active" : "")">
+        Open (@Model.Count(d => d.Status == "Open"))
+    </a>
+    <a href="?status=Resolved" class="dash-tab @(ViewBag.StatusFilter == "Resolved" ? "dash-tab--active" : "")">
+        Resolved (@Model.Count(d => d.Status == "Resolved"))
+    </a>
+    <a href="?status=Escalated" class="dash-tab @(ViewBag.StatusFilter == "Escalated" ? "dash-tab--active" : "")">
+        Escalated (@Model.Count(d => d.Status == "Escalated"))
+    </a>
+</div>
+
+<!-- Downtime Reports Table -->
+@if (!Model.Any())
+{
+    <div class="dash-panel">
+        <div class="dash-empty" style="padding:60px 20px;">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <p style="margin-top:16px;font-size:1rem;">No downtime reports found</p>
+        </div>
+    </div>
+}
+else
+{
+    <div class="dash-panel">
+        <div class="dash-table-wrap">
+            <table class="dash-table" role="table">
+                <thead>
+                    <tr>
+                        <th>Work Order</th>
+                        <th>Production Line</th>
+                        <th>Reason</th>
+                        <th>Start Time</th>
+                        <th>Duration</th>
+                        <th>Reported By</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var report in Model)
+                    {
+                        var statusColor = report.Status switch
+                        {
+                            "Open" => "#F59E0B",
+                            "Resolved" => "#10B981",
+                            "Escalated" => "#EF4444",
+                            _ => "#6B7280"
+                        };
+
+                        var durationHours = report.DurationMinutes / 60.0;
+                        var durationDisplay = report.DurationMinutes >= 60 
+                            ? $"{durationHours:F1}h" 
+                            : $"{report.DurationMinutes}m";
+
+                        <tr>
+                            <td class="dash-table-mono">
+                                <a href="/WorkOrder/Details/@report.WorkOrderId">@report.WorkOrder?.WoNumber</a>
+                            </td>
+                            <td class="dash-table-primary">@report.ProductionLine</td>
+                            <td>
+                                <span class="dash-reason-badge" style="background:@GetReasonColor(report.Reason);">
+                                    @report.Reason
+                                </span>
+                            </td>
+                            <td>@report.StartTime.ToString("MMM dd, HH:mm")</td>
+                            <td>
+                                <span style="font-weight:600;color:@(report.DurationMinutes > 60 ? "#EF4444" : "#6B7280");">
+                                    @durationDisplay
+                                </span>
+                            </td>
+                            <td>@report.ReportedBy?.FullName</td>
+                            <td>
+                                <span class="dash-badge" style="background:@statusColor;color:white;">
+                                    @report.Status
+                                </span>
+                            </td>
+                            <td>
+                                <div style="display:flex;gap:8px;">
+                                    <a href="@Url.Action("Details", new { id = report.DowntimeId })" class="dash-action-btn" title="View Details">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                    </a>
+                                    @if (User.IsInRole("Admin") || User.IsInRole("Manager"))
+                                    {
+                                        @if (report.Status == "Open")
+                                        {
+                                            <a href="@Url.Action("Resolve", new { id = report.DowntimeId })" class="dash-action-btn dash-action-btn--primary" title="Resolve">
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                                            </a>
+                                        }
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+
+@functions {
+    string GetReasonColor(string reason)
+    {
+        return reason switch
+        {
+            "Machine Breakdown" => "#EF4444",
+            "Material Shortage" => "#F59E0B",
+            "Power Outage" => "#EF4444",
+            "Maintenance" => "#3B82F6",
+            "Changeover" => "#10B981",
+            _ => "#6B7280"
+        };
+    }
+}
+
+<style>
+.dash-page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.dash-page-title {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.dash-page-subtitle {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin: 4px 0 0 0;
+}
+
+.dash-page-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.dash-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 0.875rem;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.dash-btn--primary {
+    background: #3B82F6;
+    color: white;
+}
+
+.dash-btn--primary:hover {
+    background: #2563EB;
+}
+
+.dash-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 4px 0 22px;
+    padding: 10px;
+    background: var(--dash-surface);
+    border: 1px solid var(--dash-border-color);
+    border-radius: 14px;
+    box-shadow: 0 1px 3px rgba(15, 28, 38, 0.05);
+}
+
+.dash-tab {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 40px;
+    padding: 9px 14px;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--dash-text-muted);
+    text-decoration: none;
+    font-size: .875rem;
+    font-weight: 700;
+    line-height: 1;
+    white-space: nowrap;
+    transition: transform var(--sf-transition), background var(--sf-transition), border-color var(--sf-transition), color var(--sf-transition), box-shadow var(--sf-transition);
+}
+
+.dash-tab:hover {
+    color: var(--dash-text-color);
+    background: rgba(232, 119, 34, 0.08);
+    border-color: rgba(232, 119, 34, 0.18);
+    transform: translateY(-1px);
+}
+
+.dash-tab--active {
+    color: #0F1C26;
+    background: linear-gradient(135deg, #F6C000 0%, #E87722 100%);
+    border-color: transparent;
+    box-shadow: 0 6px 16px rgba(232, 119, 34, 0.20);
+}
+
+html[data-theme="dark"] .dash-tabs {
+    background: var(--dash-surface);
+    border-color: var(--dash-border-color);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
+}
+
+html[data-theme="dark"] .dash-tab {
+    color: var(--dash-text-muted);
+}
+
+html[data-theme="dark"] .dash-tab:hover {
+    color: var(--dash-text-color);
+    background: rgba(246, 192, 0, 0.08);
+    border-color: rgba(246, 192, 0, 0.18);
+}
+
+html[data-theme="dark"] .dash-tab--active {
+    color: #0F1C26;
+    background: linear-gradient(135deg, #F6C000 0%, #E87722 100%);
+}
+
+@@media (max-width: 768px) {
+    .dash-tabs {
+        gap: 8px;
+        padding: 8px;
+    }
+
+    .dash-tab {
+        min-height: 36px;
+        padding: 8px 12px;
+        font-size: .8125rem;
+    }
+}
+
+.dash-reason-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: white;
+}
+
+.dash-action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-primary);
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.dash-action-btn:hover {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border-color: var(--text-secondary);
+}
+
+.dash-action-btn--primary {
+    background: #3B82F6;
+    border-color: #3B82F6;
+    color: white;
+}
+
+.dash-action-btn--primary:hover {
+    background: #2563EB;
+    border-color: #2563EB;
+}
+</style>
