@@ -81,16 +81,19 @@
                 Sign In
             </button>
 
-            <!-- reCAPTCHA v2 Checkbox (hidden by default, appears after clicking Sign In) -->
-            <div id="recaptcha-container" class="auth-recaptcha-container" style="display: none; opacity: 0;">
-                <div class="g-recaptcha" 
-                     data-sitekey="@ViewBag.RecaptchaSiteKey" 
-                     data-theme="light" 
-                     data-callback="onRecaptchaSuccess"
-                     data-expired-callback="onRecaptchaExpired"
-                     data-error-callback="onRecaptchaError"></div>
-                <input type="hidden" asp-for="RecaptchaToken" id="recaptcha-response" />
-            </div>
+            @if ((ViewBag.RecaptchaEnabled as bool?) ?? true)
+            {
+                <!-- reCAPTCHA v2 Checkbox (hidden by default, appears after clicking Sign In) -->
+                <div id="recaptcha-container" class="auth-recaptcha-container" style="display: none; opacity: 0;">
+                    <div class="g-recaptcha" 
+                         data-sitekey="@ViewBag.RecaptchaSiteKey" 
+                         data-theme="light" 
+                         data-callback="onRecaptchaSuccess"
+                         data-expired-callback="onRecaptchaExpired"
+                         data-error-callback="onRecaptchaError"></div>
+                    <input type="hidden" asp-for="RecaptchaToken" id="recaptcha-response" />
+                </div>
+            }
         </form>
 
         <!-- Sign up prompt (UI only) -->

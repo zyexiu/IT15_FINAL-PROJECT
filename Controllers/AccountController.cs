@@ -41,8 +41,11 @@ public class AccountController : Controller
         if (User.Identity?.IsAuthenticated == true)
             return RedirectToAction("Index", "Dashboard");
 
+        var recaptchaEnabled = _config.GetValue<bool?>("RecaptchaSettings:Enabled") ?? true;
+
         // Pass reCAPTCHA site key to view
         ViewBag.RecaptchaSiteKey = _config["RecaptchaSettings:SiteKey"];
+        ViewBag.RecaptchaEnabled = recaptchaEnabled;
 
         return View(new LoginViewModel { ReturnUrl = returnUrl });
     }
@@ -55,24 +58,29 @@ public class AccountController : Controller
     {
         // Pass reCAPTCHA site key to view in case of validation errors
         ViewBag.RecaptchaSiteKey = _config["RecaptchaSettings:SiteKey"];
+        var recaptchaEnabled = _config.GetValue<bool?>("RecaptchaSettings:Enabled") ?? true;
+        ViewBag.RecaptchaEnabled = recaptchaEnabled;
 
         if (!ModelState.IsValid)
             return View(model);
 
-        // Validate reCAPTCHA v2 response
-        if (string.IsNullOrWhiteSpace(model.RecaptchaToken))
+        if (recaptchaEnabled)
         {
-            ModelState.AddModelError(string.Empty, "Please complete the reCAPTCHA verification.");
-            return View(model);
-        }
+            // Validate reCAPTCHA v2 response
+            if (string.IsNullOrWhiteSpace(model.RecaptchaToken))
+            {
+                ModelState.AddModelError(string.Empty, "Please complete the reCAPTCHA verification.");
+                return View(model);
+            }
 
-        // Verify reCAPTCHA with Google
-        var isValidRecaptcha = await VerifyRecaptchaV2Async(model.RecaptchaToken);
-        if (!isValidRecaptcha)
-        {
-            _log.LogWarning("Login attempt failed reCAPTCHA v2 verification for {Username}", model.Username);
-            ModelState.AddModelError(string.Empty, "reCAPTCHA verification failed. Please try again.");
-            return View(model);
+            // Verify reCAPTCHA with Google
+            var isValidRecaptcha = await VerifyRecaptchaV2Async(model.RecaptchaToken);
+            if (!isValidRecaptcha)
+            {
+                _log.LogWarning("Login attempt failed reCAPTCHA v2 verification for {Username}", model.Username);
+                ModelState.AddModelError(string.Empty, "reCAPTCHA verification failed. Please try again.");
+                return View(model);
+            }
         }
 
         // Accept either email or username

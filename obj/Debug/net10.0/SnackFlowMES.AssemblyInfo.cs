@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SnackFlowMES")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+555c61db204199587bcf86ebf7685518aca8b44d")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+adcdf4be6cb3aa227664958a9d7a9c4fadb22c74")]
 [assembly: System.Reflection.AssemblyProductAttribute("SnackFlowMES")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SnackFlowMES")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
