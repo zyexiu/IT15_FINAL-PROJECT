@@ -45,7 +45,7 @@
         <h1 class="dash-page-title">@Model.PlanName</h1>
         <p class="dash-page-subtitle">Production plan details</p>
     </div>
-    <div style="display: flex; gap: 8px;">
+    <div style="display:flex;gap:8px;justify-content:flex-end;align-items:center;flex-wrap:wrap;margin-left:auto;">
         @if (User.IsInRole("Admin") || User.IsInRole("Planner"))
         {
             <a asp-action="Edit" asp-route-id="@Model.PlanId" class="dash-btn dash-btn--secondary">

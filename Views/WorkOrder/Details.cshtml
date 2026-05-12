@@ -7,31 +7,9 @@
 <div class="dash-page-header">
     <div>
         <h1 class="dash-page-title">@Model.WoNumber</h1>
-        <p class="dash-page-subtitle">Work order details</p>
+        <p class="dash-page-subtitle">@(Model.Item?.ItemName ?? "Work Order")</p>
     </div>
-    <div style="display:flex;gap:8px;">
-        @if ((Model.Status == "Released" || Model.Status == "InProgress") && User.IsInRole("Operator"))
-        {
-            <a href="/WorkOrder/LogProduction/@Model.WorkOrderId" class="dash-btn dash-btn--success">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                Log Production
-            </a>
-            <a href="/Downtime/Create?workOrderId=@Model.WorkOrderId" class="dash-btn dash-btn--warning">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                Report Downtime
-            </a>
-        }
-        @if (Model.Status == "Completed" && (User.IsInRole("Admin") || User.IsInRole("QC")))
-        {
-            var hasQcResult = ViewBag.HasQcResult as bool? ?? false;
-            if (!hasQcResult)
-            {
-                <a href="/Qc/RecordInspection?workOrderId=@Model.WorkOrderId" class="dash-btn dash-btn--primary">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                    Record QC Inspection
-                </a>
-            }
-        }
+    <div style="display:flex;gap:8px;justify-content:flex-end;align-items:center;flex-wrap:wrap;margin-left:auto;">
         @if (User.IsInRole("Admin") || User.IsInRole("Planner"))
         {
             <a asp-action="Edit" asp-route-id="@Model.WorkOrderId" class="dash-btn dash-btn--secondary">
@@ -58,33 +36,84 @@
     <!-- Left column: Details -->
     <div class="dash-card">
         <div class="dash-card-header">
-            <h2 class="dash-card-title">Work Order Information</h2>
-            <span class="dash-badge dash-badge--@Model.Status.ToLower()">@Model.Status</span>
+            <h2 class="dash-card-title">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                Work Order Information
+            </h2>
+            @{
+                var statusColor = Model.Status switch
+                {
+                    "Draft" => "#6B7280",
+                    "Released" => "#3B82F6",
+                    "InProgress" => "#F59E0B",
+                    "Completed" => "#10B981",
+                    "Cancelled" => "#EF4444",
+                    _ => "#6B7280"
+                };
+            }
+            <span style="display:inline-block;padding:4px 12px;border-radius:12px;font-size:0.75rem;font-weight:600;color:white;background:@statusColor;">
+                @Model.Status
+            </span>
         </div>
         <div class="dash-detail-grid">
             <div class="dash-detail-item">
                 <span class="dash-detail-label">WO Number</span>
-                <span class="dash-detail-value">@Model.WoNumber</span>
+                <span class="dash-detail-value" style="font-family:monospace;font-weight:600;color:#3B82F6;">@Model.WoNumber</span>
             </div>
             <div class="dash-detail-item">
                 <span class="dash-detail-label">Finished Good</span>
-                <span class="dash-detail-value">@(Model.Item?.ItemName ?? "—")</span>
+                <span class="dash-detail-value" style="font-weight:600;">@(Model.Item?.ItemName ?? "—")</span>
             </div>
             <div class="dash-detail-item">
                 <span class="dash-detail-label">BOM</span>
-                <span class="dash-detail-value">@(Model.Bom?.Item?.ItemName ?? "—") - @(Model.Bom?.Version ?? "—")</span>
-            </div>
-            <div class="dash-detail-item">
-                <span class="dash-detail-label">Planned Quantity</span>
-                <span class="dash-detail-value">@Model.PlannedQty.ToString("N2") @Model.UnitOfMeasure</span>
-            </div>
-            <div class="dash-detail-item">
-                <span class="dash-detail-label">Actual Quantity</span>
-                <span class="dash-detail-value">@Model.ActualQty.ToString("N2") @Model.UnitOfMeasure</span>
+                <span class="dash-detail-value">
+                    @if (Model.Bom != null)
+                    {
+                        <span>@Model.Bom.Item?.ItemName</span>
+                    }
+                    else
+                    {
+                        <span style="color:#9CA3AF;">—</span>
+                    }
+                </span>
             </div>
             <div class="dash-detail-item">
                 <span class="dash-detail-label">Production Line</span>
-                <span class="dash-detail-value">@(Model.ProductionLine ?? "—")</span>
+                <span class="dash-detail-value">
+                    @if (!string.IsNullOrEmpty(Model.ProductionLine))
+                    {
+                        <span style="display:inline-block;padding:3px 10px;border-radius:10px;font-size:0.8125rem;font-weight:500;background:rgba(59,130,246,0.1);color:#3B82F6;">
+                            @Model.ProductionLine
+                        </span>
+                    }
+                    else
+                    {
+                        <span style="color:#9CA3AF;">Not assigned</span>
+                    }
+                </span>
+            </div>
+            <div class="dash-detail-item">
+                <span class="dash-detail-label">Planned Quantity</span>
+                <span class="dash-detail-value" style="font-weight:600;color:#3B82F6;">@Model.PlannedQty.ToString("N2") @Model.UnitOfMeasure</span>
+            </div>
+            <div class="dash-detail-item">
+                <span class="dash-detail-label">Actual Quantity</span>
+                <span class="dash-detail-value" style="font-weight:600;color:@(Model.ActualQty >= Model.PlannedQty ? "#10B981" : "#F59E0B");">@Model.ActualQty.ToString("N2") @Model.UnitOfMeasure</span>
+            </div>
+            <div class="dash-detail-item">
+                <span class="dash-detail-label">Progress</span>
+                <span class="dash-detail-value">
+                    @{
+                        var progress = Model.PlannedQty > 0 ? (Model.ActualQty / Model.PlannedQty * 100) : 0;
+                        var progressColor = progress >= 100 ? "#10B981" : progress >= 50 ? "#F59E0B" : "#6B7280";
+                    }
+                    <div style="display:flex;align-items:center;gap:8px;">
+                        <div style="flex:1;height:8px;background:#E5E7EB;border-radius:4px;overflow:hidden;">
+                            <div style="height:100%;background:@progressColor;width:@Math.Min(progress, 100)%;transition:width 0.3s;"></div>
+                        </div>
+                        <span style="font-weight:600;color:@progressColor;min-width:45px;">@progress.ToString("N0")%</span>
+                    </div>
+                </span>
             </div>
             <div class="dash-detail-item">
                 <span class="dash-detail-label">Scheduled Start</span>
@@ -98,14 +127,14 @@
             {
                 <div class="dash-detail-item">
                     <span class="dash-detail-label">Actual Start</span>
-                    <span class="dash-detail-value">@Model.ActualStart.Value.ToString("MMM dd, yyyy HH:mm")</span>
+                    <span class="dash-detail-value" style="color:#10B981;font-weight:500;">@Model.ActualStart.Value.ToString("MMM dd, yyyy HH:mm")</span>
                 </div>
             }
             @if (Model.ActualEnd.HasValue)
             {
                 <div class="dash-detail-item">
                     <span class="dash-detail-label">Actual End</span>
-                    <span class="dash-detail-value">@Model.ActualEnd.Value.ToString("MMM dd, yyyy HH:mm")</span>
+                    <span class="dash-detail-value" style="color:#10B981;font-weight:500;">@Model.ActualEnd.Value.ToString("MMM dd, yyyy HH:mm")</span>
                 </div>
             }
             <div class="dash-detail-item">
@@ -119,9 +148,12 @@
         </div>
         @if (!string.IsNullOrEmpty(Model.Notes))
         {
-            <div style="margin-top:20px;padding-top:20px;border-top:1px solid #E4E9EF;">
-                <span class="dash-detail-label">Notes</span>
-                <p style="margin-top:8px;color:#6B7A8D;line-height:1.6;">@Model.Notes</p>
+            <div style="margin-top:20px;padding:20px;background:rgba(59,130,246,0.03);border-radius:8px;border-left:3px solid #3B82F6;">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#3B82F6;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                    <span class="dash-detail-label" style="margin:0;">Notes</span>
+                </div>
+                <p style="margin:0;color:#6B7A8D;line-height:1.6;font-size:0.9375rem;">@Model.Notes</p>
             </div>
         }
     </div>
@@ -130,9 +162,12 @@
     <div>
         <div class="dash-card">
             <div class="dash-card-header">
-                <h2 class="dash-card-title">Status Actions</h2>
+                <h2 class="dash-card-title">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><activity width="18" height="18"/><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                    Status Actions
+                </h2>
             </div>
-            <div style="display:flex;flex-direction:column;gap:8px;">
+            <div style="padding:20px;display:flex;flex-direction:column;gap:12px;">
                 @if (Model.Status == "Draft")
                 {
                     <form asp-action="UpdateStatus" method="post" style="margin:0;">
@@ -181,25 +216,41 @@
                         </button>
                     </form>
                 }
+                
+                @if (Model.Status == "Draft" || Model.Status == "Released" || Model.Status == "InProgress")
+                {
+                    <div style="margin-top:8px;padding:12px;background:rgba(59,130,246,0.05);border-radius:8px;border-left:3px solid #3B82F6;">
+                        <p style="margin:0;font-size:0.8125rem;color:#6B7280;line-height:1.5;">
+                            <strong style="color:#3B82F6;">Status Flow:</strong><br/>
+                            Draft → Released → In Progress → Completed
+                        </p>
+                    </div>
+                }
             </div>
         </div>
 
         @if (Model.Materials != null && Model.Materials.Any())
         {
-            <div class="dash-card" style="margin-top:16px;">
+            <div class="dash-card" style="margin-top:24px;">
                 <div class="dash-card-header">
-                    <h2 class="dash-card-title">Materials</h2>
+                    <h2 class="dash-card-title">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+                        Materials
+                    </h2>
+                    <span style="font-size:0.75rem;color:#6B7280;font-weight:500;">@Model.Materials.Count items</span>
                 </div>
                 <div class="dash-list">
                     @foreach (var mat in Model.Materials)
                     {
                         <div class="dash-list-item">
-                            <div>
+                            <div style="flex:1;">
                                 <div class="dash-list-item-title">@(mat.Item?.ItemName ?? "—")</div>
                                 <div class="dash-list-item-subtitle">@(mat.Item?.ItemCode ?? "—")</div>
                             </div>
-                            <div class="dash-list-item-value">
-                                @mat.PlannedQty.ToString("N2") @mat.UnitOfMeasure
+                            <div style="text-align:right;">
+                                <div class="dash-list-item-value" style="font-weight:600;color:#3B82F6;">
+                                    @mat.PlannedQty.ToString("N2") @mat.UnitOfMeasure
+                                </div>
                             </div>
                         </div>
                     }
@@ -214,7 +265,7 @@
         }
         @if (downtimeReports.Any() || (Model.Status == "Released" || Model.Status == "InProgress"))
         {
-            <div class="dash-card" style="margin-top:16px;">
+            <div class="dash-card" style="margin-top:24px;">
                 <div class="dash-card-header">
                     <h2 class="dash-card-title">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
@@ -246,7 +297,7 @@
                     <div class="dash-list">
                         @foreach (var downtime in downtimeReports)
                         {
-                            var statusColor = downtime.Status switch
+                            var downtimeStatusColor = downtime.Status switch
                             {
                                 "Open" => "#F59E0B",
                                 "Resolved" => "#10B981",
@@ -274,7 +325,7 @@
                                         <span style="display:inline-block;padding:3px 8px;border-radius:10px;font-size:0.75rem;font-weight:600;color:white;background:@reasonColor;">
                                             @downtime.Reason
                                         </span>
-                                        <span style="display:inline-block;padding:3px 8px;border-radius:10px;font-size:0.75rem;font-weight:600;color:white;background:@statusColor;">
+                                        <span style="display:inline-block;padding:3px 8px;border-radius:10px;font-size:0.75rem;font-weight:600;color:white;background:@downtimeStatusColor;">
                                             @downtime.Status
                                         </span>
                                         <span style="font-size:0.75rem;color:var(--text-secondary);">
@@ -308,13 +359,16 @@
 
         @if ((User.IsInRole("Admin") || User.IsInRole("Planner")) && (Model.Status == "Draft" || Model.Status == "Cancelled"))
         {
-            <div class="dash-card" style="margin-top:16px;">
+            <div class="dash-card" style="margin-top:24px;">
                 <div class="dash-card-header">
-                    <h2 class="dash-card-title">Danger Zone</h2>
+                    <h2 class="dash-card-title" style="color:#EF4444;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                        Danger Zone
+                    </h2>
                 </div>
                 <div style="padding: 20px;">
-                    <p style="color: #6B7A8D; font-size: 0.875rem; margin-bottom: 12px;">
-                        Permanently delete this work order. This action cannot be undone.
+                    <p style="color: #6B7A8D; font-size: 0.875rem; margin-bottom: 16px;line-height:1.6;">
+                        Permanently delete this work order. This action cannot be undone and will remove all associated data.
                     </p>
                     <form asp-action="Delete" asp-route-id="@Model.WorkOrderId" method="post" style="margin:0;" onsubmit="return confirm('Are you sure you want to permanently delete work order @Model.WoNumber? This action cannot be undone.');">
                         @Html.AntiForgeryToken()

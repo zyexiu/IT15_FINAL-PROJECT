@@ -58,6 +58,14 @@ public class RoleMenuService
             },
             new MenuItem
             {
+                Title = "Work Orders",
+                Controller = "WorkOrder",
+                Action = "Index",
+                Icon = "file-text",
+                Section = "ADMINISTRATION"
+            },
+            new MenuItem
+            {
                 Title = "Material Request",
                 Controller = "MaterialRequest",
                 Action = "Index",
@@ -242,14 +250,6 @@ public class RoleMenuService
             },
             new MenuItem
             {
-                Title = "Reports & Analytics",
-                Controller = "Report",
-                Action = "Index",
-                Icon = "bar-chart",
-                Section = "ANALYTICS"
-            },
-            new MenuItem
-            {
                 Title = "Production Overview",
                 Controller = "WorkOrder",
                 Action = "Index",
@@ -279,6 +279,14 @@ public class RoleMenuService
                 Action = "Index",
                 Icon = "package",
                 Section = "MONITORING"
+            },
+            new MenuItem
+            {
+                Title = "Reports & Analytics",
+                Controller = "Report",
+                Action = "Index",
+                Icon = "bar-chart",
+                Section = "ANALYTICS"
             }
         };
     }

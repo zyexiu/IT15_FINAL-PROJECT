@@ -121,10 +121,15 @@ public class DowntimeController : Controller
 
         var organizationId = user.TenantId ?? user.Id;
 
-        // Remove validation for navigation properties
+        // Remove validation for navigation properties and system-set fields
         ModelState.Remove(nameof(model.WorkOrder));
         ModelState.Remove(nameof(model.ReportedBy));
         ModelState.Remove(nameof(model.ResolvedBy));
+        ModelState.Remove(nameof(model.OrganizationId));
+        ModelState.Remove(nameof(model.ReportedByUserId));
+        ModelState.Remove(nameof(model.ReportedAt));
+        ModelState.Remove(nameof(model.Status));
+        ModelState.Remove(nameof(model.DurationMinutes));
 
         // Always derive production line from selected work order (prevents manual tampering)
         var workOrder = await _db.WorkOrders
@@ -151,6 +156,9 @@ public class DowntimeController : Controller
             {
                 Console.WriteLine($"[Downtime Create Validation Error] {error.ErrorMessage}");
             }
+            
+            // Add user-friendly error message
+            TempData["Error"] = "Please check the form for errors and try again.";
         }
 
         if (ModelState.IsValid)

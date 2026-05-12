@@ -17,7 +17,29 @@
     <form asp-action="Create" method="post">
         @Html.AntiForgeryToken()
         
-        <div asp-validation-summary="ModelOnly" class="dash-alert dash-alert--error"></div>
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div class="dash-alert dash-alert--error">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                <div>
+                    <strong>Please correct the following errors:</strong>
+                    <ul style="margin:8px 0 0 0;padding-left:20px;">
+                        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                        {
+                            <li>@error.ErrorMessage</li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        }
+        
+        @if (TempData["Error"] != null)
+        {
+            <div class="dash-alert dash-alert--error">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                <div>@TempData["Error"]</div>
+            </div>
+        }
 
         <div class="downtime-form-grid">
             <!-- Work Order Selection -->
@@ -75,8 +97,8 @@
 
             <!-- Description -->
             <div class="dash-form-group dash-form-group--full">
-                <label asp-for="Description" class="dash-form-label">Description *</label>
-                <textarea asp-for="Description" class="dash-form-input" rows="4" placeholder="Describe the issue in detail..." required></textarea>
+                <label asp-for="Description" class="dash-form-label">Description</label>
+                <textarea asp-for="Description" class="dash-form-input" rows="4" placeholder="Describe the issue in detail..."></textarea>
                 <span asp-validation-for="Description" class="dash-form-error"></span>
                 <small class="dash-form-help">Provide details about what happened and any actions taken</small>
             </div>

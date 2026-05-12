@@ -22,7 +22,7 @@
         <h1 class="dash-page-title">Downtime Report #@Model.DowntimeId</h1>
         <p class="dash-page-subtitle">@Model.ProductionLine - @Model.Reason</p>
     </div>
-    <div class="dash-page-actions">
+    <div class="dash-page-actions" style="display:flex;gap:8px;justify-content:flex-end;align-items:center;flex-wrap:wrap;margin-left:auto;">
         @if ((User.IsInRole("Admin") || User.IsInRole("Manager")) && Model.Status == "Open")
         {
             <a href="@Url.Action("Resolve", new { id = Model.DowntimeId })" class="dash-btn dash-btn--primary">
@@ -33,6 +33,14 @@
         <a href="@Url.Action("Index")" class="dash-btn dash-btn--secondary">Back to List</a>
     </div>
 </div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="dash-alert dash-alert--success" style="margin-bottom:24px;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        @TempData["Success"]
+    </div>
+}
 
 <div class="dash-row">
     <!-- Main Details -->
@@ -114,19 +122,19 @@
         </div>
 
         <!-- Description -->
-        <div style="margin-top:24px;padding-top:24px;border-top:1px solid var(--border-color);">
-            <h3 style="font-size:0.875rem;font-weight:600;color:var(--text-primary);margin:0 0 12px 0;">Description</h3>
+        <div style="margin-top:32px;padding:28px 20px 20px 20px;border-top:1px solid var(--border-color);">
+            <h3 style="font-size:0.875rem;font-weight:600;color:var(--text-primary);margin:0 0 16px 0;">Description</h3>
             <p style="margin:0;color:var(--text-secondary);line-height:1.6;white-space:pre-wrap;">@Model.Description</p>
         </div>
 
         <!-- Resolution (if resolved) -->
         @if (!string.IsNullOrEmpty(Model.Resolution))
         {
-            <div style="margin-top:24px;padding-top:24px;border-top:1px solid var(--border-color);">
-                <h3 style="font-size:0.875rem;font-weight:600;color:var(--text-primary);margin:0 0 12px 0;">Resolution</h3>
+            <div style="margin-top:32px;padding:28px 20px 20px 20px;border-top:1px solid var(--border-color);">
+                <h3 style="font-size:0.875rem;font-weight:600;color:var(--text-primary);margin:0 0 16px 0;">Resolution</h3>
                 <p style="margin:0;color:var(--text-secondary);line-height:1.6;white-space:pre-wrap;">@Model.Resolution</p>
                 
-                <div style="margin-top:16px;display:flex;gap:24px;font-size:0.875rem;color:var(--text-secondary);">
+                <div style="margin-top:20px;display:flex;gap:24px;font-size:0.875rem;color:var(--text-secondary);flex-wrap:wrap;">
                     <div>
                         <strong>Resolved By:</strong> @Model.ResolvedBy?.FullName
                     </div>
@@ -198,10 +206,10 @@
 
         @if (User.IsInRole("Admin"))
         {
-            <div style="margin-top:20px;padding-top:20px;border-top:1px solid var(--border-color);">
+            <div style="margin-top:24px;padding-top:24px;border-top:1px solid var(--border-color);">
                 <form asp-action="Delete" asp-route-id="@Model.DowntimeId" method="post" onsubmit="return confirm('Are you sure you want to delete this downtime report?');">
                     @Html.AntiForgeryToken()
-                    <button type="submit" class="dash-btn dash-btn--danger" style="width:100%;">
+                    <button type="submit" class="dash-btn dash-btn--danger dash-btn--centered">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                         Delete Report
                     </button>
@@ -321,5 +329,110 @@
 
 .dash-btn--danger:hover {
     background: #DC2626;
+}
+
+.dash-btn--centered {
+    display: block;
+    width: 100%;
+    margin: 0 auto;
+    justify-content: center;
+}
+
+.dash-alert--success {
+    background: rgba(16, 185, 129, 0.12);
+    border: 1px solid rgba(16, 185, 129, 0.42);
+    color: #059669;
+    padding: 16px;
+    border-radius: 8px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+}
+
+.dash-alert--success svg {
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.dash-page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.dash-page-title {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.dash-page-subtitle {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin: 4px 0 0 0;
+}
+
+.dash-page-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-left: auto;
+}
+
+.dash-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 0.875rem;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.dash-btn--primary {
+    background: #3B82F6;
+    color: white;
+}
+
+.dash-btn--primary:hover {
+    background: #2563EB;
+}
+
+.dash-btn--secondary {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+
+.dash-btn--secondary:hover {
+    background: var(--bg-tertiary);
+}
+
+@@media (max-width: 768px) {
+    .dash-page-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .dash-page-actions {
+        width: 100%;
+        margin-left: 0;
+    }
+    
+    .dash-btn {
+        flex: 1;
+        justify-content: center;
+        min-width: 120px;
+    }
 }
 </style>
