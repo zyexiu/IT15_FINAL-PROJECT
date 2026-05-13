@@ -45,9 +45,6 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     // ── Module 10: Cost Summary ─────────────────────────────
     public DbSet<WorkOrderCost> WorkOrderCosts => Set<WorkOrderCost>();
 
-    // ── Security: Audit Log ─────────────────────────────────
-    public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
-
     // ── Notification System ─────────────────────────────────
     public DbSet<Notification> Notifications => Set<Notification>();
 
@@ -148,13 +145,6 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             .WithMany(u => u.QcResults)
             .HasForeignKey(q => q.InspectedByUserId)
             .OnDelete(DeleteBehavior.Restrict);
-
-        // ── AuditLog → ApplicationUser: set null on user delete
-        builder.Entity<AuditLog>()
-            .HasOne(a => a.User)
-            .WithMany(u => u.AuditLogs)
-            .HasForeignKey(a => a.UserId)
-            .OnDelete(DeleteBehavior.SetNull);
 
         // ── Notification → ApplicationUser (Recipient): restrict ─
         builder.Entity<Notification>()

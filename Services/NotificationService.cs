@@ -206,24 +206,6 @@ public class NotificationService
     }
 
     /// <summary>
-    /// Create low stock alert notification for Admin
-    /// </summary>
-    public async Task CreateLowStockAlertAsync(Item item, decimal currentQty, string tenantId)
-    {
-        await CreateRoleNotificationAsync(
-            recipientRole: "Admin",
-            type: "LowStock",
-            title: "Low Stock Alert",
-            message: $"{item.ItemName} is below reorder point. Current: {currentQty:N2} {item.UnitOfMeasure}, Reorder Point: {item.ReorderPoint:N2}",
-            priority: "High",
-            relatedEntityType: "Item",
-            relatedEntityId: item.ItemId,
-            actionUrl: $"/Inventory/Details/{item.ItemId}",
-            tenantId: tenantId
-        );
-    }
-
-    /// <summary>
     /// Create material request notification for Admin
     /// </summary>
     public async Task CreateMaterialRequestNotificationAsync(MaterialRequest request, string tenantId)
@@ -246,41 +228,6 @@ public class NotificationService
         );
         
         _log.LogInformation("MaterialRequest notification created successfully");
-    }
-
-    /// <summary>
-    /// Create production complete notification for QC and Manager
-    /// </summary>
-    public async Task CreateProductionCompleteNotificationAsync(WorkOrder workOrder, string tenantId)
-    {
-        var item = await _db.Items.FindAsync(workOrder.ItemId);
-        var message = $"Work Order {workOrder.WoNumber} completed. Product: {item?.ItemName}, Qty: {workOrder.ActualQty:N2} {workOrder.UnitOfMeasure}";
-
-        // Notify QC for inspection
-        await CreateRoleNotificationAsync(
-            recipientRole: "QC",
-            type: "ProductionComplete",
-            title: "Production Complete - QC Required",
-            message: message,
-            priority: "High",
-            relatedEntityType: "WorkOrder",
-            relatedEntityId: workOrder.WorkOrderId,
-            actionUrl: $"/WorkOrder/Details/{workOrder.WorkOrderId}",
-            tenantId: tenantId
-        );
-
-        // Notify Manager for monitoring
-        await CreateRoleNotificationAsync(
-            recipientRole: "Manager",
-            type: "ProductionComplete",
-            title: "Production Complete",
-            message: message,
-            priority: "Medium",
-            relatedEntityType: "WorkOrder",
-            relatedEntityId: workOrder.WorkOrderId,
-            actionUrl: $"/WorkOrder/Details/{workOrder.WorkOrderId}",
-            tenantId: tenantId
-        );
     }
 
     /// <summary>

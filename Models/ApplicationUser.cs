@@ -30,7 +30,6 @@ public class ApplicationUser : IdentityUser
     public ICollection<WorkOrder>?        CreatedWorkOrders { get; set; }
     public ICollection<ProductionLog>?    ProductionLogs  { get; set; }
     public ICollection<QcResult>?         QcResults       { get; set; }
-    public ICollection<AuditLog>?         AuditLogs       { get; set; }
     public ICollection<MaterialRequest>?  MaterialRequests { get; set; }
     public ICollection<Notification>?     ReceivedNotifications { get; set; }
     public ICollection<Notification>?     CreatedNotifications { get; set; }

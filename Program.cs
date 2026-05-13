@@ -85,10 +85,6 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<IRecaptchaService, RecaptchaService>();
 
-// ── Tenant Service (Multi-tenancy) ───────────────────────────
-builder.Services.AddHttpContextAccessor();
-builder.Services.AddScoped<TenantService>();
-
 // ── Role Menu Service ────────────────────────────────────────
 builder.Services.AddScoped<RoleMenuService>();
 
