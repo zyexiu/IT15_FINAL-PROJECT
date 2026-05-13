@@ -27,7 +27,7 @@
         <h1 class="dash-page-title">@Model.Item?.ItemName</h1>
         <p class="dash-page-subtitle">Version @Model.Version • @Model.BatchOutputQty @Model.BatchOutputUom per batch</p>
     </div>
-    <div style="display: flex; gap: 8px;">
+    <div style="display:flex;gap:8px;justify-content:flex-end;align-items:center;flex-wrap:wrap;margin-left:auto;">
         <a asp-action="Edit" asp-route-id="@Model.BomId" class="dash-btn dash-btn--secondary">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
             Edit BOM

@@ -130,6 +130,25 @@ public class DashboardController : Controller
             ViewBag.OperatorDailyStatusTrend = JsonSerializer.Serialize(
                 trendPoints,
                 new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+
+            // Override RecentWorkOrders for Operator: show all Released + InProgress
+            vm.RecentWorkOrders = await _db.WorkOrders
+                .Include(w => w.Item)
+                .Where(w => w.Status == "Released" || w.Status == "InProgress")
+                .OrderBy(w => w.ScheduledStart)
+                .Select(w => new WorkOrderSummary
+                {
+                    WorkOrderId    = w.WorkOrderId,
+                    WoNumber       = w.WoNumber,
+                    ItemName       = w.Item != null ? w.Item.ItemName : "—",
+                    PlannedQty     = w.PlannedQty,
+                    ActualQty      = w.ActualQty,
+                    UnitOfMeasure  = w.UnitOfMeasure,
+                    Status         = w.Status,
+                    ScheduledStart = w.ScheduledStart,
+                    ProductionLine = w.ProductionLine
+                })
+                .ToListAsync();
         }
 
         // ── Load downtime data for Admin and Manager ─────────

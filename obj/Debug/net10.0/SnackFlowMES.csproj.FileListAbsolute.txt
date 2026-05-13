@@ -319,12 +319,12 @@ C:\xampp2\htdocs\SnackFlowMES\SnackFlowMES\obj\Debug\net10.0\staticwebassets.bui
 C:\xampp2\htdocs\SnackFlowMES\SnackFlowMES\obj\Debug\net10.0\swae.build.ex.cache
 C:\xampp2\htdocs\SnackFlowMES\SnackFlowMES\obj\Debug\net10.0\SnackFlo.8350DE8F.Up2Date
 C:\xampp2\htdocs\SnackFlowMES\SnackFlowMES\obj\Debug\net10.0\SnackFlowMES.dll
-C:\xampp2\htdocs\SnackFlowMES\SnackFlowMES\obj\Debug\net10.0\refint\SnackFlowMES.dll
 C:\xampp2\htdocs\SnackFlowMES\SnackFlowMES\obj\Debug\net10.0\SnackFlowMES.pdb
 C:\xampp2\htdocs\SnackFlowMES\SnackFlowMES\obj\Debug\net10.0\SnackFlowMES.genruntimeconfig.cache
-C:\xampp2\htdocs\SnackFlowMES\SnackFlowMES\obj\Debug\net10.0\ref\SnackFlowMES.dll
 C:\xampp2\htdocs\SnackFlowMES\SnackFlowMES\obj\Debug\net10.0\compressed\gyw0xpil92-{0}-m5r0kaahr9-m5r0kaahr9.gz
 C:\xampp2\htdocs\SnackFlowMES\SnackFlowMES\obj\Debug\net10.0\compressed\eozafzsoto-{0}-w6l10kh8nl-w6l10kh8nl.gz
 C:\xampp2\htdocs\SnackFlowMES\SnackFlowMES\obj\Debug\net10.0\compressed\zqvgrlflgs-{0}-wwdn3exr60-wwdn3exr60.gz
 C:\xampp2\htdocs\SnackFlowMES\SnackFlowMES\obj\Debug\net10.0\compressed\33jhnf81n6-{0}-bc23exnga5-bc23exnga5.gz
 C:\xampp2\htdocs\SnackFlowMES\SnackFlowMES\obj\Debug\net10.0\compressed\w2lb693fpj-{0}-g81tpl5gkm-g81tpl5gkm.gz
+C:\xampp2\htdocs\SnackFlowMES\SnackFlowMES\obj\Debug\net10.0\refint\SnackFlowMES.dll
+C:\xampp2\htdocs\SnackFlowMES\SnackFlowMES\obj\Debug\net10.0\ref\SnackFlowMES.dll

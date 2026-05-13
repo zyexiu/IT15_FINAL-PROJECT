@@ -82,7 +82,6 @@ public class WorkOrder
     public ICollection<WorkOrderMaterial>? Materials      { get; set; }
     public ICollection<ProductionLog>?     ProductionLogs { get; set; }
     public ICollection<QcResult>?          QcResults      { get; set; }
-    public WorkOrderCost?                  Cost           { get; set; }
     public ICollection<InventoryLedger>?   InventoryLedgers { get; set; }
     public ICollection<DowntimeReport>?    DowntimeReports { get; set; }
 }

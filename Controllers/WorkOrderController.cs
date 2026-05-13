@@ -199,6 +199,7 @@ public class WorkOrderController : Controller
             ScheduledEnd    = model.ScheduledEnd,
             Notes           = model.Notes,
             CreatedByUserId = user.Id,
+            TenantId        = user.TenantId ?? user.Id,
             CreatedAt       = DateTime.UtcNow,
             UpdatedAt       = DateTime.UtcNow
         };

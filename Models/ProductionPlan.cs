@@ -44,5 +44,4 @@ public class ProductionPlan
 
     // ── Navigation ──────────────────────────────────────────
     public ICollection<PlanLine>?  PlanLines { get; set; }
-    public ICollection<MrpRun>?    MrpRuns   { get; set; }
 }

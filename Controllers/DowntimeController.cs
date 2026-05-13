@@ -88,7 +88,7 @@ public class DowntimeController : Controller
 
         // Load work orders for dropdown
         ViewBag.WorkOrders = await _db.WorkOrders
-            .Where(w => w.TenantId == organizationId && 
+            .Where(w => (w.TenantId == organizationId || w.TenantId == null) && 
                        (w.Status == "Released" || w.Status == "InProgress"))
             .Include(w => w.Item)
             .OrderByDescending(w => w.CreatedAt)
@@ -200,7 +200,7 @@ public class DowntimeController : Controller
 
         // Reload work orders for dropdown
         ViewBag.WorkOrders = await _db.WorkOrders
-            .Where(w => w.TenantId == (user.TenantId ?? user.Id) && 
+            .Where(w => (w.TenantId == (user.TenantId ?? user.Id) || w.TenantId == null) && 
                        (w.Status == "Released" || w.Status == "InProgress"))
             .Include(w => w.Item)
             .OrderByDescending(w => w.CreatedAt)

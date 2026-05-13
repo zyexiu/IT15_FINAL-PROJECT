@@ -196,7 +196,7 @@ public class RoleMenuService
             {
                 Title = "Report Downtime",
                 Controller = "Downtime",
-                Action = "Create",
+                Action = "Index",
                 Icon = "alert-circle",
                 Section = "PRODUCTION"
             }

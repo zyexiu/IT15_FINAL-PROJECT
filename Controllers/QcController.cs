@@ -59,6 +59,14 @@ public class QcController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> RecordInspection(QcResult model)
     {
+        // Remove server-set fields from validation — they're assigned below
+        ModelState.Remove(nameof(model.InspectedByUserId));
+        ModelState.Remove(nameof(model.TenantId));
+        ModelState.Remove(nameof(model.InspectedAt));
+        ModelState.Remove(nameof(model.CreatedAt));
+        ModelState.Remove(nameof(model.WorkOrder));
+        ModelState.Remove(nameof(model.InspectedBy));
+
         if (!ModelState.IsValid)
         {
             var wo = await _db.WorkOrders.Include(w => w.Item).FirstOrDefaultAsync(w => w.WorkOrderId == model.WorkOrderId);
@@ -167,6 +175,14 @@ public class QcController : Controller
     {
         if (id != model.QcResultId)
             return NotFound();
+
+        // Remove server-set fields from validation
+        ModelState.Remove(nameof(model.InspectedByUserId));
+        ModelState.Remove(nameof(model.TenantId));
+        ModelState.Remove(nameof(model.InspectedAt));
+        ModelState.Remove(nameof(model.CreatedAt));
+        ModelState.Remove(nameof(model.WorkOrder));
+        ModelState.Remove(nameof(model.InspectedBy));
 
         if (!ModelState.IsValid)
         {

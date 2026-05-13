@@ -2,6 +2,19 @@
 @{
     ViewData["Title"] = Model.WoNumber;
     Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+
+    var statusColor = Model.Status switch
+    {
+        "Draft"      => "#6B7280",
+        "Released"   => "#3B82F6",
+        "InProgress" => "#F59E0B",
+        "Completed"  => "#10B981",
+        "Cancelled"  => "#EF4444",
+        _            => "#6B7280"
+    };
+
+    var progress      = Model.PlannedQty > 0 ? (Model.ActualQty / Model.PlannedQty * 100) : 0;
+    var progressColor = progress >= 100 ? "#10B981" : progress >= 50 ? "#F59E0B" : "#6B7280";
 }
 
 <div class="dash-page-header">
@@ -26,50 +39,39 @@
 
 @if (TempData["Success"] != null)
 {
-    <div class="dash-alert dash-alert--success">
+    <div class="dash-alert dash-alert--success" style="margin-bottom:24px;">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
         @TempData["Success"]
     </div>
 }
 
-<div class="dash-grid-2">
-    <!-- Left column: Details -->
-    <div class="dash-card">
-        <div class="dash-card-header">
-            <h2 class="dash-card-title">
+<div class="dash-row">
+
+    <!-- ── LEFT: Main Details ─────────────────────────────── -->
+    <div class="dash-panel dash-panel--wide">
+        <div class="dash-panel-header">
+            <h2 class="dash-panel-title">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                 Work Order Information
             </h2>
-            @{
-                var statusColor = Model.Status switch
-                {
-                    "Draft" => "#6B7280",
-                    "Released" => "#3B82F6",
-                    "InProgress" => "#F59E0B",
-                    "Completed" => "#10B981",
-                    "Cancelled" => "#EF4444",
-                    _ => "#6B7280"
-                };
-            }
-            <span style="display:inline-block;padding:4px 12px;border-radius:12px;font-size:0.75rem;font-weight:600;color:white;background:@statusColor;">
-                @Model.Status
-            </span>
+            <span class="dash-badge" style="background:@statusColor;color:white;font-size:0.875rem;">@Model.Status</span>
         </div>
-        <div class="dash-detail-grid">
-            <div class="dash-detail-item">
-                <span class="dash-detail-label">WO Number</span>
-                <span class="dash-detail-value" style="font-family:monospace;font-weight:600;color:#3B82F6;">@Model.WoNumber</span>
+
+        <div class="wo-detail-grid">
+            <div class="wo-detail-item">
+                <span class="wo-detail-label">WO Number</span>
+                <span class="wo-detail-value" style="font-family:monospace;font-weight:600;color:#3B82F6;">@Model.WoNumber</span>
             </div>
-            <div class="dash-detail-item">
-                <span class="dash-detail-label">Finished Good</span>
-                <span class="dash-detail-value" style="font-weight:600;">@(Model.Item?.ItemName ?? "—")</span>
+            <div class="wo-detail-item">
+                <span class="wo-detail-label">Finished Good</span>
+                <span class="wo-detail-value" style="font-weight:600;">@(Model.Item?.ItemName ?? "—")</span>
             </div>
-            <div class="dash-detail-item">
-                <span class="dash-detail-label">BOM</span>
-                <span class="dash-detail-value">
+            <div class="wo-detail-item">
+                <span class="wo-detail-label">BOM</span>
+                <span class="wo-detail-value">
                     @if (Model.Bom != null)
                     {
-                        <span>@Model.Bom.Item?.ItemName</span>
+                        @(Model.Bom.Item?.ItemName ?? "—")
                     }
                     else
                     {
@@ -77,14 +79,12 @@
                     }
                 </span>
             </div>
-            <div class="dash-detail-item">
-                <span class="dash-detail-label">Production Line</span>
-                <span class="dash-detail-value">
+            <div class="wo-detail-item">
+                <span class="wo-detail-label">Production Line</span>
+                <span class="wo-detail-value">
                     @if (!string.IsNullOrEmpty(Model.ProductionLine))
                     {
-                        <span style="display:inline-block;padding:3px 10px;border-radius:10px;font-size:0.8125rem;font-weight:500;background:rgba(59,130,246,0.1);color:#3B82F6;">
-                            @Model.ProductionLine
-                        </span>
+                        <span style="display:inline-block;padding:3px 10px;border-radius:10px;font-size:0.8125rem;font-weight:500;background:rgba(59,130,246,0.1);color:#3B82F6;">@Model.ProductionLine</span>
                     }
                     else
                     {
@@ -92,151 +92,74 @@
                     }
                 </span>
             </div>
-            <div class="dash-detail-item">
-                <span class="dash-detail-label">Planned Quantity</span>
-                <span class="dash-detail-value" style="font-weight:600;color:#3B82F6;">@Model.PlannedQty.ToString("N2") @Model.UnitOfMeasure</span>
+            <div class="wo-detail-item">
+                <span class="wo-detail-label">Planned Quantity</span>
+                <span class="wo-detail-value" style="font-weight:600;color:#3B82F6;">@Model.PlannedQty.ToString("N2") @Model.UnitOfMeasure</span>
             </div>
-            <div class="dash-detail-item">
-                <span class="dash-detail-label">Actual Quantity</span>
-                <span class="dash-detail-value" style="font-weight:600;color:@(Model.ActualQty >= Model.PlannedQty ? "#10B981" : "#F59E0B");">@Model.ActualQty.ToString("N2") @Model.UnitOfMeasure</span>
+            <div class="wo-detail-item">
+                <span class="wo-detail-label">Actual Quantity</span>
+                <span class="wo-detail-value" style="font-weight:600;color:@(Model.ActualQty >= Model.PlannedQty ? "#10B981" : "#F59E0B");">@Model.ActualQty.ToString("N2") @Model.UnitOfMeasure</span>
             </div>
-            <div class="dash-detail-item">
-                <span class="dash-detail-label">Progress</span>
-                <span class="dash-detail-value">
-                    @{
-                        var progress = Model.PlannedQty > 0 ? (Model.ActualQty / Model.PlannedQty * 100) : 0;
-                        var progressColor = progress >= 100 ? "#10B981" : progress >= 50 ? "#F59E0B" : "#6B7280";
-                    }
-                    <div style="display:flex;align-items:center;gap:8px;">
-                        <div style="flex:1;height:8px;background:#E5E7EB;border-radius:4px;overflow:hidden;">
-                            <div style="height:100%;background:@progressColor;width:@Math.Min(progress, 100)%;transition:width 0.3s;"></div>
-                        </div>
-                        <span style="font-weight:600;color:@progressColor;min-width:45px;">@progress.ToString("N0")%</span>
-                    </div>
-                </span>
+            <div class="wo-detail-item">
+                <span class="wo-detail-label">Scheduled Start</span>
+                <span class="wo-detail-value">@Model.ScheduledStart.ToString("MMM dd, yyyy HH:mm")</span>
             </div>
-            <div class="dash-detail-item">
-                <span class="dash-detail-label">Scheduled Start</span>
-                <span class="dash-detail-value">@Model.ScheduledStart.ToString("MMM dd, yyyy HH:mm")</span>
-            </div>
-            <div class="dash-detail-item">
-                <span class="dash-detail-label">Scheduled End</span>
-                <span class="dash-detail-value">@Model.ScheduledEnd.ToString("MMM dd, yyyy HH:mm")</span>
+            <div class="wo-detail-item">
+                <span class="wo-detail-label">Scheduled End</span>
+                <span class="wo-detail-value">@Model.ScheduledEnd.ToString("MMM dd, yyyy HH:mm")</span>
             </div>
             @if (Model.ActualStart.HasValue)
             {
-                <div class="dash-detail-item">
-                    <span class="dash-detail-label">Actual Start</span>
-                    <span class="dash-detail-value" style="color:#10B981;font-weight:500;">@Model.ActualStart.Value.ToString("MMM dd, yyyy HH:mm")</span>
+                <div class="wo-detail-item">
+                    <span class="wo-detail-label">Actual Start</span>
+                    <span class="wo-detail-value" style="color:#10B981;font-weight:500;">@Model.ActualStart.Value.ToString("MMM dd, yyyy HH:mm")</span>
                 </div>
             }
             @if (Model.ActualEnd.HasValue)
             {
-                <div class="dash-detail-item">
-                    <span class="dash-detail-label">Actual End</span>
-                    <span class="dash-detail-value" style="color:#10B981;font-weight:500;">@Model.ActualEnd.Value.ToString("MMM dd, yyyy HH:mm")</span>
+                <div class="wo-detail-item">
+                    <span class="wo-detail-label">Actual End</span>
+                    <span class="wo-detail-value" style="color:#10B981;font-weight:500;">@Model.ActualEnd.Value.ToString("MMM dd, yyyy HH:mm")</span>
                 </div>
             }
-            <div class="dash-detail-item">
-                <span class="dash-detail-label">Created By</span>
-                <span class="dash-detail-value">@(Model.CreatedBy?.FullName ?? "—")</span>
+            <div class="wo-detail-item">
+                <span class="wo-detail-label">Created By</span>
+                <span class="wo-detail-value">@(Model.CreatedBy?.FullName ?? "—")</span>
             </div>
-            <div class="dash-detail-item">
-                <span class="dash-detail-label">Created At</span>
-                <span class="dash-detail-value">@Model.CreatedAt.ToString("MMM dd, yyyy HH:mm")</span>
+            <div class="wo-detail-item">
+                <span class="wo-detail-label">Created At</span>
+                <span class="wo-detail-value">@Model.CreatedAt.ToString("MMM dd, yyyy HH:mm")</span>
             </div>
         </div>
+
+        <!-- Progress bar -->
+        <div style="padding:0 20px 20px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                <span class="dash-detail-label">Progress</span>
+                <span style="font-weight:600;font-size:0.875rem;color:@progressColor;">@progress.ToString("N0")%</span>
+            </div>
+            <div style="height:8px;background:var(--border-color);border-radius:4px;overflow:hidden;">
+                <div style="height:100%;background:@progressColor;width:@Math.Min(progress, 100)%;transition:width 0.3s;border-radius:4px;"></div>
+            </div>
+        </div>
+
         @if (!string.IsNullOrEmpty(Model.Notes))
         {
-            <div style="margin-top:20px;padding:20px;background:rgba(59,130,246,0.03);border-radius:8px;border-left:3px solid #3B82F6;">
-                <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#3B82F6;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-                    <span class="dash-detail-label" style="margin:0;">Notes</span>
-                </div>
-                <p style="margin:0;color:#6B7A8D;line-height:1.6;font-size:0.9375rem;">@Model.Notes</p>
+            <div style="margin:0 20px 20px;padding:16px;background:rgba(59,130,246,0.05);border-radius:8px;border-left:3px solid #3B82F6;">
+                <h3 style="font-size:0.875rem;font-weight:600;color:var(--text-primary);margin:0 0 8px 0;">Notes</h3>
+                <p style="margin:0;color:var(--text-secondary);line-height:1.6;white-space:pre-wrap;">@Model.Notes</p>
             </div>
         }
-    </div>
 
-    <!-- Right column: Status actions -->
-    <div>
-        <div class="dash-card">
-            <div class="dash-card-header">
-                <h2 class="dash-card-title">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><activity width="18" height="18"/><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-                    Status Actions
-                </h2>
-            </div>
-            <div style="padding:20px;display:flex;flex-direction:column;gap:12px;">
-                @if (Model.Status == "Draft")
-                {
-                    <form asp-action="UpdateStatus" method="post" style="margin:0;">
-                        @Html.AntiForgeryToken()
-                        <input type="hidden" name="id" value="@Model.WorkOrderId" />
-                        <input type="hidden" name="status" value="Released" />
-                        <button type="submit" class="dash-btn dash-btn--primary dash-btn--full">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-                            Release Work Order
-                        </button>
-                    </form>
-                }
-                @if (Model.Status == "Released")
-                {
-                    <form asp-action="UpdateStatus" method="post" style="margin:0;">
-                        @Html.AntiForgeryToken()
-                        <input type="hidden" name="id" value="@Model.WorkOrderId" />
-                        <input type="hidden" name="status" value="InProgress" />
-                        <button type="submit" class="dash-btn dash-btn--primary dash-btn--full">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-                            Start Production
-                        </button>
-                    </form>
-                }
-                @if (Model.Status == "InProgress")
-                {
-                    <form asp-action="UpdateStatus" method="post" style="margin:0;">
-                        @Html.AntiForgeryToken()
-                        <input type="hidden" name="id" value="@Model.WorkOrderId" />
-                        <input type="hidden" name="status" value="Completed" />
-                        <button type="submit" class="dash-btn dash-btn--success dash-btn--full">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                            Complete Work Order
-                        </button>
-                    </form>
-                }
-                @if (Model.Status != "Completed" && Model.Status != "Cancelled")
-                {
-                    <form asp-action="UpdateStatus" method="post" style="margin:0;">
-                        @Html.AntiForgeryToken()
-                        <input type="hidden" name="id" value="@Model.WorkOrderId" />
-                        <input type="hidden" name="status" value="Cancelled" />
-                        <button type="submit" class="dash-btn dash-btn--danger dash-btn--full" onclick="return confirm('Are you sure you want to cancel this work order?');">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
-                            Cancel Work Order
-                        </button>
-                    </form>
-                }
-                
-                @if (Model.Status == "Draft" || Model.Status == "Released" || Model.Status == "InProgress")
-                {
-                    <div style="margin-top:8px;padding:12px;background:rgba(59,130,246,0.05);border-radius:8px;border-left:3px solid #3B82F6;">
-                        <p style="margin:0;font-size:0.8125rem;color:#6B7280;line-height:1.5;">
-                            <strong style="color:#3B82F6;">Status Flow:</strong><br/>
-                            Draft → Released → In Progress → Completed
-                        </p>
-                    </div>
-                }
-            </div>
-        </div>
-
+        @* Materials *@
         @if (Model.Materials != null && Model.Materials.Any())
         {
-            <div class="dash-card" style="margin-top:24px;">
-                <div class="dash-card-header">
-                    <h2 class="dash-card-title">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+            <div style="border-top:1px solid var(--border-color);">
+                <div class="dash-panel-header">
+                    <h3 class="dash-panel-title">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
                         Materials
-                    </h2>
+                    </h3>
                     <span style="font-size:0.75rem;color:#6B7280;font-weight:500;">@Model.Materials.Count items</span>
                 </div>
                 <div class="dash-list">
@@ -247,10 +170,8 @@
                                 <div class="dash-list-item-title">@(mat.Item?.ItemName ?? "—")</div>
                                 <div class="dash-list-item-subtitle">@(mat.Item?.ItemCode ?? "—")</div>
                             </div>
-                            <div style="text-align:right;">
-                                <div class="dash-list-item-value" style="font-weight:600;color:#3B82F6;">
-                                    @mat.PlannedQty.ToString("N2") @mat.UnitOfMeasure
-                                </div>
+                            <div style="font-weight:600;color:#3B82F6;font-size:0.9375rem;">
+                                @mat.PlannedQty.ToString("N2") @mat.UnitOfMeasure
                             </div>
                         </div>
                     }
@@ -258,19 +179,19 @@
             </div>
         }
 
-        @* Downtime Reports Section *@
+        @* Downtime Reports *@
         @{
             var downtimeReports = ViewBag.DowntimeReports as List<SnackFlowMES.Models.DowntimeReport> ?? new List<SnackFlowMES.Models.DowntimeReport>();
-            var totalDowntime = ViewBag.TotalDowntime as int? ?? 0;
+            var totalDowntime   = ViewBag.TotalDowntime as int? ?? 0;
         }
-        @if (downtimeReports.Any() || (Model.Status == "Released" || Model.Status == "InProgress"))
+        @if (downtimeReports.Any() || Model.Status == "Released" || Model.Status == "InProgress")
         {
-            <div class="dash-card" style="margin-top:24px;">
-                <div class="dash-card-header">
-                    <h2 class="dash-card-title">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <div style="border-top:1px solid var(--border-color);">
+                <div class="dash-panel-header">
+                    <h3 class="dash-panel-title">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
                         Downtime Reports
-                    </h2>
+                    </h3>
                     @if (totalDowntime > 0)
                     {
                         <span style="font-size:0.875rem;color:#EF4444;font-weight:600;">
@@ -278,77 +199,77 @@
                         </span>
                     }
                 </div>
-                
+
                 @if (!downtimeReports.Any())
                 {
-                    <div style="padding:40px 20px;text-align:center;color:var(--text-secondary);">
-                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.3;margin-bottom:12px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    <div style="padding:32px 20px;text-align:center;color:var(--text-secondary);">
+                        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.3;margin-bottom:10px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
                         <p style="margin:0;font-size:0.875rem;">No downtime reported for this work order</p>
                         @if ((Model.Status == "Released" || Model.Status == "InProgress") && User.IsInRole("Operator"))
                         {
-                            <a href="/Downtime/Create?workOrderId=@Model.WorkOrderId" style="display:inline-block;margin-top:12px;color:#3B82F6;text-decoration:none;font-weight:500;font-size:0.875rem;">
-                                Report Downtime →
+                            <a href="/Downtime/Create?workOrderId=@Model.WorkOrderId" style="display:inline-block;margin-top:10px;color:#3B82F6;text-decoration:none;font-weight:500;font-size:0.875rem;">
+                                + Report Downtime
                             </a>
                         }
                     </div>
                 }
                 else
                 {
-                    <div class="dash-list">
+                    <div>
                         @foreach (var downtime in downtimeReports)
                         {
-                            var downtimeStatusColor = downtime.Status switch
+                            var dtStatusColor = downtime.Status switch
                             {
-                                "Open" => "#F59E0B",
-                                "Resolved" => "#10B981",
+                                "Open"      => "#F59E0B",
+                                "Resolved"  => "#10B981",
                                 "Escalated" => "#EF4444",
-                                _ => "#6B7280"
+                                _           => "#6B7280"
                             };
-
                             var reasonColor = downtime.Reason switch
                             {
                                 "Machine Breakdown" => "#EF4444",
                                 "Material Shortage" => "#F59E0B",
-                                "Power Outage" => "#EF4444",
-                                "Maintenance" => "#3B82F6",
-                                "Changeover" => "#10B981",
-                                _ => "#6B7280"
+                                "Power Outage"      => "#EF4444",
+                                "Maintenance"       => "#3B82F6",
+                                "Changeover"        => "#10B981",
+                                _                   => "#6B7280"
                             };
-
-                            var durationDisplay = downtime.DurationMinutes >= 60 
-                                ? $"{(downtime.DurationMinutes / 60.0):F1}h" 
+                            var dur = downtime.DurationMinutes >= 60
+                                ? $"{(downtime.DurationMinutes / 60.0):F1}h"
                                 : $"{downtime.DurationMinutes}m";
 
-                            <div class="dash-list-item" style="align-items:flex-start;">
-                                <div style="flex:1;">
-                                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
-                                        <span style="display:inline-block;padding:3px 8px;border-radius:10px;font-size:0.75rem;font-weight:600;color:white;background:@reasonColor;">
-                                            @downtime.Reason
-                                        </span>
-                                        <span style="display:inline-block;padding:3px 8px;border-radius:10px;font-size:0.75rem;font-weight:600;color:white;background:@downtimeStatusColor;">
-                                            @downtime.Status
-                                        </span>
-                                        <span style="font-size:0.75rem;color:var(--text-secondary);">
-                                            @downtime.StartTime.ToString("MMM dd, HH:mm")
-                                        </span>
+                            <div style="display:flex;align-items:flex-start;gap:16px;padding:16px 20px;border-bottom:1px solid var(--border-color);">
+                                <!-- Status dot -->
+                                <div style="width:10px;height:10px;border-radius:50%;background:@dtStatusColor;flex-shrink:0;margin-top:6px;"></div>
+
+                                <!-- Main info -->
+                                <div style="flex:1;min-width:0;">
+                                    <!-- Badges row -->
+                                    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:8px;">
+                                        <span style="display:inline-block;padding:3px 10px;border-radius:10px;font-size:0.75rem;font-weight:600;color:white;background:@reasonColor;">@downtime.Reason</span>
+                                        <span style="display:inline-block;padding:3px 10px;border-radius:10px;font-size:0.75rem;font-weight:600;color:white;background:@dtStatusColor;">@downtime.Status</span>
+                                        <span style="font-size:0.8125rem;color:var(--text-secondary);">@downtime.StartTime.ToString("MMM dd, HH:mm")</span>
                                     </div>
-                                    <div class="dash-list-item-title" style="margin-bottom:4px;">@downtime.ProductionLine</div>
-                                    <div class="dash-list-item-subtitle">@downtime.Description</div>
-                                    <div style="margin-top:8px;font-size:0.75rem;color:var(--text-secondary);">
-                                        Reported by @downtime.ReportedBy?.FullName
+                                    <!-- Line & description -->
+                                    <div style="font-size:0.9375rem;font-weight:600;color:var(--text-primary);margin-bottom:2px;">@downtime.ProductionLine</div>
+                                    @if (!string.IsNullOrEmpty(downtime.Description))
+                                    {
+                                        <div style="font-size:0.8125rem;color:var(--text-secondary);margin-bottom:6px;">@downtime.Description</div>
+                                    }
+                                    <!-- Reporter info -->
+                                    <div style="font-size:0.75rem;color:var(--text-secondary);">
+                                        Reported by <strong style="color:var(--text-primary);">@downtime.ReportedBy?.FullName</strong>
                                         @if (downtime.ResolvedBy != null)
                                         {
-                                            <span> • Resolved by @downtime.ResolvedBy.FullName</span>
+                                            <span> • Resolved by <strong style="color:var(--text-primary);">@downtime.ResolvedBy.FullName</strong></span>
                                         }
                                     </div>
                                 </div>
-                                <div style="text-align:right;">
-                                    <div style="font-weight:600;font-size:1.125rem;color:@(downtime.DurationMinutes > 60 ? "#EF4444" : "#6B7280");margin-bottom:4px;">
-                                        @durationDisplay
-                                    </div>
-                                    <a href="/Downtime/Details/@downtime.DowntimeId" style="font-size:0.75rem;color:#3B82F6;text-decoration:none;font-weight:500;">
-                                        View Details →
-                                    </a>
+
+                                <!-- Duration & link -->
+                                <div style="text-align:right;flex-shrink:0;">
+                                    <div style="font-size:1rem;font-weight:700;color:@(downtime.DurationMinutes > 60 ? "#EF4444" : "#6B7280");margin-bottom:6px;">@dur</div>
+                                    <a href="/Downtime/Details/@downtime.DowntimeId" style="font-size:0.8125rem;color:#3B82F6;text-decoration:none;font-weight:500;">View →</a>
                                 </div>
                             </div>
                         }
@@ -356,42 +277,204 @@
                 }
             </div>
         }
+    </div>
 
+    <!-- ── RIGHT: Status & Summary ────────────────────────── -->
+    <div class="dash-panel dash-panel--narrow">
+
+        <!-- Status Actions -->
+        <div class="dash-panel-header">
+            <h2 class="dash-panel-title">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                Status Actions
+            </h2>
+        </div>
+
+        <div style="padding:20px;display:flex;flex-direction:column;gap:10px;">
+            @if (Model.Status == "Draft")
+            {
+                <form asp-action="UpdateStatus" method="post" style="margin:0;">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@Model.WorkOrderId" />
+                    <input type="hidden" name="status" value="Released" />
+                    <button type="submit" class="dash-btn dash-btn--primary dash-btn--full">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                        Release Work Order
+                    </button>
+                </form>
+            }
+            @if (Model.Status == "Released")
+            {
+                <form asp-action="UpdateStatus" method="post" style="margin:0;">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@Model.WorkOrderId" />
+                    <input type="hidden" name="status" value="InProgress" />
+                    <button type="submit" class="dash-btn dash-btn--primary dash-btn--full">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                        Start Production
+                    </button>
+                </form>
+            }
+            @if (Model.Status == "InProgress")
+            {
+                <form asp-action="UpdateStatus" method="post" style="margin:0;">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@Model.WorkOrderId" />
+                    <input type="hidden" name="status" value="Completed" />
+                    <button type="submit" class="dash-btn dash-btn--success dash-btn--full">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                        Complete Work Order
+                    </button>
+                </form>
+            }
+            @if (Model.Status != "Completed" && Model.Status != "Cancelled")
+            {
+                <form asp-action="UpdateStatus" method="post" style="margin:0;">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@Model.WorkOrderId" />
+                    <input type="hidden" name="status" value="Cancelled" />
+                    <button type="submit" class="dash-btn dash-btn--danger dash-btn--full" onclick="return confirm('Are you sure you want to cancel this work order?');">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                        Cancel Work Order
+                    </button>
+                </form>
+            }
+            @if (Model.Status == "Draft" || Model.Status == "Released" || Model.Status == "InProgress")
+            {
+                <div style="padding:12px;background:rgba(59,130,246,0.05);border-radius:8px;border-left:3px solid #3B82F6;">
+                    <p style="margin:0;font-size:0.8125rem;color:#6B7280;line-height:1.5;">
+                        <strong style="color:#3B82F6;">Status Flow:</strong><br/>
+                        Draft → Released → In Progress → Completed
+                    </p>
+                </div>
+            }
+        </div>
+
+        <!-- Summary Box -->
+        <div class="dash-summary-box">
+            <div class="dash-summary-row">
+                <span>Status</span>
+                <strong style="color:@statusColor;">@Model.Status</strong>
+            </div>
+            <div class="dash-summary-row">
+                <span>Progress</span>
+                <strong style="color:@progressColor;">@progress.ToString("N0")%</strong>
+            </div>
+            <div class="dash-summary-row">
+                <span>Planned Qty</span>
+                <strong>@Model.PlannedQty.ToString("N2") @Model.UnitOfMeasure</strong>
+            </div>
+            <div class="dash-summary-row">
+                <span>Actual Qty</span>
+                <strong style="color:@(Model.ActualQty >= Model.PlannedQty ? "#10B981" : "#F59E0B");">@Model.ActualQty.ToString("N2") @Model.UnitOfMeasure</strong>
+            </div>
+            @if (totalDowntime > 0)
+            {
+                <div class="dash-summary-row">
+                    <span>Total Downtime</span>
+                    <strong style="color:#EF4444;">@(totalDowntime >= 60 ? $"{(totalDowntime / 60.0):F1}h" : $"{totalDowntime}m")</strong>
+                </div>
+            }
+        </div>
+
+        <!-- Danger Zone -->
         @if ((User.IsInRole("Admin") || User.IsInRole("Planner")) && (Model.Status == "Draft" || Model.Status == "Cancelled"))
         {
-            <div class="dash-card" style="margin-top:24px;">
-                <div class="dash-card-header">
-                    <h2 class="dash-card-title" style="color:#EF4444;">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                        Danger Zone
-                    </h2>
-                </div>
-                <div style="padding: 20px;">
-                    <p style="color: #6B7A8D; font-size: 0.875rem; margin-bottom: 16px;line-height:1.6;">
-                        Permanently delete this work order. This action cannot be undone and will remove all associated data.
-                    </p>
-                    <form asp-action="Delete" asp-route-id="@Model.WorkOrderId" method="post" style="margin:0;" onsubmit="return confirm('Are you sure you want to permanently delete work order @Model.WoNumber? This action cannot be undone.');">
-                        @Html.AntiForgeryToken()
-                        <button type="submit" class="dash-btn dash-btn--danger dash-btn--full">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                            Delete Work Order
-                        </button>
-                    </form>
-                </div>
+            <div style="margin-top:24px;padding:20px;border-top:1px solid var(--border-color);">
+                <h3 style="font-size:0.875rem;font-weight:600;color:#EF4444;margin:0 0 8px 0;display:flex;align-items:center;gap:6px;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    Danger Zone
+                </h3>
+                <p style="color:#6B7A8D;font-size:0.8125rem;margin:0 0 12px;line-height:1.5;">Permanently delete this work order. This cannot be undone.</p>
+                <form asp-action="Delete" asp-route-id="@Model.WorkOrderId" method="post" style="margin:0;" onsubmit="return confirm('Permanently delete @Model.WoNumber? This cannot be undone.');">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="dash-btn dash-btn--danger dash-btn--full">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                        Delete Work Order
+                    </button>
+                </form>
             </div>
         }
     </div>
+
 </div>
 
-
 <style>
-.dash-btn--warning {
-    background: #F59E0B;
+/* ── Work Order detail grid — label on top, value below ── */
+.wo-detail-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 0;
+    padding: 8px 0;
+}
+
+.wo-detail-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.wo-detail-item:nth-last-child(-n+2) {
+    border-bottom: none;
+}
+
+.wo-detail-label {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+}
+
+.wo-detail-value {
+    font-size: 0.9375rem;
+    color: var(--text-primary);
+    font-weight: 500;
+    margin-top: 2px;
+}
+
+.dash-btn--success {
+    background: #10B981;
     color: white;
     border: none;
 }
-
-.dash-btn--warning:hover {
-    background: #D97706;
+.dash-btn--success:hover {
+    background: #059669;
+}
+.dash-btn--danger {
+    background: #EF4444;
+    color: white;
+    border: none;
+}
+.dash-btn--danger:hover {
+    background: #DC2626;
+}
+.dash-btn--full {
+    width: 100%;
+    justify-content: center;
+}
+.dash-summary-box {
+    padding: 16px 20px;
+    border-top: 1px solid var(--border-color);
+}
+.dash-summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    font-size: 0.875rem;
+    border-bottom: 1px solid rgba(0,0,0,0.04);
+}
+.dash-summary-row:last-child {
+    border-bottom: none;
+}
+.dash-summary-row span {
+    color: var(--text-secondary);
+}
+.dash-summary-row strong {
+    color: var(--text-primary);
+    font-weight: 600;
 }
 </style>

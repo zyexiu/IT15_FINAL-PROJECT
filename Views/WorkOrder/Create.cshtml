@@ -4,20 +4,18 @@
     Layout = "~/Views/Shared/_DashboardLayout.cshtml";
 }
 
-<!-- Success Message -->
 @if (TempData["Success"] != null)
 {
     <div class="dash-alert dash-alert--success">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
         <p>@TempData["Success"]</p>
     </div>
 }
 
-<!-- Error Message -->
 @if (TempData["Error"] != null)
 {
     <div class="dash-alert dash-alert--error">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
         <p>@TempData["Error"]</p>
     </div>
 }
@@ -36,15 +34,14 @@
 <div class="dash-card">
     <form asp-action="Create" asp-controller="WorkOrder" method="post" class="dash-form" id="workOrderForm" novalidate>
         @Html.AntiForgeryToken()
-        
-        <!-- Validation Summary -->
+
         @if (!ViewData.ModelState.IsValid)
         {
-            <div asp-validation-summary="All" class="dash-alert dash-alert--error">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <div class="dash-alert dash-alert--error" style="margin-bottom:24px;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
                 <div>
                     <strong>Please correct the following errors:</strong>
-                    <ul>
+                    <ul style="margin:8px 0 0 16px;padding:0;">
                         @foreach (var modelState in ViewData.ModelState.Values)
                         {
                             @foreach (var error in modelState.Errors)
@@ -57,106 +54,96 @@
             </div>
         }
 
-        <!-- Section 1: Finished Good and BOM -->
-        <fieldset>
-            <legend style="font-size: 14px; font-weight: 700; color: #0F1C26; margin-bottom: 16px;">Materials</legend>
-            <div class="dash-form-row">
-                <div class="dash-form-group">
-                    <label asp-for="ItemId" class="dash-label dash-label--required"></label>
-                    <select asp-for="ItemId" asp-items="ViewBag.Items" class="dash-select" required>
-                        <option value="">-- Select Finished Good --</option>
-                    </select>
-                    <span asp-validation-for="ItemId" class="dash-error"></span>
-                </div>
+        <!-- Section divider -->
+        <div class="wo-section-label">Materials</div>
 
-                <div class="dash-form-group">
-                    <label asp-for="BomId" class="dash-label dash-label--required"></label>
-                    <select asp-for="BomId" asp-items="ViewBag.Boms" class="dash-select" required>
-                        <option value="">-- Select BOM --</option>
-                    </select>
-                    <span asp-validation-for="BomId" class="dash-error"></span>
-                </div>
-            </div>
-        </fieldset>
-
-        <!-- Section 2: Quantity -->
-        <fieldset>
-            <legend style="font-size: 14px; font-weight: 700; color: #0F1C26; margin-bottom: 16px;">Quantity</legend>
-            <div class="dash-form-row">
-                <div class="dash-form-group">
-                    <label asp-for="PlannedQty" class="dash-label dash-label--required"></label>
-                    <input asp-for="PlannedQty" class="dash-input" type="number" step="0.01" min="0.01" placeholder="0.00" required />
-                    <span asp-validation-for="PlannedQty" class="dash-error"></span>
-                    <span class="dash-form-hint">Enter the quantity to produce</span>
-                </div>
-
-                <div class="dash-form-group">
-                    <label asp-for="UnitOfMeasure" class="dash-label dash-label--required"></label>
-                    <select asp-for="UnitOfMeasure" class="dash-select" required>
-                        <option value="">-- Select Unit --</option>
-                        <option value="kg">kg</option>
-                        <option value="g">g</option>
-                        <option value="L">L</option>
-                        <option value="pcs">pcs</option>
-                        <option value="bag">bag</option>
-                        <option value="box">box</option>
-                        <option value="pack">pack</option>
-                    </select>
-                    <span asp-validation-for="UnitOfMeasure" class="dash-error"></span>
-                </div>
-            </div>
-        </fieldset>
-
-        <!-- Section 3: Production Details -->
-        <fieldset>
-            <legend style="font-size: 14px; font-weight: 700; color: #0F1C26; margin-bottom: 16px;">Production Details</legend>
-            <div class="dash-form-row">
-                <div class="dash-form-group">
-                    <label asp-for="Status" class="dash-label dash-label--required"></label>
-                    <select asp-for="Status" asp-items="ViewBag.Statuses" class="dash-select" required></select>
-                    <span asp-validation-for="Status" class="dash-error"></span>
-                    <span class="dash-form-hint">Default: Draft (can be changed later)</span>
-                </div>
-
-                <div class="dash-form-group">
-                    <label asp-for="ProductionLine" class="dash-label"></label>
-                    <input asp-for="ProductionLine" class="dash-input" placeholder="e.g., Line 1, Line A" />
-                    <span asp-validation-for="ProductionLine" class="dash-error"></span>
-                    <span class="dash-form-hint">Optional: specific production line</span>
-                </div>
-            </div>
-        </fieldset>
-
-        <!-- Section 4: Schedule -->
-        <fieldset>
-            <legend style="font-size: 14px; font-weight: 700; color: #0F1C26; margin-bottom: 16px;">Schedule</legend>
-            <div class="dash-form-row">
-                <div class="dash-form-group">
-                    <label asp-for="ScheduledStart" class="dash-label dash-label--required"></label>
-                    <input asp-for="ScheduledStart" class="dash-input" type="datetime-local" required />
-                    <span asp-validation-for="ScheduledStart" class="dash-error"></span>
-                </div>
-
-                <div class="dash-form-group">
-                    <label asp-for="ScheduledEnd" class="dash-label dash-label--required"></label>
-                    <input asp-for="ScheduledEnd" class="dash-input" type="datetime-local" required />
-                    <span asp-validation-for="ScheduledEnd" class="dash-error"></span>
-                </div>
-            </div>
-        </fieldset>
-
-        <!-- Section 5: Notes -->
-        <fieldset>
-            <legend style="font-size: 14px; font-weight: 700; color: #0F1C26; margin-bottom: 16px;">Additional Information</legend>
+        <div class="dash-form-row">
             <div class="dash-form-group">
-                <label asp-for="Notes" class="dash-label"></label>
-                <textarea asp-for="Notes" class="dash-textarea" rows="4" placeholder="Add any special instructions or notes..."></textarea>
-                <span asp-validation-for="Notes" class="dash-error"></span>
-                <span class="dash-form-hint">Optional: Additional instructions for production</span>
+                <label asp-for="ItemId" class="dash-label dash-label--required"></label>
+                <select asp-for="ItemId" asp-items="ViewBag.Items" class="dash-select" required>
+                    <option value="">-- Select Finished Good --</option>
+                </select>
+                <span asp-validation-for="ItemId" class="dash-error"></span>
             </div>
-        </fieldset>
+            <div class="dash-form-group">
+                <label asp-for="BomId" class="dash-label dash-label--required"></label>
+                <select asp-for="BomId" asp-items="ViewBag.Boms" class="dash-select" required>
+                    <option value="">-- Select BOM --</option>
+                </select>
+                <span asp-validation-for="BomId" class="dash-error"></span>
+            </div>
+        </div>
 
-        <!-- Form Actions -->
+        <!-- Section divider -->
+        <div class="wo-section-label">Quantity</div>
+
+        <div class="dash-form-row">
+            <div class="dash-form-group">
+                <label asp-for="PlannedQty" class="dash-label dash-label--required"></label>
+                <input asp-for="PlannedQty" class="dash-input" type="number" step="0.01" min="0.01" placeholder="0.00" required />
+                <span asp-validation-for="PlannedQty" class="dash-error"></span>
+                <small class="dash-hint">Enter the quantity to produce</small>
+            </div>
+            <div class="dash-form-group">
+                <label asp-for="UnitOfMeasure" class="dash-label dash-label--required"></label>
+                <select asp-for="UnitOfMeasure" class="dash-select" required>
+                    <option value="">-- Select Unit --</option>
+                    <option value="kg">kg</option>
+                    <option value="g">g</option>
+                    <option value="L">L</option>
+                    <option value="pcs">pcs</option>
+                    <option value="bag">bag</option>
+                    <option value="box">box</option>
+                    <option value="pack">pack</option>
+                </select>
+                <span asp-validation-for="UnitOfMeasure" class="dash-error"></span>
+            </div>
+        </div>
+
+        <!-- Section divider -->
+        <div class="wo-section-label">Production Details</div>
+
+        <div class="dash-form-row">
+            <div class="dash-form-group">
+                <label asp-for="Status" class="dash-label dash-label--required"></label>
+                <select asp-for="Status" asp-items="ViewBag.Statuses" class="dash-select" required></select>
+                <span asp-validation-for="Status" class="dash-error"></span>
+                <small class="dash-hint">Default: Draft (can be changed later)</small>
+            </div>
+            <div class="dash-form-group">
+                <label asp-for="ProductionLine" class="dash-label"></label>
+                <input asp-for="ProductionLine" class="dash-input" placeholder="e.g., Line 1, Line A" />
+                <span asp-validation-for="ProductionLine" class="dash-error"></span>
+                <small class="dash-hint">Optional: specific production line</small>
+            </div>
+        </div>
+
+        <!-- Section divider -->
+        <div class="wo-section-label">Schedule</div>
+
+        <div class="dash-form-row">
+            <div class="dash-form-group">
+                <label asp-for="ScheduledStart" class="dash-label dash-label--required"></label>
+                <input asp-for="ScheduledStart" class="dash-input" type="datetime-local" required />
+                <span asp-validation-for="ScheduledStart" class="dash-error"></span>
+            </div>
+            <div class="dash-form-group">
+                <label asp-for="ScheduledEnd" class="dash-label dash-label--required"></label>
+                <input asp-for="ScheduledEnd" class="dash-input" type="datetime-local" required />
+                <span asp-validation-for="ScheduledEnd" class="dash-error"></span>
+            </div>
+        </div>
+
+        <!-- Section divider -->
+        <div class="wo-section-label">Additional Information</div>
+
+        <div class="dash-form-group">
+            <label asp-for="Notes" class="dash-label"></label>
+            <textarea asp-for="Notes" class="dash-textarea" rows="4" placeholder="Add any special instructions or notes..."></textarea>
+            <span asp-validation-for="Notes" class="dash-error"></span>
+            <small class="dash-hint">Optional: Additional instructions for production</small>
+        </div>
+
         <div class="dash-form-actions">
             <button type="submit" class="dash-btn dash-btn--primary" id="submitBtn">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
@@ -167,137 +154,181 @@
     </form>
 </div>
 
+<style>
+.wo-section-label {
+    font-size: 0.8125rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--text-secondary);
+    padding: 0 0 12px 0;
+    margin: 24px 0 4px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.wo-section-label:first-of-type {
+    margin-top: 0;
+}
+
+.dash-form {
+    padding: 28px;
+}
+
+.dash-form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 0;
+}
+
+.dash-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 20px;
+}
+
+.dash-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.dash-label--required::after {
+    content: ' *';
+    color: #EF4444;
+}
+
+.dash-input,
+.dash-select,
+.dash-textarea {
+    padding: 10px 14px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 0.9375rem;
+    color: var(--text-primary);
+    background: var(--bg-primary);
+    transition: border-color 0.2s, box-shadow 0.2s;
+    width: 100%;
+}
+
+.dash-input:focus,
+.dash-select:focus,
+.dash-textarea:focus {
+    outline: none;
+    border-color: #3B82F6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.dash-textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.dash-hint {
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+}
+
+.dash-error {
+    font-size: 0.8125rem;
+    color: #EF4444;
+    font-weight: 500;
+}
+
+.dash-form-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border-color);
+}
+
+@@media (max-width: 768px) {
+    .dash-form {
+        padding: 20px 16px;
+    }
+
+    .dash-form-row {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
-        // BOM data from server
         const bomData = @Html.Raw(ViewBag.BomData ?? "[]");
-        
-        // Auto-filter BOMs based on selected Finished Good
-        document.addEventListener('DOMContentLoaded', function() {
-            const itemSelect = document.querySelector('[name="ItemId"]');
-            const bomSelect = document.querySelector('[name="BomId"]');
-            const form = document.getElementById('workOrderForm');
-            const submitBtn = document.getElementById('submitBtn');
 
-            // Store all BOM options
+        document.addEventListener('DOMContentLoaded', function () {
+            const itemSelect = document.querySelector('[name="ItemId"]');
+            const bomSelect  = document.querySelector('[name="BomId"]');
+            const form       = document.getElementById('workOrderForm');
+            const submitBtn  = document.getElementById('submitBtn');
+
             let allBomOptions = [];
             if (bomData && bomData.length > 0) {
-                allBomOptions = bomData.map(bom => ({
-                    value: bom.BomId,
-                    text: bom.BomName,
-                    itemId: bom.ItemId
-                }));
+                allBomOptions = bomData.map(b => ({ value: b.BomId, text: b.BomName, itemId: b.ItemId }));
             }
 
-            // Filter BOMs when Finished Good changes
             if (itemSelect && bomSelect) {
-                itemSelect.addEventListener('change', function() {
+                itemSelect.addEventListener('change', function () {
                     const selectedItemId = parseInt(this.value);
-                    
-                    // Clear current BOM selection
                     bomSelect.value = '';
-                    
-                    // Remove all options except the first one (placeholder)
-                    while (bomSelect.options.length > 1) {
-                        bomSelect.remove(1);
-                    }
-                    
+                    while (bomSelect.options.length > 1) bomSelect.remove(1);
+
                     if (selectedItemId) {
-                        // Filter and add matching BOMs
-                        const matchingBoms = allBomOptions.filter(bom => bom.itemId === selectedItemId);
-                        
-                        if (matchingBoms.length > 0) {
-                            matchingBoms.forEach(bom => {
-                                const option = new Option(bom.text, bom.value);
-                                bomSelect.add(option);
-                            });
+                        const matching = allBomOptions.filter(b => b.itemId === selectedItemId);
+                        if (matching.length > 0) {
+                            matching.forEach(b => bomSelect.add(new Option(b.text, b.value)));
                             bomSelect.disabled = false;
                         } else {
-                            // No matching BOMs found
-                            const option = new Option('No BOMs available for this item', '');
-                            option.disabled = true;
-                            bomSelect.add(option);
+                            const opt = new Option('No BOMs available for this item', '');
+                            opt.disabled = true;
+                            bomSelect.add(opt);
                             bomSelect.disabled = true;
                         }
                     } else {
-                        // No item selected - disable BOM dropdown
                         bomSelect.disabled = true;
                     }
                 });
-                
-                // Disable BOM dropdown initially
-                if (!itemSelect.value) {
-                    bomSelect.disabled = true;
-                }
+
+                if (!itemSelect.value) bomSelect.disabled = true;
             }
 
-            // Client-side validation
             if (form && submitBtn) {
-                form.addEventListener('submit', function(e) {
-                    // Validate required fields
-                    const itemId = document.querySelector('[name="ItemId"]');
-                    const bomId = document.querySelector('[name="BomId"]');
-                    const plannedQty = document.querySelector('[name="PlannedQty"]');
-                    const unitOfMeasure = document.querySelector('[name="UnitOfMeasure"]');
-                    const scheduledStart = document.querySelector('[name="ScheduledStart"]');
-                    const scheduledEnd = document.querySelector('[name="ScheduledEnd"]');
+                form.addEventListener('submit', function (e) {
+                    const fields = {
+                        'ItemId':         'Please select a Finished Good',
+                        'BomId':          'Please select a Bill of Materials',
+                        'UnitOfMeasure':  'Please select a Unit of Measure',
+                        'ScheduledStart': 'Please select a Scheduled Start date',
+                        'ScheduledEnd':   'Please select a Scheduled End date',
+                    };
 
-                    let hasErrors = false;
                     const errors = [];
-
-                    if (!itemId.value) {
-                        errors.push('Please select a Finished Good');
-                        hasErrors = true;
-                    }
-                    if (!bomId.value) {
-                        errors.push('Please select a Bill of Materials');
-                        hasErrors = true;
-                    }
-                    if (!plannedQty.value || parseFloat(plannedQty.value) <= 0) {
-                        errors.push('Planned Quantity must be greater than 0');
-                        hasErrors = true;
-                    }
-                    if (!unitOfMeasure.value) {
-                        errors.push('Please select a Unit of Measure');
-                        hasErrors = true;
-                    }
-                    if (!scheduledStart.value) {
-                        errors.push('Please select a Scheduled Start date');
-                        hasErrors = true;
-                    }
-                    if (!scheduledEnd.value) {
-                        errors.push('Please select a Scheduled End date');
-                        hasErrors = true;
-                    }
-                    
-                    // Check if end date is after start date
-                    if (scheduledStart.value && scheduledEnd.value) {
-                        const startDate = new Date(scheduledStart.value);
-                        const endDate = new Date(scheduledEnd.value);
-                        if (endDate <= startDate) {
-                            errors.push('Scheduled End must be after Scheduled Start');
-                            hasErrors = true;
-                        }
+                    for (const [name, msg] of Object.entries(fields)) {
+                        const el = document.querySelector(`[name="${name}"]`);
+                        if (el && !el.value) errors.push(msg);
                     }
 
-                    if (hasErrors) {
+                    const qty = document.querySelector('[name="PlannedQty"]');
+                    if (!qty.value || parseFloat(qty.value) <= 0) errors.push('Planned Quantity must be greater than 0');
+
+                    const start = document.querySelector('[name="ScheduledStart"]');
+                    const end   = document.querySelector('[name="ScheduledEnd"]');
+                    if (start.value && end.value && new Date(end.value) <= new Date(start.value))
+                        errors.push('Scheduled End must be after Scheduled Start');
+
+                    if (errors.length > 0) {
                         e.preventDefault();
-                        console.error('Validation errors:', errors);
                         alert('Please fix the following errors:\n\n' + errors.join('\n'));
                     } else {
-                        // Disable button to prevent double-submit
                         submitBtn.disabled = true;
                         submitBtn.style.opacity = '0.6';
-                        submitBtn.style.cursor = 'not-allowed';
                     }
                 });
             }
-
-            // Log form state for debugging
-            console.log('WorkOrder Create form loaded');
-            console.log('BOM data loaded:', allBomOptions.length, 'BOMs');
         });
     </script>
 }
-

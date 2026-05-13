@@ -104,7 +104,7 @@
         {
             <div class="dash-empty">
                 <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                <p>No work orders assigned yet.</p>
+                <p>No active work orders right now. Check back when orders are Released or In Progress.</p>
             </div>
         }
         else
@@ -124,7 +124,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var wo in Model.RecentWorkOrders.Where(w => w.Status == "Released" || w.Status == "InProgress").Take(10))
+                        @foreach (var wo in Model.RecentWorkOrders.Take(10))
                         {
                             var progress = wo.PlannedQty > 0 ? (wo.ActualQty / wo.PlannedQty * 100) : 0;
                             <tr>

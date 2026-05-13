@@ -9,10 +9,10 @@
         <h1 class="dash-page-title">Downtime Reports</h1>
         <p class="dash-page-subtitle">Track production downtime and machine issues</p>
     </div>
-    <div class="dash-page-actions">
+    <div style="display:flex;gap:8px;justify-content:flex-end;align-items:center;flex-wrap:wrap;margin-left:auto;">
         @if (User.IsInRole("Operator"))
         {
-            <a href="@Url.Action("Create")" class="dash-btn dash-btn--primary">
+            <a href="@Url.Action("Create")" class="dash-btn dash-btn--secondary">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                 Report Downtime
             </a>
@@ -197,6 +197,17 @@ else
 
 .dash-btn--primary:hover {
     background: #2563EB;
+}
+
+.dash-btn--secondary {
+    background: transparent;
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+
+.dash-btn--secondary:hover {
+    background: var(--bg-secondary);
+    border-color: var(--text-secondary);
 }
 
 .dash-tabs {

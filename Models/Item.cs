@@ -57,7 +57,6 @@ public class Item
     public ICollection<BomLine>?              BomLines          { get; set; }
     public ICollection<WorkOrderMaterial>?    WorkOrderMaterials { get; set; }
     public ICollection<InventoryLedger>?      InventoryLedgers  { get; set; }
-    public ICollection<MrpRequirement>?       MrpRequirements   { get; set; }
     public BillOfMaterials?                   Bom               { get; set; }
     public InventoryBalance?                  InventoryBalance  { get; set; }
 }

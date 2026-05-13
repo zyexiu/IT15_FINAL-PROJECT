@@ -270,6 +270,66 @@ public class ProductionPlanController : Controller
         return RedirectToAction(nameof(Details), new { id = model.PlanId });
     }
 
+    // ── GET /ProductionPlan/EditLine/5 ───────────────────────
+    [Authorize(Roles = "Admin,Planner")]
+    public async Task<IActionResult> EditLine(int id)
+    {
+        var line = await _db.PlanLines
+            .Include(l => l.Item)
+            .FirstOrDefaultAsync(l => l.PlanLineId == id);
+
+        if (line == null) return NotFound();
+
+        var plan = await _db.ProductionPlans.FindAsync(line.PlanId);
+        ViewBag.PlanName = plan?.PlanName;
+
+        await PopulateItemsDropdown();
+
+        var model = new PlanLineFormViewModel
+        {
+            PlanLineId     = line.PlanLineId,
+            PlanId         = line.PlanId,
+            ItemId         = line.ItemId,
+            PlannedQty     = line.PlannedQty,
+            UnitOfMeasure  = line.UnitOfMeasure,
+            ScheduledDate  = line.ScheduledDate,
+            ProductionLine = line.ProductionLine,
+            Notes          = line.Notes
+        };
+
+        return View(model);
+    }
+
+    // ── POST /ProductionPlan/EditLine ─────────────────────────
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Admin,Planner")]
+    public async Task<IActionResult> EditLine(PlanLineFormViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            var plan = await _db.ProductionPlans.FindAsync(model.PlanId);
+            ViewBag.PlanName = plan?.PlanName;
+            await PopulateItemsDropdown();
+            return View(model);
+        }
+
+        var line = await _db.PlanLines.FindAsync(model.PlanLineId);
+        if (line == null) return NotFound();
+
+        line.ItemId        = model.ItemId;
+        line.PlannedQty    = model.PlannedQty;
+        line.UnitOfMeasure = model.UnitOfMeasure;
+        line.ScheduledDate = model.ScheduledDate;
+        line.ProductionLine = model.ProductionLine;
+        line.Notes         = model.Notes;
+
+        await _db.SaveChangesAsync();
+
+        TempData["Success"] = "Plan line updated successfully.";
+        return RedirectToAction(nameof(Details), new { id = model.PlanId });
+    }
+
     // ── POST /ProductionPlan/DeleteLine ──────────────────────
     [HttpPost]
     [ValidateAntiForgeryToken]
