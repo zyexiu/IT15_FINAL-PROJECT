@@ -122,6 +122,41 @@ public class DashboardController : Controller
                 .ToListAsync();
         }
 
+        // ── Operator dashboard: work orders by calendar day (current status) ──
+        if (role == "Operator")
+        {
+            var trendStart = DateTime.Today.AddDays(-13);
+            var bucketRows = await _db.WorkOrders
+                .Where(w => w.CreatedAt >= trendStart)
+                .GroupBy(w => new { Day = w.CreatedAt.Date, w.Status })
+                .Select(g => new { g.Key.Day, g.Key.Status, Count = g.Count() })
+                .ToListAsync();
+
+            var trendPoints = new List<object>();
+            for (var i = 0; i < 14; i++)
+            {
+                var day = trendStart.AddDays(i);
+                static int Sum(IEnumerable<(string Status, int Count)> rows, string status) =>
+                    rows.Where(r => r.Status == status).Sum(r => r.Count);
+
+                var rows = bucketRows
+                    .Where(b => b.Day == day)
+                    .Select(b => (b.Status, b.Count));
+
+                trendPoints.Add(new
+                {
+                    date = day.ToString("MMM dd"),
+                    draft = Sum(rows, "Draft"),
+                    released = Sum(rows, "Released"),
+                    inProgress = Sum(rows, "InProgress"),
+                    completed = Sum(rows, "Completed"),
+                    cancelled = Sum(rows, "Cancelled")
+                });
+            }
+
+            ViewBag.OperatorDailyStatusTrend = System.Text.Json.JsonSerializer.Serialize(trendPoints);
+        }
+
         // ── Load downtime data for Admin and Manager ─────────
         if (role == "Admin" || role == "Manager")
         {
