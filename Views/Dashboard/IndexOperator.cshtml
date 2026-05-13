@@ -79,10 +79,10 @@
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
                 Work orders by day
             </h2>
-            <span class="dash-chart-subtitle">Last 14 days — new orders by creation date and current status</span>
+            <span class="dash-chart-subtitle">Stacked bars: new orders each day by current status · Auto-refresh</span>
         </div>
 
-        <div class="dash-operator-chart-wrap">
+        <div class="dash-operator-chart-wrap" role="img" aria-label="Work orders created in the last fourteen days by status">
             <canvas id="operatorStatusTrendChart"></canvas>
         </div>
     </div>
@@ -213,10 +213,12 @@
 
 .dash-operator-chart-wrap {
     position: relative;
-    height: 340px;
+    height: clamp(260px, 42vw, 360px);
+    min-height: 240px;
     width: 100%;
+    max-width: 100%;
     margin-top: 8px;
-    padding: 14px;
+    padding: clamp(8px, 2vw, 14px);
     border-radius: 12px;
     border: 1px solid var(--border-color);
     background: linear-gradient(180deg, rgba(99, 102, 241, 0.06) 0%, rgba(99, 102, 241, 0.02) 100%);
@@ -224,7 +226,8 @@
 
 @@media (max-width: 992px) {
     .dash-operator-chart-wrap {
-        height: 300px;
+        height: clamp(240px, 55vw, 320px);
+        min-height: 220px;
         padding: 10px;
     }
 }
@@ -235,130 +238,183 @@ document.addEventListener('DOMContentLoaded', function() {
     var canvas = document.getElementById('operatorStatusTrendChart');
     if (!canvas || typeof Chart === 'undefined') return;
 
-    var rows = @Html.Raw(ViewBag.OperatorDailyStatusTrend as string ?? "[]");
-    var labels = rows.map(function(r) { return r.date; });
-    var draft = rows.map(function(r) { return r.draft; });
-    var released = rows.map(function(r) { return r.released; });
-    var inProgress = rows.map(function(r) { return r.inProgress; });
-    var completed = rows.map(function(r) { return r.completed; });
-    var cancelled = rows.map(function(r) { return r.cancelled; });
+    var pollMs = 15000;
+    var chartUrl = '@Url.Action("OperatorChartData", "Dashboard")';
 
-    var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-    var tickColor = isDark ? '#B0BEC5' : '#6B7280';
-    var gridColor = isDark ? 'rgba(148, 163, 184, 0.22)' : 'rgba(148, 163, 184, 0.25)';
-
-    var ctx = canvas.getContext('2d');
-    var datasets = [
-        {
-            label: 'Draft',
-            data: draft,
-            borderColor: '#94A3B8',
-            backgroundColor: 'rgba(148,163,184,0.12)',
-            pointRadius: 3,
-            pointHoverRadius: 5,
-            borderWidth: 2,
-            tension: 0
-        },
-        {
-            label: 'Released',
-            data: released,
-            borderColor: '#3B82F6',
-            backgroundColor: 'rgba(59,130,246,0.12)',
-            pointRadius: 3,
-            pointHoverRadius: 5,
-            borderWidth: 2,
-            tension: 0
-        },
-        {
-            label: 'In Progress',
-            data: inProgress,
-            borderColor: '#F59E0B',
-            backgroundColor: 'rgba(245,158,11,0.12)',
-            pointRadius: 3,
-            pointHoverRadius: 5,
-            borderWidth: 2,
-            tension: 0
-        },
-        {
-            label: 'Completed',
-            data: completed,
-            borderColor: '#10B981',
-            backgroundColor: 'rgba(16,185,129,0.12)',
-            pointRadius: 3,
-            pointHoverRadius: 5,
-            borderWidth: 2,
-            tension: 0
-        }
-    ];
-    if (cancelled.some(function(n) { return n > 0; })) {
-        datasets.push({
-            label: 'Cancelled',
-            data: cancelled,
-            borderColor: '#64748B',
-            backgroundColor: 'rgba(100,116,139,0.1)',
-            pointRadius: 2,
-            pointHoverRadius: 4,
-            borderWidth: 2,
-            tension: 0
-        });
+    function themeColors() {
+        var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        return {
+            tickColor: isDark ? '#B0BEC5' : '#6B7280',
+            gridColor: isDark ? 'rgba(148, 163, 184, 0.22)' : 'rgba(148, 163, 184, 0.25)'
+        };
     }
 
-    new Chart(ctx, {
-        type: 'line',
+    function rowsToDatasetArrays(rows) {
+        return {
+            labels: rows.map(function(r) { return r.date; }),
+            draft: rows.map(function(r) { return r.draft; }),
+            released: rows.map(function(r) { return r.released; }),
+            inProgress: rows.map(function(r) { return r.inProgress; }),
+            completed: rows.map(function(r) { return r.completed; }),
+            cancelled: rows.map(function(r) { return r.cancelled; })
+        };
+    }
+
+    function buildDatasets(arr) {
+        return [
+            {
+                label: 'Draft',
+                data: arr.draft,
+                backgroundColor: 'rgba(148, 163, 184, 0.9)',
+                borderColor: '#64748B',
+                borderWidth: 1
+            },
+            {
+                label: 'Released',
+                data: arr.released,
+                backgroundColor: 'rgba(59, 130, 246, 0.9)',
+                borderColor: '#2563EB',
+                borderWidth: 1
+            },
+            {
+                label: 'In Progress',
+                data: arr.inProgress,
+                backgroundColor: 'rgba(245, 158, 11, 0.9)',
+                borderColor: '#D97706',
+                borderWidth: 1
+            },
+            {
+                label: 'Completed',
+                data: arr.completed,
+                backgroundColor: 'rgba(16, 185, 129, 0.9)',
+                borderColor: '#059669',
+                borderWidth: 1
+            },
+            {
+                label: 'Cancelled',
+                data: arr.cancelled,
+                backgroundColor: 'rgba(100, 116, 139, 0.75)',
+                borderColor: '#475569',
+                borderWidth: 1
+            }
+        ];
+    }
+
+    function applyChartColors(chart, colors) {
+        var opts = chart && chart.options;
+        if (!opts) return;
+        var plugins = opts.plugins;
+        if (plugins && plugins.legend && plugins.legend.labels)
+            plugins.legend.labels.color = colors.tickColor;
+        var sx = opts.scales && opts.scales.x;
+        var sy = opts.scales && opts.scales.y;
+        if (sx && sx.ticks) sx.ticks.color = colors.tickColor;
+        if (sy && sy.ticks) sy.ticks.color = colors.tickColor;
+        if (sx && sx.grid) sx.grid.color = colors.gridColor;
+        if (sy && sy.grid) sy.grid.color = colors.gridColor;
+    }
+
+    var initialRows = @Html.Raw(ViewBag.OperatorDailyStatusTrend as string ?? "[]");
+    var first = rowsToDatasetArrays(initialRows);
+    var colors0 = themeColors();
+    var ctx = canvas.getContext('2d');
+
+    var chart = new Chart(ctx, {
+        type: 'bar',
         data: {
-            labels: labels,
-            datasets: datasets
+            labels: first.labels,
+            datasets: buildDatasets(first)
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            resizeDelay: 50,
             interaction: { mode: 'index', intersect: false },
             plugins: {
                 legend: {
                     display: true,
                     position: 'top',
                     labels: {
-                        color: tickColor,
+                        color: colors0.tickColor,
                         usePointStyle: true,
-                        boxWidth: 8,
-                        boxHeight: 8,
-                        padding: 14,
-                        font: { size: 12, weight: '600' }
+                        boxWidth: 10,
+                        boxHeight: 10,
+                        padding: 12,
+                        font: { size: 11, weight: '600' }
                     }
                 },
                 tooltip: {
                     mode: 'index',
-                    intersect: false
+                    intersect: false,
+                    callbacks: {
+                        footer: function(items) {
+                            if (!items.length) return '';
+                            var i = items[0].dataIndex;
+                            var t = 0;
+                            items.forEach(function(it) { t += it.parsed.y || 0; });
+                            return 'Day total: ' + t;
+                        }
+                    }
                 }
             },
             scales: {
                 x: {
+                    stacked: true,
                     ticks: {
-                        color: tickColor,
-                        maxRotation: 0,
+                        color: colors0.tickColor,
+                        maxRotation: 45,
+                        minRotation: 0,
                         autoSkip: true,
-                        maxTicksLimit: 14
+                        maxTicksLimit: 14,
+                        font: { size: 10 }
                     },
-                    grid: {
-                        display: false,
-                        drawBorder: false
-                    }
+                    grid: { display: false, drawBorder: false }
                 },
                 y: {
+                    stacked: true,
                     beginAtZero: true,
                     ticks: {
-                        color: tickColor,
+                        color: colors0.tickColor,
                         precision: 0,
                         stepSize: 1
                     },
-                    grid: {
-                        color: gridColor,
-                        drawBorder: false
-                    }
+                    grid: { color: colors0.gridColor, drawBorder: false }
                 }
-            },
-            elements: { line: { borderWidth: 2.5 } }
+            }
         }
     });
+
+    async function refreshFromServer() {
+        try {
+            var sep = chartUrl.indexOf('?') >= 0 ? '&' : '?';
+            var res = await fetch(chartUrl + sep + '_=' + Date.now(), {
+                credentials: 'same-origin',
+                headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+            });
+            if (!res.ok) return;
+            var rows = await res.json();
+            if (!Array.isArray(rows) || !rows.length) return;
+
+            var next = rowsToDatasetArrays(rows);
+            var c = themeColors();
+            chart.data.labels = next.labels;
+            for (var d = 0; d < chart.data.datasets.length; d++) {
+                var key = ['draft', 'released', 'inProgress', 'completed', 'cancelled'][d];
+                chart.data.datasets[d].data = next[key];
+            }
+            applyChartColors(chart, c);
+            chart.update();
+        } catch (e) { /* ignore transient network errors */ }
+    }
+
+    var pollId = setInterval(refreshFromServer, pollMs);
+    window.addEventListener('pagehide', function() { clearInterval(pollId); });
+
+    var themeObserver = new MutationObserver(function() {
+        var c = themeColors();
+        applyChartColors(chart, c);
+        chart.update('none');
+    });
+    themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 });
 </script>

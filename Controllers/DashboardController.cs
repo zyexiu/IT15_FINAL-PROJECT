@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -125,36 +126,10 @@ public class DashboardController : Controller
         // ── Operator dashboard: work orders by calendar day (current status) ──
         if (role == "Operator")
         {
-            var trendStart = DateTime.Today.AddDays(-13);
-            var bucketRows = await _db.WorkOrders
-                .Where(w => w.CreatedAt >= trendStart)
-                .GroupBy(w => new { Day = w.CreatedAt.Date, w.Status })
-                .Select(g => new { g.Key.Day, g.Key.Status, Count = g.Count() })
-                .ToListAsync();
-
-            var trendPoints = new List<object>();
-            for (var i = 0; i < 14; i++)
-            {
-                var day = trendStart.AddDays(i);
-                static int Sum(IEnumerable<(string Status, int Count)> rows, string status) =>
-                    rows.Where(r => r.Status == status).Sum(r => r.Count);
-
-                var rows = bucketRows
-                    .Where(b => b.Day == day)
-                    .Select(b => (b.Status, b.Count));
-
-                trendPoints.Add(new
-                {
-                    date = day.ToString("MMM dd"),
-                    draft = Sum(rows, "Draft"),
-                    released = Sum(rows, "Released"),
-                    inProgress = Sum(rows, "InProgress"),
-                    completed = Sum(rows, "Completed"),
-                    cancelled = Sum(rows, "Cancelled")
-                });
-            }
-
-            ViewBag.OperatorDailyStatusTrend = System.Text.Json.JsonSerializer.Serialize(trendPoints);
+            var trendPoints = await GetOperatorDailyStatusTrendAsync();
+            ViewBag.OperatorDailyStatusTrend = JsonSerializer.Serialize(
+                trendPoints,
+                new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
         }
 
         // ── Load downtime data for Admin and Manager ─────────
@@ -217,5 +192,65 @@ public class DashboardController : Controller
         }
 
         return View(vm);
+    }
+
+    /// <summary>JSON for operator dashboard chart; polled for near real-time updates.</summary>
+    [HttpGet]
+    public async Task<IActionResult> OperatorChartData()
+    {
+        var user = await _users.GetUserAsync(User);
+        if (user == null)
+            return Unauthorized();
+
+        var roles = await _users.GetRolesAsync(user);
+        if (!roles.Contains("Operator"))
+            return Forbid();
+
+        var trend = await GetOperatorDailyStatusTrendAsync();
+        return Json(trend);
+    }
+
+    private static int SumStatusCounts(IEnumerable<(string Status, int Count)> rows, string status) =>
+        rows.Where(r => r.Status == status).Sum(r => r.Count);
+
+    private async Task<List<OperatorDailyPoint>> GetOperatorDailyStatusTrendAsync()
+    {
+        var trendStart = DateTime.Today.AddDays(-13);
+        var bucketRows = await _db.WorkOrders
+            .Where(w => w.CreatedAt >= trendStart)
+            .GroupBy(w => new { Day = w.CreatedAt.Date, w.Status })
+            .Select(g => new { g.Key.Day, g.Key.Status, Count = g.Count() })
+            .ToListAsync();
+
+        var trendPoints = new List<OperatorDailyPoint>();
+        for (var i = 0; i < 14; i++)
+        {
+            var day = trendStart.AddDays(i);
+            var rows = bucketRows
+                .Where(b => b.Day == day)
+                .Select(b => (b.Status, b.Count));
+
+            trendPoints.Add(new OperatorDailyPoint
+            {
+                Date = day.ToString("MMM dd"),
+                Draft = SumStatusCounts(rows, "Draft"),
+                Released = SumStatusCounts(rows, "Released"),
+                InProgress = SumStatusCounts(rows, "InProgress"),
+                Completed = SumStatusCounts(rows, "Completed"),
+                Cancelled = SumStatusCounts(rows, "Cancelled")
+            });
+        }
+
+        return trendPoints;
+    }
+
+    private sealed class OperatorDailyPoint
+    {
+        public string Date { get; init; } = "";
+        public int Draft { get; init; }
+        public int Released { get; init; }
+        public int InProgress { get; init; }
+        public int Completed { get; init; }
+        public int Cancelled { get; init; }
     }
 }
