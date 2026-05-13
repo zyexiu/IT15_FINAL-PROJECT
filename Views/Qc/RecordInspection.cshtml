@@ -8,113 +8,144 @@
 <div class="dash-page-header">
     <div>
         <h1 class="dash-page-title">Record QC Inspection</h1>
-        <p class="dash-page-subtitle">Work Order: @workOrder?.WoNumber - @workOrder?.Item?.ItemName</p>
+        <p class="dash-page-subtitle">@workOrder?.WoNumber — @workOrder?.Item?.ItemName</p>
     </div>
-    <a href="/WorkOrder/Details/@Model.WorkOrderId" class="dash-btn dash-btn--secondary">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-        Back to Work Order
-    </a>
+    <div style="display:flex;gap:8px;justify-content:flex-end;align-items:center;flex-wrap:wrap;margin-left:auto;">
+        <a href="/WorkOrder/Details/@Model.WorkOrderId" class="dash-btn dash-btn--secondary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+            Back to Work Order
+        </a>
+    </div>
 </div>
 
 @if (TempData["Warning"] != null)
 {
-    <div class="dash-alert dash-alert--warning">
+    <div class="dash-alert dash-alert--warning" style="margin-bottom:24px;">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
         @TempData["Warning"]
     </div>
 }
 
-<!-- Work Order Summary -->
-<div class="dash-panel" style="margin-bottom:24px;">
-    <div class="dash-panel-header">
-        <h2 class="dash-panel-title">Work Order Summary</h2>
+<!-- Work Order Summary Card -->
+<div class="dash-card" style="margin-bottom:24px;">
+    <div class="dash-card-header">
+        <h2 class="dash-card-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            Work Order Summary
+        </h2>
+        <span style="display:inline-block;padding:4px 12px;border-radius:12px;font-size:0.75rem;font-weight:600;color:white;background:#10B981;">
+            Completed
+        </span>
     </div>
-    <div style="padding:20px;">
-        <div class="dash-detail-grid" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr));">
-            <div class="dash-detail-row">
-                <span class="dash-detail-label">WO Number</span>
-                <span class="dash-detail-value dash-detail-value--mono">@workOrder?.WoNumber</span>
-            </div>
-            <div class="dash-detail-row">
-                <span class="dash-detail-label">Product</span>
-                <span class="dash-detail-value">@workOrder?.Item?.ItemName</span>
-            </div>
-            <div class="dash-detail-row">
-                <span class="dash-detail-label">Planned Qty</span>
-                <span class="dash-detail-value">@workOrder?.PlannedQty.ToString("N2") @workOrder?.UnitOfMeasure</span>
-            </div>
-            <div class="dash-detail-row">
-                <span class="dash-detail-label">Actual Qty</span>
-                <span class="dash-detail-value dash-detail-value--highlight">@workOrder?.ActualQty.ToString("N2") @workOrder?.UnitOfMeasure</span>
-            </div>
-            <div class="dash-detail-row">
-                <span class="dash-detail-label">Production Line</span>
-                <span class="dash-detail-value">@(workOrder?.ProductionLine ?? "—")</span>
-            </div>
-            <div class="dash-detail-row">
-                <span class="dash-detail-label">Completed Date</span>
-                <span class="dash-detail-value">@workOrder?.ActualEnd?.ToString("MMM dd, yyyy")</span>
-            </div>
+    <div class="qc-summary-grid">
+        <div class="qc-summary-item">
+            <span class="qc-summary-label">WO Number</span>
+            <span class="qc-summary-value" style="font-family:monospace;color:#3B82F6;font-weight:600;">@workOrder?.WoNumber</span>
+        </div>
+        <div class="qc-summary-item">
+            <span class="qc-summary-label">Product</span>
+            <span class="qc-summary-value" style="font-weight:600;">@workOrder?.Item?.ItemName</span>
+        </div>
+        <div class="qc-summary-item">
+            <span class="qc-summary-label">Planned Qty</span>
+            <span class="qc-summary-value">@workOrder?.PlannedQty.ToString("N2") @workOrder?.UnitOfMeasure</span>
+        </div>
+        <div class="qc-summary-item">
+            <span class="qc-summary-label">Actual Qty</span>
+            <span class="qc-summary-value" style="font-weight:600;color:#3B82F6;">@workOrder?.ActualQty.ToString("N2") @workOrder?.UnitOfMeasure</span>
+        </div>
+        <div class="qc-summary-item">
+            <span class="qc-summary-label">Production Line</span>
+            <span class="qc-summary-value">
+                @if (!string.IsNullOrEmpty(workOrder?.ProductionLine))
+                {
+                    <span style="display:inline-block;padding:3px 10px;border-radius:10px;font-size:0.8125rem;font-weight:500;background:rgba(59,130,246,0.1);color:#3B82F6;">@workOrder.ProductionLine</span>
+                }
+                else
+                {
+                    <span style="color:#9CA3AF;">—</span>
+                }
+            </span>
+        </div>
+        <div class="qc-summary-item">
+            <span class="qc-summary-label">Completed Date</span>
+            <span class="qc-summary-value">@(workOrder?.ActualEnd?.ToString("MMM dd, yyyy") ?? "—")</span>
         </div>
     </div>
 </div>
 
-<div class="dash-panel" style="width:min(1120px,calc(100vw - 340px));margin:0 auto 24px;padding:24px 26px;">
-    <form asp-action="RecordInspection" method="post">
+<!-- Inspection Form Card -->
+<div class="dash-card">
+    <div class="dash-card-header">
+        <h2 class="dash-card-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            Inspection Results
+        </h2>
+    </div>
+
+    <form asp-action="RecordInspection" method="post" style="padding:28px;">
+        @Html.AntiForgeryToken()
         <input type="hidden" asp-for="WorkOrderId" />
-        <div asp-validation-summary="ModelOnly" class="dash-alert dash-alert--error"></div>
+        <div asp-validation-summary="ModelOnly" class="dash-alert dash-alert--error" style="margin-bottom:20px;"></div>
 
-        <h2 style="font-size:1.125rem;font-weight:600;margin:0 0 20px 0;color:var(--text-primary);">Inspection Results</h2>
-
-        <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 20px;margin-bottom:20px;">
+        <!-- Result & Check Type -->
+        <div class="wo-section-label">Inspection Details</div>
+        <div class="dash-form-row">
             <div class="dash-form-group">
-                <label asp-for="Result" class="dash-form-label">Inspection Result *</label>
-                <select asp-for="Result" asp-items="ViewBag.Results" class="dash-form-input" required>
+                <label asp-for="Result" class="dash-label dash-label--required">Inspection Result</label>
+                <select asp-for="Result" asp-items="ViewBag.Results" class="dash-select" required>
                     <option value="">-- Select Result --</option>
                 </select>
-                <span asp-validation-for="Result" class="dash-form-error"></span>
+                <span asp-validation-for="Result" class="dash-error"></span>
             </div>
-
             <div class="dash-form-group">
-                <label asp-for="CheckType" class="dash-form-label">Check Type</label>
-                <select asp-for="CheckType" asp-items="ViewBag.CheckTypes" class="dash-form-input">
+                <label asp-for="CheckType" class="dash-label">Check Type</label>
+                <select asp-for="CheckType" asp-items="ViewBag.CheckTypes" class="dash-select">
                     <option value="">-- Select Check Type --</option>
                 </select>
-                <span asp-validation-for="CheckType" class="dash-form-error"></span>
-            </div>
-
-            <div class="dash-form-group">
-                <label asp-for="SampleQty" class="dash-form-label">Sample Quantity</label>
-                <input asp-for="SampleQty" type="number" step="0.01" class="dash-form-input" placeholder="0.00" />
-                <span asp-validation-for="SampleQty" class="dash-form-error"></span>
-                <small class="dash-form-help">Quantity inspected from the batch</small>
-            </div>
-
-            <div class="dash-form-group">
-                <label asp-for="DefectQty" class="dash-form-label">Defect Quantity</label>
-                <input asp-for="DefectQty" type="number" step="0.01" class="dash-form-input" placeholder="0.00" />
-                <span asp-validation-for="DefectQty" class="dash-form-error"></span>
-                <small class="dash-form-help">Quantity found defective</small>
-            </div>
-
-            <div class="dash-form-group" style="grid-column:1/-1;">
-                <label asp-for="Disposition" class="dash-form-label">Disposition *</label>
-                <select asp-for="Disposition" asp-items="ViewBag.Dispositions" class="dash-form-input" required>
-                    <option value="">-- Select Disposition --</option>
-                </select>
-                <span asp-validation-for="Disposition" class="dash-form-error"></span>
-                <small class="dash-form-help">What should happen to this batch?</small>
-            </div>
-
-            <div class="dash-form-group" style="grid-column:1/-1;">
-                <label asp-for="Notes" class="dash-form-label">Inspection Notes</label>
-                <textarea asp-for="Notes" rows="4" class="dash-form-input" placeholder="Detailed inspection findings, observations, and recommendations..."></textarea>
-                <span asp-validation-for="Notes" class="dash-form-error"></span>
+                <span asp-validation-for="CheckType" class="dash-error"></span>
             </div>
         </div>
 
-        <div style="display:flex;gap:12px;margin-top:24px;padding-top:24px;border-top:1px solid var(--border-color);">
-            <button type="submit" class="dash-btn dash-btn--primary">
+        <!-- Quantities -->
+        <div class="wo-section-label">Quantities</div>
+        <div class="dash-form-row">
+            <div class="dash-form-group">
+                <label asp-for="SampleQty" class="dash-label">Sample Quantity</label>
+                <input asp-for="SampleQty" type="number" step="0.01" class="dash-input" placeholder="0.00" />
+                <span asp-validation-for="SampleQty" class="dash-error"></span>
+                <small class="dash-hint">Quantity inspected from the batch</small>
+            </div>
+            <div class="dash-form-group">
+                <label asp-for="DefectQty" class="dash-label">Defect Quantity</label>
+                <input asp-for="DefectQty" type="number" step="0.01" class="dash-input" placeholder="0.00" />
+                <span asp-validation-for="DefectQty" class="dash-error"></span>
+                <small class="dash-hint">Quantity found defective</small>
+            </div>
+        </div>
+
+        <!-- Disposition -->
+        <div class="wo-section-label">Disposition</div>
+        <div class="dash-form-group">
+            <label asp-for="Disposition" class="dash-label dash-label--required">Disposition</label>
+            <select asp-for="Disposition" asp-items="ViewBag.Dispositions" class="dash-select" required>
+                <option value="">-- Select Disposition --</option>
+            </select>
+            <span asp-validation-for="Disposition" class="dash-error"></span>
+            <small class="dash-hint">What should happen to this batch?</small>
+        </div>
+
+        <!-- Notes -->
+        <div class="wo-section-label">Notes</div>
+        <div class="dash-form-group">
+            <label asp-for="Notes" class="dash-label">Inspection Notes</label>
+            <textarea asp-for="Notes" rows="4" class="dash-textarea" placeholder="Detailed inspection findings, observations, and recommendations..."></textarea>
+            <span asp-validation-for="Notes" class="dash-error"></span>
+        </div>
+
+        <!-- Actions -->
+        <div style="display:flex;gap:12px;margin-top:32px;padding-top:24px;border-top:1px solid var(--border-color);">
+            <button type="submit" class="dash-btn dash-btn--primary" id="submitBtn">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
                 Submit Inspection
             </button>
@@ -123,20 +154,195 @@
     </form>
 </div>
 
+<style>
+/* Summary grid — label on top, value below */
+.qc-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0;
+    padding: 8px 0;
+}
+
+.qc-summary-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.qc-summary-item:nth-last-child(-n+2) {
+    border-bottom: none;
+}
+
+.qc-summary-label {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+}
+
+.qc-summary-value {
+    font-size: 0.9375rem;
+    color: var(--text-primary);
+    font-weight: 500;
+    margin-top: 2px;
+}
+
+/* Form section labels */
+.wo-section-label {
+    font-size: 0.8125rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--text-secondary);
+    padding-bottom: 12px;
+    margin: 24px 0 4px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.wo-section-label:first-of-type {
+    margin-top: 0;
+}
+
+/* Form elements */
+.dash-form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.dash-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 20px;
+}
+
+.dash-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.dash-label--required::after {
+    content: ' *';
+    color: #EF4444;
+}
+
+.dash-input,
+.dash-select,
+.dash-textarea {
+    padding: 10px 14px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 0.9375rem;
+    color: var(--text-primary);
+    background: var(--bg-primary);
+    transition: border-color 0.2s, box-shadow 0.2s;
+    width: 100%;
+}
+
+.dash-input:focus,
+.dash-select:focus,
+.dash-textarea:focus {
+    outline: none;
+    border-color: #3B82F6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.dash-textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.dash-hint {
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+}
+
+.dash-error {
+    font-size: 0.8125rem;
+    color: #EF4444;
+    font-weight: 500;
+}
+
+@@media (max-width: 768px) {
+    .dash-form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .qc-summary-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
-    
     <script>
-        // Auto-fill disposition based on result
-        document.querySelector('select[name="Result"]').addEventListener('change', function() {
-            const dispositionSelect = document.querySelector('select[name="Disposition"]');
-            if (this.value === 'Pass') {
-                dispositionSelect.value = 'Accept';
-            } else if (this.value === 'Fail') {
-                dispositionSelect.value = 'Reject';
-            } else if (this.value === 'ConditionalPass') {
-                dispositionSelect.value = 'Rework';
+        const form       = document.querySelector('form');
+        const submitBtn  = document.getElementById('submitBtn');
+        const resultSel  = document.querySelector('select[name="Result"]');
+        const dispSel    = document.querySelector('select[name="Disposition"]');
+        const sampleQty  = document.querySelector('input[name="SampleQty"]');
+        const defectQty  = document.querySelector('input[name="DefectQty"]');
+
+        // ── Auto-fill Disposition when Result changes ──────────
+        resultSel.addEventListener('change', function () {
+            if (this.value === 'Pass')            dispSel.value = 'Accept';
+            else if (this.value === 'Fail')       dispSel.value = 'Reject';
+            else if (this.value === 'ConditionalPass') dispSel.value = 'Rework';
+        });
+
+        // ── Validate defect qty doesn't exceed sample qty ──────
+        defectQty.addEventListener('input', function () {
+            const sample  = parseFloat(sampleQty.value) || 0;
+            const defect  = parseFloat(this.value)      || 0;
+            if (defect > sample && sample > 0) {
+                this.setCustomValidity('Defect quantity cannot exceed sample quantity.');
+            } else {
+                this.setCustomValidity('');
             }
+        });
+
+        // ── Client-side validation on submit ───────────────────
+        form.addEventListener('submit', function (e) {
+            const errors = [];
+
+            if (!resultSel.value)
+                errors.push('Please select an Inspection Result.');
+
+            if (!dispSel.value)
+                errors.push('Please select a Disposition.');
+
+            const sample = parseFloat(sampleQty.value) || 0;
+            const defect = parseFloat(defectQty.value) || 0;
+
+            if (sample < 0)
+                errors.push('Sample Quantity cannot be negative.');
+
+            if (defect < 0)
+                errors.push('Defect Quantity cannot be negative.');
+
+            if (defect > sample && sample > 0)
+                errors.push('Defect Quantity cannot exceed Sample Quantity.');
+
+            if (errors.length > 0) {
+                e.preventDefault();
+                alert('Please fix the following:\n\n' + errors.join('\n'));
+                return;
+            }
+
+            // Disable button to prevent double-submit
+            submitBtn.disabled = true;
+            submitBtn.style.opacity = '0.7';
+            submitBtn.innerHTML = `
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                </svg>
+                Submitting...`;
         });
     </script>
 }

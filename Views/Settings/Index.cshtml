@@ -28,7 +28,7 @@
                     <span class="dash-settings-desc">Mail server hostname</span>
                 </div>
                 <div class="dash-settings-value">
-                    <code>@(Configuration["EmailSettings:SmtpServer"] ?? "Not configured")</code>
+                    <code>@(Configuration["EmailSettings:SmtpHost"] ?? "Not configured")</code>
                 </div>
             </div>
             <div class="dash-settings-row">
@@ -58,6 +58,32 @@
                     <code>@(Configuration["EmailSettings:FromName"] ?? "Not configured")</code>
                 </div>
             </div>
+            <div class="dash-settings-row">
+                <div class="dash-settings-label">
+                    <strong>Username</strong>
+                    <span class="dash-settings-desc">SMTP authentication username</span>
+                </div>
+                <div class="dash-settings-value">
+                    <code>@(Configuration["EmailSettings:SmtpUsername"] ?? "Not configured")</code>
+                </div>
+            </div>
+            <div class="dash-settings-row">
+                <div class="dash-settings-label">
+                    <strong>Password</strong>
+                    <span class="dash-settings-desc">SMTP authentication password</span>
+                </div>
+                <div class="dash-settings-value">
+                    <code>••••••••••••••••</code>
+                    @if (!string.IsNullOrEmpty(Configuration["EmailSettings:SmtpPassword"]))
+                    {
+                        <span class="dash-badge dash-badge--success">Configured</span>
+                    }
+                    else
+                    {
+                        <span class="dash-badge dash-badge--warning">Missing</span>
+                    }
+                </div>
+            </div>
             <div class="dash-settings-actions">
                 <span class="dash-settings-note">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
@@ -73,36 +99,78 @@
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
             <div>
                 <h2 class="dash-form-title">reCAPTCHA Configuration</h2>
-                <p class="dash-form-subtitle">Google reCAPTCHA v3 settings</p>
+                <p class="dash-form-subtitle">Google reCAPTCHA v2 "I'm not a robot" Checkbox</p>
             </div>
         </div>
         <div class="dash-settings-content">
             <div class="dash-settings-row">
                 <div class="dash-settings-label">
-                    <strong>Site Key</strong>
-                    <span class="dash-settings-desc">Public key for client-side</span>
+                    <strong>Status</strong>
+                    <span class="dash-settings-desc">Whether reCAPTCHA is active on login</span>
                 </div>
                 <div class="dash-settings-value">
-                    <code>@(Configuration["RecaptchaSettings:SiteKey"]?.Substring(0, 20) ?? "Not configured")...</code>
+                    @{
+                        var recaptchaEnabled = Configuration.GetValue<bool?>("RecaptchaSettings:Enabled") ?? true;
+                    }
+                    @if (recaptchaEnabled)
+                    {
+                        <span class="dash-badge dash-badge--success">Enabled</span>
+                    }
+                    else
+                    {
+                        <span class="dash-badge dash-badge--secondary">Disabled</span>
+                    }
+                </div>
+            </div>
+            <div class="dash-settings-row">
+                <div class="dash-settings-label">
+                    <strong>Site Key</strong>
+                    <span class="dash-settings-desc">Public key for client-side widget</span>
+                </div>
+                <div class="dash-settings-value">
+                    @{
+                        var siteKey = Configuration["RecaptchaSettings:SiteKey"];
+                    }
+                    @if (!string.IsNullOrEmpty(siteKey) && siteKey != "PASTE_YOUR_NEW_SITE_KEY_HERE")
+                    {
+                        <code>@siteKey.Substring(0, Math.Min(20, siteKey.Length))...</code>
+                        <span class="dash-badge dash-badge--success">Configured</span>
+                    }
+                    else
+                    {
+                        <code>Not configured</code>
+                        <span class="dash-badge dash-badge--warning">Missing</span>
+                    }
                 </div>
             </div>
             <div class="dash-settings-row">
                 <div class="dash-settings-label">
                     <strong>Secret Key</strong>
-                    <span class="dash-settings-desc">Private key for server-side</span>
+                    <span class="dash-settings-desc">Private key for server-side verification</span>
                 </div>
                 <div class="dash-settings-value">
+                    @{
+                        var secretKey = Configuration["RecaptchaSettings:SecretKey"];
+                        var secretConfigured = !string.IsNullOrEmpty(secretKey) && secretKey != "PASTE_YOUR_NEW_SECRET_KEY_HERE";
+                    }
                     <code>••••••••••••••••••••</code>
-                    <span class="dash-badge dash-badge--success">Configured</span>
+                    @if (secretConfigured)
+                    {
+                        <span class="dash-badge dash-badge--success">Configured</span>
+                    }
+                    else
+                    {
+                        <span class="dash-badge dash-badge--warning">Missing</span>
+                    }
                 </div>
             </div>
             <div class="dash-settings-row">
                 <div class="dash-settings-label">
-                    <strong>Minimum Score</strong>
-                    <span class="dash-settings-desc">Threshold for verification (0.0 - 1.0)</span>
+                    <strong>Type</strong>
+                    <span class="dash-settings-desc">reCAPTCHA version in use</span>
                 </div>
                 <div class="dash-settings-value">
-                    <code>@(Configuration["RecaptchaSettings:MinimumScore"] ?? "0.5")</code>
+                    <code>v2 Checkbox</code>
                 </div>
             </div>
             <div class="dash-settings-actions">
@@ -148,7 +216,12 @@
                     <span class="dash-settings-desc">Runtime environment</span>
                 </div>
                 <div class="dash-settings-value">
-                    <code>@(Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production")</code>
+                    @{
+                        var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production";
+                        var envBadge = env == "Development" ? "dash-badge--warning" : "dash-badge--success";
+                    }
+                    <code>@env</code>
+                    <span class="dash-badge @envBadge">@env</span>
                 </div>
             </div>
             <div class="dash-settings-row">
@@ -157,7 +230,40 @@
                     <span class="dash-settings-desc">Runtime version</span>
                 </div>
                 <div class="dash-settings-value">
-                    <code>@Environment.Version</code>
+                    <code>@System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription</code>
+                </div>
+            </div>
+            <div class="dash-settings-row">
+                <div class="dash-settings-label">
+                    <strong>Database</strong>
+                    <span class="dash-settings-desc">Database engine</span>
+                </div>
+                <div class="dash-settings-value">
+                    <code>MySQL (Pomelo)</code>
+                </div>
+            </div>
+            <div class="dash-settings-row">
+                <div class="dash-settings-label">
+                    <strong>Authentication</strong>
+                    <span class="dash-settings-desc">Identity provider</span>
+                </div>
+                <div class="dash-settings-value">
+                    <code>ASP.NET Core Identity</code>
+                </div>
+            </div>
+            <div class="dash-settings-row">
+                <div class="dash-settings-label">
+                    <strong>Roles</strong>
+                    <span class="dash-settings-desc">Available user roles</span>
+                </div>
+                <div class="dash-settings-value">
+                    <div class="dash-badge-group">
+                        <span class="dash-badge dash-badge--primary">Admin</span>
+                        <span class="dash-badge dash-badge--info">Planner</span>
+                        <span class="dash-badge dash-badge--warning">Operator</span>
+                        <span class="dash-badge dash-badge--success">QC</span>
+                        <span class="dash-badge dash-badge--secondary">Manager</span>
+                    </div>
                 </div>
             </div>
         </div>

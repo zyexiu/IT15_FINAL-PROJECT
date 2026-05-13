@@ -64,48 +64,64 @@
     <!-- Left column: Plan Information -->
     <div class="dash-card">
         <div class="dash-card-header">
-            <h2 class="dash-card-title">Plan Information</h2>
-            <span class="dash-badge dash-badge--@Model.Status.ToLower()">@Model.Status</span>
+            <h2 class="dash-card-title">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                Plan Information
+            </h2>
+            @{
+                var planStatusColor = Model.Status switch
+                {
+                    "Draft"      => "#6B7280",
+                    "Approved"   => "#3B82F6",
+                    "InProgress" => "#F59E0B",
+                    "Completed"  => "#10B981",
+                    "Cancelled"  => "#EF4444",
+                    _            => "#6B7280"
+                };
+            }
+            <span style="display:inline-block;padding:4px 12px;border-radius:12px;font-size:0.75rem;font-weight:600;color:white;background:@planStatusColor;">@Model.Status</span>
         </div>
-        <div class="dash-detail-grid">
-            <div class="dash-detail-item">
-                <span class="dash-detail-label">Plan Name</span>
-                <span class="dash-detail-value">@Model.PlanName</span>
+        <div class="plan-detail-grid">
+            <div class="plan-detail-item">
+                <span class="plan-detail-label">Plan Name</span>
+                <span class="plan-detail-value" style="font-weight:600;">@Model.PlanName</span>
             </div>
-            <div class="dash-detail-item">
-                <span class="dash-detail-label">Status</span>
-                <span class="dash-detail-value">@Model.Status</span>
+            <div class="plan-detail-item">
+                <span class="plan-detail-label">Status</span>
+                <span class="plan-detail-value">
+                    <span style="display:inline-block;padding:3px 10px;border-radius:10px;font-size:0.8125rem;font-weight:600;color:white;background:@planStatusColor;">@Model.Status</span>
+                </span>
             </div>
-            <div class="dash-detail-item">
-                <span class="dash-detail-label">Start Date</span>
-                <span class="dash-detail-value">@Model.PlanDateFrom.ToString("MMM dd, yyyy")</span>
+            <div class="plan-detail-item">
+                <span class="plan-detail-label">Start Date</span>
+                <span class="plan-detail-value">@Model.PlanDateFrom.ToString("MMM dd, yyyy")</span>
             </div>
-            <div class="dash-detail-item">
-                <span class="dash-detail-label">End Date</span>
-                <span class="dash-detail-value">@Model.PlanDateTo.ToString("MMM dd, yyyy")</span>
+            <div class="plan-detail-item">
+                <span class="plan-detail-label">End Date</span>
+                <span class="plan-detail-value">@Model.PlanDateTo.ToString("MMM dd, yyyy")</span>
             </div>
-            <div class="dash-detail-item">
-                <span class="dash-detail-label">Duration</span>
-                <span class="dash-detail-value">@((Model.PlanDateTo - Model.PlanDateFrom).Days) days</span>
+            <div class="plan-detail-item">
+                <span class="plan-detail-label">Duration</span>
+                <span class="plan-detail-value" style="font-weight:600;color:#3B82F6;">@((Model.PlanDateTo - Model.PlanDateFrom).Days) days</span>
             </div>
-            <div class="dash-detail-item">
-                <span class="dash-detail-label">Plan Lines</span>
-                <span class="dash-detail-value">@(Model.PlanLines?.Count ?? 0)</span>
+            <div class="plan-detail-item">
+                <span class="plan-detail-label">Plan Lines</span>
+                <span class="plan-detail-value" style="font-weight:600;">@(Model.PlanLines?.Count ?? 0)</span>
             </div>
-            <div class="dash-detail-item">
-                <span class="dash-detail-label">Created By</span>
-                <span class="dash-detail-value">@(Model.CreatedBy?.FullName ?? "—")</span>
+            <div class="plan-detail-item">
+                <span class="plan-detail-label">Created By</span>
+                <span class="plan-detail-value">@(Model.CreatedBy?.FullName ?? "—")</span>
             </div>
-            <div class="dash-detail-item">
-                <span class="dash-detail-label">Created At</span>
-                <span class="dash-detail-value">@Model.CreatedAt.ToString("MMM dd, yyyy HH:mm")</span>
+            <div class="plan-detail-item">
+                <span class="plan-detail-label">Created At</span>
+                <span class="plan-detail-value">@Model.CreatedAt.ToString("MMM dd, yyyy HH:mm")</span>
             </div>
         </div>
         @if (!string.IsNullOrEmpty(Model.Notes))
         {
-            <div style="margin-top:20px;padding-top:20px;border-top:1px solid #E4E9EF;">
-                <span class="dash-detail-label">Notes</span>
-                <p style="margin-top:8px;color:#6B7A8D;line-height:1.6;">@Model.Notes</p>
+            <div style="margin:0 0 20px;padding:16px 20px;background:rgba(59,130,246,0.05);border-top:1px solid var(--border-color);border-left:3px solid #3B82F6;">
+                <h3 style="font-size:0.875rem;font-weight:600;color:var(--text-primary);margin:0 0 8px 0;">Notes</h3>
+                <p style="margin:0;color:var(--text-secondary);line-height:1.6;">@Model.Notes</p>
             </div>
         }
     </div>
@@ -113,32 +129,51 @@
     <!-- Right column: Timeline -->
     <div class="dash-card">
         <div class="dash-card-header">
-            <h2 class="dash-card-title">Timeline</h2>
+            <h2 class="dash-card-title">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                Timeline
+            </h2>
         </div>
-        <div class="dash-timeline">
+        <div class="dash-timeline" style="padding:20px;">
             <div class="dash-timeline-item">
-                <div class="dash-timeline-marker dash-timeline-marker--active"></div>
+                <div class="dash-timeline-dot" style="background:#3B82F6;"></div>
                 <div class="dash-timeline-content">
                     <div class="dash-timeline-title">Plan Created</div>
-                    <div class="dash-timeline-date">@Model.CreatedAt.ToString("MMM dd, yyyy HH:mm")</div>
-                    <div class="dash-timeline-desc">By @(Model.CreatedBy?.FullName ?? "—")</div>
+                    <div class="dash-timeline-time">@Model.CreatedAt.ToString("MMM dd, yyyy HH:mm")</div>
+                    <div class="dash-timeline-user">By @(Model.CreatedBy?.FullName ?? "—")</div>
                 </div>
             </div>
             <div class="dash-timeline-item">
-                <div class="dash-timeline-marker @(Model.Status == "Approved" || Model.Status == "InProgress" || Model.Status == "Completed" ? "dash-timeline-marker--active" : "")"></div>
+                <div class="dash-timeline-dot" style="background:@(Model.Status == "Approved" || Model.Status == "InProgress" || Model.Status == "Completed" ? "#10B981" : "#E5E7EB");"></div>
                 <div class="dash-timeline-content">
                     <div class="dash-timeline-title">Plan Start</div>
-                    <div class="dash-timeline-date">@Model.PlanDateFrom.ToString("MMM dd, yyyy")</div>
-                    <div class="dash-timeline-desc">Scheduled start date</div>
+                    <div class="dash-timeline-time">@Model.PlanDateFrom.ToString("MMM dd, yyyy")</div>
+                    <div class="dash-timeline-user">Scheduled start date</div>
                 </div>
             </div>
             <div class="dash-timeline-item">
-                <div class="dash-timeline-marker @(Model.Status == "Completed" ? "dash-timeline-marker--active" : "")"></div>
+                <div class="dash-timeline-dot" style="background:@(Model.Status == "Completed" ? "#10B981" : "#E5E7EB");"></div>
                 <div class="dash-timeline-content">
                     <div class="dash-timeline-title">Plan End</div>
-                    <div class="dash-timeline-date">@Model.PlanDateTo.ToString("MMM dd, yyyy")</div>
-                    <div class="dash-timeline-desc">Scheduled end date</div>
+                    <div class="dash-timeline-time">@Model.PlanDateTo.ToString("MMM dd, yyyy")</div>
+                    <div class="dash-timeline-user">Scheduled end date</div>
                 </div>
+            </div>
+        </div>
+
+        <!-- Summary box -->
+        <div class="dash-summary-box" style="border-top:1px solid var(--border-color);">
+            <div class="dash-summary-row">
+                <span>Status</span>
+                <strong style="color:@planStatusColor;">@Model.Status</strong>
+            </div>
+            <div class="dash-summary-row">
+                <span>Duration</span>
+                <strong>@((Model.PlanDateTo - Model.PlanDateFrom).Days) days</strong>
+            </div>
+            <div class="dash-summary-row">
+                <span>Plan Lines</span>
+                <strong>@(Model.PlanLines?.Count ?? 0)</strong>
             </div>
         </div>
     </div>
@@ -147,28 +182,32 @@
 <!-- Plan Lines -->
 <div class="dash-card" style="margin-top:24px;">
     <div class="dash-card-header">
-        <h2 class="dash-card-title">Plan Lines</h2>
-        <div style="display: flex; gap: 8px; align-items: center;">
-            <span class="dash-badge">@(Model.PlanLines?.Count ?? 0) items</span>
-            @if (User.IsInRole("Admin") || User.IsInRole("Planner"))
+        <h2 class="dash-card-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+            Plan Lines
+        </h2>
+        <span style="font-size:0.75rem;color:#6B7280;font-weight:500;">@(Model.PlanLines?.Count ?? 0) items</span>
+    </div>
+
+    @if (User.IsInRole("Admin") || User.IsInRole("Planner"))
+    {
+        <div style="display:flex;gap:8px;justify-content:flex-end;align-items:center;padding:12px 20px;border-bottom:1px solid var(--border-color);">
+            <a asp-action="AddLine" asp-route-id="@Model.PlanId" class="dash-btn dash-btn--primary dash-btn--sm">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+                Add Line
+            </a>
+            @if (Model.PlanLines != null && Model.PlanLines.Any(l => l.Status == "Pending"))
             {
-                <a asp-action="AddLine" asp-route-id="@Model.PlanId" class="dash-btn dash-btn--primary dash-btn--sm">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
-                    Add Line
-                </a>
-                @if (Model.PlanLines != null && Model.PlanLines.Any(l => l.Status == "Pending"))
-                {
-                    <form asp-action="GenerateWorkOrders" asp-route-id="@Model.PlanId" method="post" style="display: inline;" onsubmit="return confirm('Generate work orders from pending plan lines?');">
-                        @Html.AntiForgeryToken()
-                        <button type="submit" class="dash-btn dash-btn--success dash-btn--sm">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
-                            Generate Work Orders
-                        </button>
-                    </form>
-                }
+                <form asp-action="GenerateWorkOrders" asp-route-id="@Model.PlanId" method="post" style="margin:0;" onsubmit="return confirm('Generate work orders from pending plan lines?');">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="dash-btn dash-btn--success dash-btn--sm">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+                        Generate Work Orders
+                    </button>
+                </form>
             }
         </div>
-    </div>
+    }
     @if (Model.PlanLines != null && Model.PlanLines.Any())
     {
         <div class="dash-table-container">
@@ -209,19 +248,25 @@
                             @if (User.IsInRole("Admin") || User.IsInRole("Planner"))
                             {
                                 <td>
-                                    @if (line.Status == "Pending")
-                                    {
-                                        <form asp-action="DeleteLine" asp-route-id="@line.PlanLineId" asp-route-planId="@Model.PlanId" method="post" style="display: inline;" onsubmit="return confirm('Delete this plan line?');">
-                                            @Html.AntiForgeryToken()
-                                            <button type="submit" class="dash-btn-icon dash-btn-icon--danger" title="Delete">
-                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                                            </button>
-                                        </form>
-                                    }
-                                    else
-                                    {
-                                        <span style="color: #6B7A8D; font-size: 0.8125rem;">—</span>
-                                    }
+                                    <div style="display:flex;gap:6px;align-items:center;">
+                                        @if (line.Status == "Pending")
+                                        {
+                                            <a asp-action="EditLine" asp-route-id="@line.PlanLineId"
+                                               class="dash-action-btn dash-action-btn--edit" title="Edit">
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                                            </a>
+                                            <form asp-action="DeleteLine" asp-route-id="@line.PlanLineId" asp-route-planId="@Model.PlanId" method="post" style="margin:0;" onsubmit="return confirm('Delete this plan line?');">
+                                                @Html.AntiForgeryToken()
+                                                <button type="submit" class="dash-action-btn dash-action-btn--danger" title="Delete">
+                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                                                </button>
+                                            </form>
+                                        }
+                                        else
+                                        {
+                                            <span style="color:#6B7280;font-size:0.8125rem;">—</span>
+                                        }
+                                    </div>
                                 </td>
                             }
                         </tr>
@@ -265,3 +310,122 @@
         </div>
     </div>
 }
+
+<style>
+/* Plan detail grid — label on top, value below */
+.plan-detail-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0;
+    padding: 8px 0;
+}
+
+.plan-detail-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.plan-detail-item:nth-last-child(-n+2) {
+    border-bottom: none;
+}
+
+.plan-detail-label {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+}
+
+.plan-detail-value {
+    font-size: 0.9375rem;
+    color: var(--text-primary);
+    font-weight: 500;
+    margin-top: 2px;
+}
+
+/* Timeline */
+.dash-timeline-item {
+    display: flex;
+    gap: 12px;
+    position: relative;
+    padding-bottom: 24px;
+}
+
+.dash-timeline-item:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 7px;
+    top: 20px;
+    bottom: 0;
+    width: 2px;
+    background: var(--border-color);
+}
+
+.dash-timeline-dot {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.dash-timeline-content { flex: 1; }
+
+.dash-timeline-title {
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: var(--text-primary);
+}
+
+.dash-timeline-time {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-top: 2px;
+}
+
+.dash-timeline-user {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-top: 2px;
+}
+
+/* Summary */
+.dash-summary-box { padding: 16px 20px; }
+
+.dash-summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    font-size: 0.875rem;
+    border-bottom: 1px solid rgba(0,0,0,0.04);
+}
+
+.dash-summary-row:last-child { border-bottom: none; }
+.dash-summary-row span { color: var(--text-secondary); }
+.dash-summary-row strong { color: var(--text-primary); font-weight: 600; }
+</style>
+
+<style>
+.dash-btn--success { background: #10B981; color: white; border: none; }
+.dash-btn--success:hover { background: #059669; }
+.dash-btn--sm { padding: 7px 12px; font-size: 0.8125rem; }
+.dash-action-btn--edit {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 30px; height: 30px; border-radius: 6px;
+    border: 1px solid #3B82F6; background: rgba(59,130,246,0.1);
+    color: #3B82F6; text-decoration: none; transition: all 0.2s; cursor: pointer;
+}
+.dash-action-btn--edit:hover { background: #3B82F6; color: white; }
+.dash-action-btn--danger {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 30px; height: 30px; border-radius: 6px;
+    border: 1px solid #EF4444; background: rgba(239,68,68,0.1);
+    color: #EF4444; cursor: pointer; transition: all 0.2s;
+}
+.dash-action-btn--danger:hover { background: #EF4444; color: white; }
+</style>

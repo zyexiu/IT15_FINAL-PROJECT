@@ -29,8 +29,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<PlanLine>       PlanLines       => Set<PlanLine>();
 
     // ── Module 6: MRP ───────────────────────────────────────
-    public DbSet<MrpRun>         MrpRuns         => Set<MrpRun>();
-    public DbSet<MrpRequirement> MrpRequirements => Set<MrpRequirement>();
+    // MRP tables removed — feature not implemented
 
     // ── Module 7: Work Orders ───────────────────────────────
     public DbSet<WorkOrder>         WorkOrders         => Set<WorkOrder>();
@@ -43,7 +42,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<QcResult> QcResults => Set<QcResult>();
 
     // ── Module 10: Cost Summary ─────────────────────────────
-    public DbSet<WorkOrderCost> WorkOrderCosts => Set<WorkOrderCost>();
+    // WorkOrderCosts table removed — feature not implemented
 
     // ── Notification System ─────────────────────────────────
     public DbSet<Notification> Notifications => Set<Notification>();
@@ -104,12 +103,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             .IsUnique()
             .HasDatabaseName("IX_WoMaterial_WoId_ItemId");
 
-        // ── WorkOrderCost: one cost row per WO ───────────────
-        builder.Entity<WorkOrderCost>()
-            .HasOne(c => c.WorkOrder)
-            .WithOne(w => w.Cost)
-            .HasForeignKey<WorkOrderCost>(c => c.WorkOrderId)
-            .OnDelete(DeleteBehavior.Restrict);
+        // ── WorkOrderCost: removed — feature not implemented
 
         // ── InventoryLedger → WorkOrder: restrict delete ──────
         builder.Entity<InventoryLedger>()

@@ -1,13 +1,13 @@
 @model SnackFlowMES.ViewModels.PlanLineFormViewModel
 @{
-    ViewData["Title"] = "Add Plan Line";
+    ViewData["Title"] = "Edit Plan Line";
     Layout = "~/Views/Shared/_DashboardLayout.cshtml";
 }
 
 <div class="dash-page-header">
     <div>
-        <h1 class="dash-page-title">Add Plan Line</h1>
-        <p class="dash-page-subtitle">Add item to @ViewBag.PlanName</p>
+        <h1 class="dash-page-title">Edit Plan Line</h1>
+        <p class="dash-page-subtitle">Update item in @ViewBag.PlanName</p>
     </div>
     <div style="display:flex;gap:8px;justify-content:flex-end;align-items:center;flex-wrap:wrap;margin-left:auto;">
         <a asp-action="Details" asp-route-id="@Model.PlanId" class="dash-btn dash-btn--secondary">
@@ -18,8 +18,9 @@
 </div>
 
 <div class="dash-card">
-    <form asp-action="AddLine" asp-controller="ProductionPlan" method="post" style="padding:28px;" novalidate>
+    <form asp-action="EditLine" asp-controller="ProductionPlan" method="post" style="padding:28px;" novalidate>
         @Html.AntiForgeryToken()
+        @Html.HiddenFor(m => m.PlanLineId)
         @Html.HiddenFor(m => m.PlanId)
 
         @if (!ViewData.ModelState.IsValid)
@@ -49,7 +50,6 @@
                 <option value="">-- Select Finished Good --</option>
             </select>
             <span asp-validation-for="ItemId" class="dash-error"></span>
-            <small class="dash-hint">Select the finished good to produce</small>
         </div>
 
         <!-- Quantity -->
@@ -59,7 +59,6 @@
                 <label asp-for="PlannedQty" class="dash-label dash-label--required">Planned Quantity</label>
                 <input asp-for="PlannedQty" class="dash-input" type="number" step="0.01" min="0.01" placeholder="0.00" required />
                 <span asp-validation-for="PlannedQty" class="dash-error"></span>
-                <small class="dash-hint">How much to produce?</small>
             </div>
             <div class="dash-form-group">
                 <label asp-for="UnitOfMeasure" class="dash-label dash-label--required">Unit of Measure</label>
@@ -84,7 +83,6 @@
                 <label asp-for="ScheduledDate" class="dash-label dash-label--required">Scheduled Date</label>
                 <input asp-for="ScheduledDate" class="dash-input" type="datetime-local" required />
                 <span asp-validation-for="ScheduledDate" class="dash-error"></span>
-                <small class="dash-hint">When to produce this item?</small>
             </div>
             <div class="dash-form-group">
                 <label asp-for="ProductionLine" class="dash-label">Production Line</label>
@@ -106,8 +104,8 @@
         <!-- Actions -->
         <div style="display:flex;gap:12px;margin-top:32px;padding-top:24px;border-top:1px solid var(--border-color);">
             <button type="submit" class="dash-btn dash-btn--primary">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
-                Add Plan Line
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                Save Changes
             </button>
             <a asp-action="Details" asp-route-id="@Model.PlanId" class="dash-btn dash-btn--secondary">Cancel</a>
         </div>
@@ -125,73 +123,23 @@
     margin: 24px 0 4px 0;
     border-bottom: 1px solid var(--border-color);
 }
-
 .wo-section-label:first-of-type { margin-top: 0; }
-
-.dash-form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
+.dash-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.dash-form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 20px; }
+.dash-label { font-size: 0.875rem; font-weight: 600; color: var(--text-primary); }
+.dash-label--required::after { content: ' *'; color: #EF4444; }
+.dash-input, .dash-select, .dash-textarea {
+    padding: 10px 14px; border: 1px solid var(--border-color); border-radius: 8px;
+    font-size: 0.9375rem; color: var(--text-primary); background: var(--bg-primary);
+    transition: border-color 0.2s, box-shadow 0.2s; width: 100%;
 }
-
-.dash-form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    margin-bottom: 20px;
+.dash-input:focus, .dash-select:focus, .dash-textarea:focus {
+    outline: none; border-color: #3B82F6; box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
 }
-
-.dash-label {
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: var(--text-primary);
-}
-
-.dash-label--required::after {
-    content: ' *';
-    color: #EF4444;
-}
-
-.dash-input,
-.dash-select,
-.dash-textarea {
-    padding: 10px 14px;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    font-size: 0.9375rem;
-    color: var(--text-primary);
-    background: var(--bg-primary);
-    transition: border-color 0.2s, box-shadow 0.2s;
-    width: 100%;
-}
-
-.dash-input:focus,
-.dash-select:focus,
-.dash-textarea:focus {
-    outline: none;
-    border-color: #3B82F6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-.dash-textarea {
-    resize: vertical;
-    min-height: 80px;
-}
-
-.dash-hint {
-    font-size: 0.8125rem;
-    color: var(--text-secondary);
-}
-
-.dash-error {
-    font-size: 0.8125rem;
-    color: #EF4444;
-    font-weight: 500;
-}
-
-@@media (max-width: 768px) {
-    .dash-form-row { grid-template-columns: 1fr; }
-}
+.dash-textarea { resize: vertical; min-height: 80px; }
+.dash-hint { font-size: 0.8125rem; color: var(--text-secondary); }
+.dash-error { font-size: 0.8125rem; color: #EF4444; font-weight: 500; }
+@@media (max-width: 768px) { .dash-form-row { grid-template-columns: 1fr; } }
 </style>
 
 @section Scripts {

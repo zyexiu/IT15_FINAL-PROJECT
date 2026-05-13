@@ -1,0 +1,237 @@
+@model SnackFlowMES.Models.QcResult
+@{
+    ViewData["Title"] = $"QC-{Model.QcResultId:D4}";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+
+    var resultColor = Model.Result switch
+    {
+        "Pass"            => "#10B981",
+        "Fail"            => "#EF4444",
+        "ConditionalPass" => "#F59E0B",
+        _                 => "#6B7280"
+    };
+
+    var dispositionColor = Model.Disposition switch
+    {
+        "Accept" => "#10B981",
+        "Rework" => "#F59E0B",
+        "Reject" => "#EF4444",
+        _        => "#6B7280"
+    };
+}
+
+<div class="dash-page-header">
+    <div>
+        <h1 class="dash-page-title">QC-@Model.QcResultId.ToString("D4")</h1>
+        <p class="dash-page-subtitle">@Model.WorkOrder?.WoNumber — @Model.WorkOrder?.Item?.ItemName</p>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;align-items:center;flex-wrap:wrap;margin-left:auto;">
+        @if (User.IsInRole("Admin") || User.IsInRole("QC"))
+        {
+            <a asp-action="Edit" asp-route-id="@Model.QcResultId" class="dash-btn dash-btn--secondary">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                Edit
+            </a>
+        }
+        <a asp-action="Index" class="dash-btn dash-btn--secondary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+            Back to List
+        </a>
+    </div>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="dash-alert dash-alert--success" style="margin-bottom:24px;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        @TempData["Success"]
+    </div>
+}
+
+<div class="dash-row">
+
+    <!-- ── LEFT: Main Details ─────────────────────────────── -->
+    <div class="dash-panel dash-panel--wide">
+        <div class="dash-panel-header">
+            <h2 class="dash-panel-title">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                Inspection Details
+            </h2>
+            <span class="dash-badge" style="background:@resultColor;color:white;font-size:0.875rem;">@Model.Result</span>
+        </div>
+
+        <div class="qc-detail-grid">
+            <div class="qc-detail-item">
+                <span class="qc-detail-label">Work Order</span>
+                <span class="qc-detail-value">
+                    <a href="/WorkOrder/Details/@Model.WorkOrderId" style="color:#3B82F6;text-decoration:none;font-weight:600;">@Model.WorkOrder?.WoNumber</a>
+                </span>
+            </div>
+            <div class="qc-detail-item">
+                <span class="qc-detail-label">Product</span>
+                <span class="qc-detail-value" style="font-weight:600;">@Model.WorkOrder?.Item?.ItemName</span>
+            </div>
+            <div class="qc-detail-item">
+                <span class="qc-detail-label">Result</span>
+                <span class="qc-detail-value">
+                    <span style="display:inline-block;padding:4px 12px;border-radius:12px;font-size:0.8125rem;font-weight:600;color:white;background:@resultColor;">@Model.Result</span>
+                </span>
+            </div>
+            <div class="qc-detail-item">
+                <span class="qc-detail-label">Check Type</span>
+                <span class="qc-detail-value">@(Model.CheckType ?? "—")</span>
+            </div>
+            <div class="qc-detail-item">
+                <span class="qc-detail-label">Sample Quantity</span>
+                <span class="qc-detail-value">@(Model.SampleQty?.ToString("N2") ?? "—")</span>
+            </div>
+            <div class="qc-detail-item">
+                <span class="qc-detail-label">Defect Quantity</span>
+                <span class="qc-detail-value" style="color:@(Model.DefectQty > 0 ? "#EF4444" : "var(--text-primary)");">
+                    @(Model.DefectQty?.ToString("N2") ?? "—")
+                </span>
+            </div>
+            <div class="qc-detail-item">
+                <span class="qc-detail-label">Disposition</span>
+                <span class="qc-detail-value">
+                    <span style="font-weight:600;color:@dispositionColor;">@(Model.Disposition ?? "—")</span>
+                </span>
+            </div>
+            <div class="qc-detail-item">
+                <span class="qc-detail-label">Inspector</span>
+                <span class="qc-detail-value">@(Model.InspectedBy?.FullName ?? "—")</span>
+            </div>
+            <div class="qc-detail-item">
+                <span class="qc-detail-label">Inspected At</span>
+                <span class="qc-detail-value">@Model.InspectedAt.ToString("MMM dd, yyyy HH:mm")</span>
+            </div>
+        </div>
+
+        @if (!string.IsNullOrEmpty(Model.Notes))
+        {
+            <div style="margin:0 20px 20px;padding:16px;background:rgba(59,130,246,0.05);border-radius:8px;border-left:3px solid #3B82F6;">
+                <h3 style="font-size:0.875rem;font-weight:600;color:var(--text-primary);margin:0 0 8px 0;">Inspection Notes</h3>
+                <p style="margin:0;color:var(--text-secondary);line-height:1.6;white-space:pre-wrap;">@Model.Notes</p>
+            </div>
+        }
+    </div>
+
+    <!-- ── RIGHT: Summary ────────────────────────────────── -->
+    <div class="dash-panel dash-panel--narrow">
+        <div class="dash-panel-header">
+            <h2 class="dash-panel-title">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                Summary
+            </h2>
+        </div>
+
+        <div class="dash-summary-box">
+            <div class="dash-summary-row">
+                <span>Result</span>
+                <strong style="color:@resultColor;">@Model.Result</strong>
+            </div>
+            <div class="dash-summary-row">
+                <span>Disposition</span>
+                <strong style="color:@dispositionColor;">@(Model.Disposition ?? "—")</strong>
+            </div>
+            @if (Model.SampleQty.HasValue)
+            {
+                <div class="dash-summary-row">
+                    <span>Sample Qty</span>
+                    <strong>@Model.SampleQty.Value.ToString("N2")</strong>
+                </div>
+            }
+            @if (Model.DefectQty.HasValue)
+            {
+                var defectRate = Model.SampleQty > 0 ? (Model.DefectQty.Value / Model.SampleQty.Value * 100) : 0;
+                <div class="dash-summary-row">
+                    <span>Defect Qty</span>
+                    <strong style="color:@(Model.DefectQty > 0 ? "#EF4444" : "var(--text-primary)");">@Model.DefectQty.Value.ToString("N2")</strong>
+                </div>
+                <div class="dash-summary-row">
+                    <span>Defect Rate</span>
+                    <strong style="color:@(defectRate > 5 ? "#EF4444" : "#10B981");">@defectRate.ToString("N1")%</strong>
+                </div>
+            }
+            <div class="dash-summary-row">
+                <span>Inspected By</span>
+                <strong>@(Model.InspectedBy?.FullName ?? "—")</strong>
+            </div>
+        </div>
+
+        <div style="padding:20px;border-top:1px solid var(--border-color);">
+            <a href="/WorkOrder/Details/@Model.WorkOrderId" class="dash-btn dash-btn--secondary dash-btn--full">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                View Work Order
+            </a>
+        </div>
+    </div>
+
+</div>
+
+<style>
+.qc-detail-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 0;
+    padding: 8px 0;
+}
+
+.qc-detail-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.qc-detail-item:nth-last-child(-n+2) {
+    border-bottom: none;
+}
+
+.qc-detail-label {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+}
+
+.qc-detail-value {
+    font-size: 0.9375rem;
+    color: var(--text-primary);
+    font-weight: 500;
+    margin-top: 2px;
+}
+
+.dash-summary-box {
+    padding: 16px 20px;
+}
+
+.dash-summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    font-size: 0.875rem;
+    border-bottom: 1px solid rgba(0,0,0,0.04);
+}
+
+.dash-summary-row:last-child {
+    border-bottom: none;
+}
+
+.dash-summary-row span {
+    color: var(--text-secondary);
+}
+
+.dash-summary-row strong {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.dash-btn--full {
+    width: 100%;
+    justify-content: center;
+}
+</style>
