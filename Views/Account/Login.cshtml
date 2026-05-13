@@ -192,8 +192,6 @@
                 const usernameValue = usernameInput ? usernameInput.value.trim() : '';
                 const passwordValue = passwordInput ? passwordInput.value.trim() : '';
 
-                console.log('Sign In clicked - Username:', usernameValue, 'Password:', passwordValue ? '***' : '(empty)');
-
                 // Validate fields
                 if (!usernameValue) {
                     alert('Please enter your username or email.');
@@ -207,30 +205,31 @@
                     return;
                 }
 
+                // If reCAPTCHA is disabled, submit directly
+                if (!recaptchaContainer) {
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Signing in...';
+                    loginForm.submit();
+                    return;
+                }
+
                 // If reCAPTCHA not shown yet, show it
                 if (!recaptchaShown) {
-                    console.log('✅ Showing reCAPTCHA for the first time');
                     recaptchaContainer.style.display = 'flex';
-                    setTimeout(() => {
-                        recaptchaContainer.style.opacity = '1';
-                    }, 10);
+                    setTimeout(() => { recaptchaContainer.style.opacity = '1'; }, 10);
                     recaptchaShown = true;
-                    
-                    // Change button text to indicate waiting for reCAPTCHA
                     submitBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg> Complete reCAPTCHA';
                     return;
                 }
 
                 // If reCAPTCHA shown but not completed
                 if (recaptchaShown && !recaptchaCompleted) {
-                    console.log('❌ reCAPTCHA not completed yet');
                     alert('Please complete the reCAPTCHA verification.');
                     return;
                 }
 
-                // If reCAPTCHA completed, submit the form
+                // reCAPTCHA completed — submit
                 if (recaptchaCompleted) {
-                    console.log('✅ reCAPTCHA completed - Submitting form');
                     submitBtn.disabled = true;
                     submitBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Signing in...';
                     loginForm.submit();
