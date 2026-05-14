@@ -1,0 +1,231 @@
+/* ═══════════════════════════════════════════════════════════
+   Recent Work Orders Table — Dedicated Styles
+   Fixes dark mode visibility and ensures proper contrast
+════════════════════════════════════════════════════════════ */
+
+/* Light Mode (default) */
+.wo-table-wrapper {
+  background: var(--dash-surface);
+  border: 1px solid var(--dash-border-color);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.wo-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .875rem;
+}
+
+.wo-table thead {
+  background: var(--dash-surface-alt);
+}
+
+.wo-table thead tr {
+  border-bottom: 1px solid var(--dash-table-border);
+}
+
+.wo-table th {
+  padding: 12px 14px;
+  text-align: left;
+  font-size: .7rem;
+  font-weight: 700;
+  color: var(--dash-text-muted);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  white-space: nowrap;
+  border-bottom: 1px solid var(--dash-table-border);
+}
+
+.wo-table tbody tr {
+  border-bottom: 1px solid var(--dash-table-border);
+  transition: background-color 240ms ease;
+}
+
+.wo-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.wo-table tbody tr:hover {
+  background: var(--dash-table-hover);
+}
+
+.wo-table td {
+  padding: 13px 14px;
+  color: var(--dash-text-color);
+  vertical-align: middle;
+}
+
+.wo-table-mono {
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: .8125rem;
+  font-weight: 600;
+}
+
+.wo-table-mono a {
+  color: var(--dash-text-color);
+  text-decoration: none;
+  font-weight: 600;
+  transition: opacity 200ms ease;
+}
+
+.wo-table-mono a:hover {
+  opacity: 0.8;
+  text-decoration: underline;
+}
+
+.wo-table-primary {
+  font-weight: 600;
+  color: var(--dash-text-color);
+}
+
+.wo-table-muted {
+  color: var(--dash-text-muted);
+}
+
+/* Status Badges */
+.wo-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: .7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  white-space: nowrap;
+}
+
+.wo-badge--draft {
+  background: #e0e7ff;
+  color: #4338ca;
+}
+
+.wo-badge--released {
+  background: #dbeafe;
+  color: #0284c7;
+}
+
+.wo-badge--inprogress {
+  background: #fed7aa;
+  color: #92400e;
+}
+
+.wo-badge--completed {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.wo-badge--cancelled {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+/* Dark Mode Overrides */
+html[data-theme="dark"] .wo-table-wrapper {
+  background: var(--dash-surface);
+  border-color: var(--dash-border-color);
+}
+
+html[data-theme="dark"] .wo-table thead {
+  background: var(--dash-surface-alt);
+}
+
+html[data-theme="dark"] .wo-table th {
+  color: var(--dash-text-muted);
+  border-bottom-color: var(--dash-table-border);
+  background: var(--dash-surface-alt);
+}
+
+html[data-theme="dark"] .wo-table tbody tr {
+  border-bottom-color: var(--dash-table-border);
+}
+
+html[data-theme="dark"] .wo-table tbody tr:hover {
+  background: var(--dash-table-hover);
+}
+
+html[data-theme="dark"] .wo-table td {
+  color: var(--dash-text-color);
+}
+
+html[data-theme="dark"] .wo-table-mono a {
+  color: var(--dash-text-color);
+}
+
+html[data-theme="dark"] .wo-table-primary {
+  color: var(--dash-text-color);
+}
+
+html[data-theme="dark"] .wo-table-muted {
+  color: var(--dash-text-muted);
+}
+
+/* Dark Mode Status Badges */
+html[data-theme="dark"] .wo-badge--draft {
+  background: rgba(67, 56, 202, 0.18);
+  color: #a5b4fc;
+}
+
+html[data-theme="dark"] .wo-badge--released {
+  background: rgba(2, 132, 199, 0.18);
+  color: #38bdf8;
+}
+
+html[data-theme="dark"] .wo-badge--inprogress {
+  background: rgba(232, 119, 34, 0.18);
+  color: #ffad70;
+}
+
+html[data-theme="dark"] .wo-badge--completed {
+  background: rgba(22, 101, 52, 0.18);
+  color: #86efac;
+}
+
+html[data-theme="dark"] .wo-badge--cancelled {
+  background: rgba(153, 27, 27, 0.18);
+  color: #fca5a5;
+}
+
+/* Empty State */
+.wo-empty {
+  padding: 48px 24px;
+  text-align: center;
+  background: var(--dash-surface);
+}
+
+.wo-empty svg {
+  display: block;
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 16px;
+  color: var(--dash-text-muted);
+}
+
+.wo-empty p {
+  color: var(--dash-text-muted);
+  font-size: .9375rem;
+  line-height: 1.6;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .wo-table {
+    font-size: .8125rem;
+  }
+
+  .wo-table th,
+  .wo-table td {
+    padding: 10px 12px;
+  }
+
+  .wo-table th {
+    font-size: .65rem;
+  }
+
+  .wo-badge {
+    padding: 3px 8px;
+    font-size: .65rem;
+  }
+}

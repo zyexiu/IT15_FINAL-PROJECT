@@ -98,8 +98,8 @@
     <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/work-orders-table.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/mobile.css" asp-append-version="true" />
-    <!-- Chart.js for analytics -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+    <!-- Chart.js for analytics (local copy - no CDN dependency) -->
+    <script src="~/js/chart.umd.min.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Styles", required: false)
 </head>
 <body class="dash-body">

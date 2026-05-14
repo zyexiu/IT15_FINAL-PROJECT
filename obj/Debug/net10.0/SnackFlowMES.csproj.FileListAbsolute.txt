@@ -220,3 +220,9 @@ C:\xampp2\htdocs\SnackFlowMES\SnackFlowMES\obj\Debug\net10.0\refint\SnackFlowMES
 C:\xampp2\htdocs\SnackFlowMES\SnackFlowMES\obj\Debug\net10.0\SnackFlowMES.pdb
 C:\xampp2\htdocs\SnackFlowMES\SnackFlowMES\obj\Debug\net10.0\SnackFlowMES.genruntimeconfig.cache
 C:\xampp2\htdocs\SnackFlowMES\SnackFlowMES\obj\Debug\net10.0\ref\SnackFlowMES.dll
+C:\xampp2\htdocs\SnackFlowMES\SnackFlowMES\bin\Debug\net10.0\publish\web.config
+C:\xampp2\htdocs\SnackFlowMES\SnackFlowMES\bin\Debug\net10.0\publish\appsettings.Development.json
+C:\xampp2\htdocs\SnackFlowMES\SnackFlowMES\bin\Debug\net10.0\publish\appsettings.json
+C:\xampp2\htdocs\SnackFlowMES\SnackFlowMES\bin\Debug\net10.0\publish\SnackFlowMES.deps.json
+C:\xampp2\htdocs\SnackFlowMES\SnackFlowMES\bin\Debug\net10.0\publish\SnackFlowMES.runtimeconfig.json
+C:\xampp2\htdocs\SnackFlowMES\SnackFlowMES\bin\Debug\net10.0\publish\SnackFlowMES.staticwebassets.endpoints.json
