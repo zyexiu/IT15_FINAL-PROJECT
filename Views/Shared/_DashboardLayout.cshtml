@@ -10,7 +10,8 @@
     var fullName = user?.FullName ?? User.Identity?.Name ?? "User";
     var roles    = user != null ? await UserManager.GetRolesAsync(user) : new List<string>();
     var role     = roles.FirstOrDefault() ?? "User";
-    var initials = string.Concat(fullName.Split(' ').Take(2).Select(w => w[0])).ToUpper();
+    var initials = string.Concat(fullName.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(2).Select(w => w[0])).ToUpper();
+    if (string.IsNullOrEmpty(initials)) initials = "?";
 
     // Resolve tenant ID for current user
     var tenantId = user?.TenantId;
@@ -158,11 +159,7 @@
         <!-- Topbar -->
         <header class="dash-topbar" role="banner">
             <div class="dash-topbar-left">
-                <!-- Mobile sidebar toggle -->
-                <button class="dash-sidebar-toggle" id="dash-sidebar-toggle" aria-label="Toggle sidebar" aria-expanded="false" aria-controls="dash-sidebar">
-                    <span></span><span></span><span></span>
-                </button>
-                <!-- Desktop sidebar toggle -->
+                <!-- Desktop sidebar toggle only - no hamburger on mobile -->
                 <button class="dash-sidebar-toggle--desktop" id="dash-sidebar-toggle-desktop" aria-label="Toggle sidebar" aria-expanded="true" aria-controls="dash-sidebar" title="Collapse/Expand sidebar">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8h12M6 16h12"/><path d="M3 12l3-3m0 6l-3-3m18 0l-3 3m0-6l3 3"/></svg>
                 </button>
@@ -226,7 +223,7 @@
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script>
         (function() {
-            const mobileToggle   = document.getElementById('dash-sidebar-toggle');
+            const mobileToggle   = document.getElementById('dash-sidebar-toggle');   // may be null if no mobile hamburger in HTML
             const desktopToggle  = document.getElementById('dash-sidebar-toggle-desktop');
             const sidebar        = document.getElementById('dash-sidebar');
             const COLLAPSED_KEY  = 'snackflow-sidebar-collapsed';
@@ -241,39 +238,43 @@
                     const wasOpen = localStorage.getItem(OPEN_KEY) === 'true';
                     if (wasOpen) {
                         sidebar.classList.add('dash-sidebar--open');
-                        mobileToggle.setAttribute('aria-expanded', 'true');
+                        if (mobileToggle) mobileToggle.setAttribute('aria-expanded', 'true');
                     }
                 } else {
                     // Desktop: use collapsed state (default collapsed)
                     const shouldBeCollapsed = localStorage.getItem(COLLAPSED_KEY) !== 'false';
                     if (shouldBeCollapsed) {
                         sidebar.classList.add('dash-sidebar--collapsed');
-                        desktopToggle.setAttribute('aria-expanded', 'false');
+                        if (desktopToggle) desktopToggle.setAttribute('aria-expanded', 'false');
                     }
                 }
             }
 
-            // Mobile toggle handler
-            mobileToggle.addEventListener('click', () => {
-                const isOpen = sidebar.classList.toggle('dash-sidebar--open');
-                mobileToggle.setAttribute('aria-expanded', String(isOpen));
-                localStorage.setItem(OPEN_KEY, String(isOpen));
-            });
+            // Mobile toggle handler (only wire up if the button exists in the DOM)
+            if (mobileToggle) {
+                mobileToggle.addEventListener('click', () => {
+                    const isOpen = sidebar.classList.toggle('dash-sidebar--open');
+                    mobileToggle.setAttribute('aria-expanded', String(isOpen));
+                    localStorage.setItem(OPEN_KEY, String(isOpen));
+                });
+            }
 
             // Desktop toggle handler
-            desktopToggle.addEventListener('click', () => {
-                const isCollapsed = sidebar.classList.toggle('dash-sidebar--collapsed');
-                desktopToggle.setAttribute('aria-expanded', String(!isCollapsed));
-                localStorage.setItem(COLLAPSED_KEY, String(isCollapsed));
-            });
+            if (desktopToggle) {
+                desktopToggle.addEventListener('click', () => {
+                    const isCollapsed = sidebar.classList.toggle('dash-sidebar--collapsed');
+                    desktopToggle.setAttribute('aria-expanded', String(!isCollapsed));
+                    localStorage.setItem(COLLAPSED_KEY, String(isCollapsed));
+                });
+            }
 
             // Close sidebar on outside click (mobile)
             document.addEventListener('click', e => {
                 if (window.innerWidth < 1024 &&
                     !sidebar.contains(e.target) &&
-                    !mobileToggle.contains(e.target)) {
+                    !(mobileToggle && mobileToggle.contains(e.target))) {
                     sidebar.classList.remove('dash-sidebar--open');
-                    mobileToggle.setAttribute('aria-expanded', 'false');
+                    if (mobileToggle) mobileToggle.setAttribute('aria-expanded', 'false');
                     localStorage.setItem(OPEN_KEY, 'false');
                 }
             });

@@ -5,7 +5,7 @@ namespace SnackFlowMES.Models;
 
 /// <summary>
 /// Module 3 — BOM Header.
-/// One BOM per finished/semi-finished item. Versioned.
+/// One BOM per finished/semi-finished item per version. Multiple versions allowed.
 /// </summary>
 public class BillOfMaterials
 {

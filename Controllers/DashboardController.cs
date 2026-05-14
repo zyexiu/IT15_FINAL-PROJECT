@@ -152,14 +152,24 @@ public class DashboardController : Controller
         }
 
         // ── Load downtime data for Admin and Manager ─────────
-        if (role == "Admin" || role == "Manager")
+        if (user != null && (role == "Admin" || role == "Manager"))
         {
             ViewBag.OpenDowntimeCount = await _db.DowntimeReports
                 .CountAsync(d => d.Status == "Open" && d.OrganizationId == (user.TenantId ?? user.Id));
         }
 
+        // ── Pending material requests count for Admin ─────────
+        if (user != null && role == "Admin")
+        {
+            var tenantId = user.TenantId;
+            if (string.IsNullOrWhiteSpace(tenantId))
+                tenantId = user.Id;
+            ViewBag.PendingMaterialRequests = await _db.MaterialRequests
+                .CountAsync(mr => mr.Status == "Pending" && (mr.TenantId == tenantId || string.IsNullOrEmpty(mr.TenantId)));
+        }
+
         // ── Prepare chart data for Admin and Manager ─────────
-        if (role == "Admin" || role == "Manager")
+        if (user != null && (role == "Admin" || role == "Manager"))
         {
             // Production trend (last 7 days)
             var sevenDaysAgo = DateTime.Today.AddDays(-6);

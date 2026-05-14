@@ -58,6 +58,6 @@ public class Item
     public ICollection<WorkOrderMaterial>?    WorkOrderMaterials { get; set; }
     public ICollection<InventoryLedger>?      InventoryLedgers  { get; set; }
     public ICollection<MrpRequirement>?       MrpRequirements   { get; set; }
-    public BillOfMaterials?                   Bom               { get; set; }
+    public ICollection<BillOfMaterials>?      Boms              { get; set; }
     public InventoryBalance?                  InventoryBalance  { get; set; }
 }

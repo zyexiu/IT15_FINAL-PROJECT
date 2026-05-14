@@ -15,6 +15,65 @@
     </div>
 </div>
 
+<!-- ══ PLANNER FLOW GUIDE ════════════════════════════════════ -->
+<div class="dash-flow-guide">
+    <div class="dash-flow-guide-title">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        Planner Workflow — Start Here
+    </div>
+    <div class="dash-flow-steps">
+        <a href="/Bom" class="dash-flow-step">
+            <span class="dash-flow-step-num">1</span>
+            <span class="dash-flow-step-label">Check BOMs</span>
+        </a>
+        <span class="dash-flow-arrow">→</span>
+        <a href="/ProductionPlan/Create" class="dash-flow-step">
+            <span class="dash-flow-step-num">2</span>
+            <span class="dash-flow-step-label">Create Plan</span>
+        </a>
+        <span class="dash-flow-arrow">→</span>
+        <a href="/ProductionPlan" class="dash-flow-step">
+            <span class="dash-flow-step-num">3</span>
+            <span class="dash-flow-step-label">Add Plan Lines</span>
+        </a>
+        <span class="dash-flow-arrow">→</span>
+        <a href="/ProductionPlan" class="dash-flow-step">
+            <span class="dash-flow-step-num">4</span>
+            <span class="dash-flow-step-label">Generate Work Orders</span>
+        </a>
+        <span class="dash-flow-arrow">→</span>
+        <a href="/WorkOrder" class="dash-flow-step">
+            <span class="dash-flow-step-num">5</span>
+            <span class="dash-flow-step-label">Release Work Orders</span>
+        </a>
+        <span class="dash-flow-arrow">→</span>
+        <a href="/MaterialRequest/Create" class="dash-flow-step">
+            <span class="dash-flow-step-num">6</span>
+            <span class="dash-flow-step-label">Request Materials</span>
+        </a>
+    </div>
+</div>
+
+<!-- ══ QUICK ACTIONS ════════════════════════════════════════ -->
+<div class="dash-quick-actions-row">
+    <a href="/ProductionPlan/Create" class="dash-quick-action-btn dash-quick-action-btn--primary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        New Production Plan
+    </a>
+    <a href="/WorkOrder/Create" class="dash-quick-action-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+        New Work Order
+    </a>
+    <a href="/Bom/Create" class="dash-quick-action-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 3 7 12 12 21 7 12 2"/><polyline points="3 12 12 17 21 12"/><polyline points="3 17 12 22 21 17"/></svg>
+        New BOM
+    </a>
+    <a href="/MaterialRequest/Create" class="dash-quick-action-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+        Request Materials
+    </a>
+</div>
+
 
 
 <!-- ══ KPI CARDS ════════════════════════════════════════════ -->
@@ -133,6 +192,87 @@
 </div>
 
 <style>
+/* ── Flow Guide (shared) ─────────────────────────────────── */
+.dash-flow-guide {
+    background: var(--dash-surface);
+    border: 1px solid var(--dash-border-color);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 4px;
+}
+.dash-flow-guide-title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--dash-text-muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 12px;
+}
+.dash-flow-steps {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.dash-flow-step {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--dash-border-color);
+    background: var(--dash-surface-alt);
+    text-decoration: none;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+.dash-flow-step:hover { border-color: var(--sf-amber); background: rgba(232,119,34,.08); }
+.dash-flow-step-num {
+    width: 20px; height: 20px; border-radius: 50%;
+    background: var(--sf-amber); color: #fff;
+    font-size: 0.6875rem; font-weight: 700;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.dash-flow-step-label { font-size: 0.8125rem; font-weight: 600; color: var(--dash-text-color); }
+.dash-flow-arrow { color: var(--dash-text-muted); font-size: 1rem; flex-shrink: 0; }
+
+/* ── Quick Actions Row ───────────────────────────────────── */
+.dash-quick-actions-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+.dash-quick-action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 9px 16px;
+    border-radius: 8px;
+    border: 1px solid var(--dash-border-color);
+    background: var(--dash-surface);
+    color: var(--dash-text-color);
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+.dash-quick-action-btn:hover { border-color: var(--sf-amber); background: rgba(232,119,34,.08); color: var(--sf-amber); }
+.dash-quick-action-btn--primary { background: var(--sf-amber); color: var(--sf-dark); border-color: var(--sf-amber); }
+.dash-quick-action-btn--primary:hover { background: var(--sf-amber-dark); border-color: var(--sf-amber-dark); color: var(--sf-white); }
+
+@@media (max-width: 768px) {
+    .dash-flow-steps { gap: 6px; }
+    .dash-flow-arrow { display: none; }
+    .dash-flow-step { padding: 5px 10px; }
+    .dash-flow-step-label { font-size: 0.75rem; }
+    .dash-quick-actions-row { gap: 8px; }
+    .dash-quick-action-btn { padding: 8px 12px; font-size: 0.8125rem; }
+}
+
 .dash-analytics-container {
     position: relative;
     width: 100%;

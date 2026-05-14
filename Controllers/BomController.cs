@@ -29,10 +29,17 @@ public class BomController : Controller
     // ── GET /BOM ─────────────────────────────────────────────
     public async Task<IActionResult> Index(string? search = null)
     {
+        var user  = await _users.GetUserAsync(User);
+        var roles = user != null ? await _users.GetRolesAsync(user) : new List<string>();
+        var tenantId = user?.TenantId;
+        if (user != null && string.IsNullOrWhiteSpace(tenantId))
+            tenantId = roles.Contains("Admin") ? user.Id : user.Id;
+
         var query = _db.BillsOfMaterials
             .Include(b => b.Item)
             .Include(b => b.BomLines!)
                 .ThenInclude(l => l.Item)
+            .Where(b => b.TenantId == tenantId || string.IsNullOrEmpty(b.TenantId))
             .AsQueryable();
 
         if (!string.IsNullOrEmpty(search))
@@ -59,6 +66,12 @@ public class BomController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(BomFormViewModel model)
     {
+        var user  = await _users.GetUserAsync(User);
+        var roles = user != null ? await _users.GetRolesAsync(user) : new List<string>();
+        var tenantId = user?.TenantId;
+        if (user != null && string.IsNullOrWhiteSpace(tenantId))
+            tenantId = roles.Contains("Admin") ? user.Id : user.Id;
+
         // Check if BOM already exists for this item+version
         var existingBom = await _db.BillsOfMaterials
             .FirstOrDefaultAsync(b => b.ItemId == model.ItemId && b.Version == model.Version);
@@ -76,16 +89,17 @@ public class BomController : Controller
 
         var bom = new BillOfMaterials
         {
-            ItemId = model.ItemId,
-            Version = model.Version,
+            ItemId         = model.ItemId,
+            Version        = model.Version,
             BatchOutputQty = model.BatchOutputQty,
             BatchOutputUom = model.BatchOutputUom,
             EstMachineHours = model.EstMachineHours,
-            EstLaborHours = model.EstLaborHours,
-            IsActive = model.IsActive,
-            Notes = model.Notes,
-            CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow
+            EstLaborHours  = model.EstLaborHours,
+            IsActive       = model.IsActive,
+            Notes          = model.Notes,
+            TenantId       = tenantId ?? string.Empty,
+            CreatedAt      = DateTime.UtcNow,
+            UpdatedAt      = DateTime.UtcNow
         };
 
         _db.BillsOfMaterials.Add(bom);
@@ -167,15 +181,16 @@ public class BomController : Controller
             return View(model);
         }
 
-        bom.ItemId = model.ItemId;
-        bom.Version = model.Version;
-        bom.BatchOutputQty = model.BatchOutputQty;
-        bom.BatchOutputUom = model.BatchOutputUom;
+        bom.ItemId          = model.ItemId;
+        bom.Version         = model.Version;
+        bom.BatchOutputQty  = model.BatchOutputQty;
+        bom.BatchOutputUom  = model.BatchOutputUom;
         bom.EstMachineHours = model.EstMachineHours;
-        bom.EstLaborHours = model.EstLaborHours;
-        bom.IsActive = model.IsActive;
-        bom.Notes = model.Notes;
-        bom.UpdatedAt = DateTime.UtcNow;
+        bom.EstLaborHours   = model.EstLaborHours;
+        bom.IsActive        = model.IsActive;
+        bom.Notes           = model.Notes;
+        bom.UpdatedAt       = DateTime.UtcNow;
+        // TenantId is intentionally NOT updated — preserve the original owner
 
         _db.BillsOfMaterials.Update(bom);
         await _db.SaveChangesAsync();

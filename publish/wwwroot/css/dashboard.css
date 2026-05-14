@@ -1561,46 +1561,37 @@ html[data-theme="dark"] .dash-tab--active {
    RESPONSIVE
 ══════════════════════════════════════════════════════════ */
 @media (max-width: 1023px) {
+  /* Mobile: sidebar collapses to icons-only — NO hamburger, NO overlay */
   .dash-sidebar {
-    width: var(--sidebar-w);
-    transform: translateX(-100%);
-  }
-  .dash-sidebar--open {
+    width: var(--sidebar-w-collapsed);
     transform: translateX(0);
-    box-shadow: 4px 0 32px rgba(0,0,0,.3);
+    overflow: hidden;
   }
-  .dash-sidebar--collapsed {
-    width: var(--sidebar-w);
+  /* Hide text labels, show only icons */
+  .dash-sidebar-brand-text { display: none !important; }
+  .dash-nav-section-label  { display: none !important; }
+  .dash-nav-link span      { display: none !important; }
+  .dash-nav-badge          { display: none !important; }
+  .dash-sidebar-user-info  { display: none !important; }
+  .dash-nav-list           { padding: 0 6px; }
+  .dash-nav-link {
+    justify-content: center !important;
+    padding: 10px !important;
+    gap: 0 !important;
   }
-  .dash-sidebar--collapsed .dash-sidebar-brand-text {
-    display: flex;
-  }
-  .dash-sidebar--collapsed .dash-nav-section-label {
-    display: block;
-  }
-  .dash-sidebar--collapsed .dash-nav-link span {
-    display: block;
-  }
-  .dash-sidebar--collapsed .dash-nav-badge {
-    display: inline-flex;
-  }
-  .dash-sidebar--collapsed .dash-nav-list {
-    padding: 0 10px;
-  }
-  .dash-sidebar--collapsed .dash-nav-link {
-    justify-content: flex-start;
-    padding: 10px 12px;
-    gap: 10px;
-  }
-  .dash-sidebar--collapsed .dash-sidebar-footer {
-    padding: 16px 14px;
-  }
-  .dash-sidebar--collapsed .dash-sidebar-user-info {
-    display: flex;
-  }
-  .dash-main { margin-left: 0; }
-  .dash-sidebar-toggle--desktop { display: none; }
-  .dash-sidebar-toggle { display: flex; }
+  .dash-sidebar-footer { padding: 12px 6px; }
+  .dash-sidebar-user   { justify-content: center; }
+
+  /* Main area starts right after the collapsed sidebar */
+  .dash-main { margin-left: var(--sidebar-w-collapsed); }
+
+  /* Hide both toggle buttons on mobile — not needed */
+  .dash-sidebar-toggle--desktop { display: none !important; }
+  .dash-sidebar-toggle          { display: none !important; }
+
+  /* Topbar flush with collapsed sidebar */
+  .dash-topbar { left: var(--sidebar-w-collapsed); }
+
   .dash-row { flex-direction: column; }
   .dash-panel--narrow { flex: none; width: 100%; }
 }
@@ -2532,10 +2523,27 @@ html[data-theme="dark"] .dash-input-toggle {
   color: #1E40AF;
 }
 
-/* ── Responsive Enhancements ─────────────────────────────── */
-@media (max-width: 768px) {
-  .dash-grid-cards,
-  .dash-inventory-grid {
+/* ── Profile dropdown mobile fix ─────────────────────────── */
+@media (max-width: 1023px) {
+    .dash-profile-menu {
+        position: fixed;
+        top: auto;
+        bottom: 0;
+        right: 0;
+        left: 0;
+        min-width: 100%;
+        width: 100%;
+        border-radius: 16px 16px 0 0;
+        z-index: 9999;
+        max-height: 80vh;
+        overflow-y: auto;
+        transform: translateY(100%);
+    }
+
+    .dash-profile-menu--open {
+        transform: translateY(0);
+    }
+}
     grid-template-columns: 1fr;
   }
 

@@ -291,6 +291,23 @@
         </div>
 
         <div style="padding:20px;display:flex;flex-direction:column;gap:10px;">
+            @if (Model.Status == "Completed")
+            {
+                @if (ViewBag.HasQcResult == true)
+                {
+                    <a href="/Qc/Index?workOrderId=@Model.WorkOrderId" class="dash-btn dash-btn--secondary dash-btn--full">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                        View QC Result
+                    </a>
+                }
+                else
+                {
+                    <a href="/Qc/RecordInspection?workOrderId=@Model.WorkOrderId" class="dash-btn dash-btn--success dash-btn--full">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                        Record QC Inspection
+                    </a>
+                }
+            }
             @if (Model.Status == "Draft")
             {
                 <form asp-action="UpdateStatus" method="post" style="margin:0;">

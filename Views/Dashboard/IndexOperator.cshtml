@@ -15,7 +15,34 @@
     </div>
 </div>
 
-<!-- Quick Actions removed for Operator dashboard (redundant) -->
+<!-- ══ OPERATOR FLOW GUIDE ══════════════════════════════════ -->
+<div class="dash-flow-guide">
+    <div class="dash-flow-guide-title">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        Operator Workflow — Start Here
+    </div>
+    <div class="dash-flow-steps">
+        <a href="/WorkOrder?status=Released" class="dash-flow-step">
+            <span class="dash-flow-step-num">1</span>
+            <span class="dash-flow-step-label">View Released Orders</span>
+        </a>
+        <span class="dash-flow-arrow">→</span>
+        <div class="dash-flow-step" style="cursor:default;opacity:0.7;">
+            <span class="dash-flow-step-num">2</span>
+            <span class="dash-flow-step-label">Open Work Order → Start Production</span>
+        </div>
+        <span class="dash-flow-arrow">→</span>
+        <a href="/Downtime/Create" class="dash-flow-step">
+            <span class="dash-flow-step-num">3</span>
+            <span class="dash-flow-step-label">Report Downtime (if needed)</span>
+        </a>
+        <span class="dash-flow-arrow">→</span>
+        <div class="dash-flow-step" style="cursor:default;opacity:0.7;">
+            <span class="dash-flow-step-num">4</span>
+            <span class="dash-flow-step-label">Complete Work Order</span>
+        </div>
+    </div>
+</div>
 
 <!-- ══ KPI CARDS ════════════════════════════════════════════ -->
 <div class="dash-kpi-grid">
@@ -97,7 +124,7 @@
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                 My Work Orders
             </h2>
-            <a href="/WorkOrder" class="dash-panel-action">View all →</a>
+        <a href="/WorkOrder" class="dash-panel-action">View all →</a>
         </div>
 
         @if (!Model.RecentWorkOrders.Any())
@@ -161,6 +188,39 @@
 </div>
 
 <style>
+/* ── Flow Guide ─────────────────────────────────────────── */
+.dash-flow-guide {
+    background: var(--dash-surface);
+    border: 1px solid var(--dash-border-color);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 4px;
+}
+.dash-flow-guide-title {
+    font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.06em; color: var(--dash-text-muted);
+    display: flex; align-items: center; gap: 6px; margin-bottom: 12px;
+}
+.dash-flow-steps { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.dash-flow-step {
+    display: flex; align-items: center; gap: 6px; padding: 6px 12px;
+    border-radius: 8px; border: 1px solid var(--dash-border-color);
+    background: var(--dash-surface-alt); text-decoration: none; transition: all 0.2s; white-space: nowrap;
+}
+.dash-flow-step:hover { border-color: var(--sf-amber); background: rgba(232,119,34,.08); }
+.dash-flow-step-num {
+    width: 20px; height: 20px; border-radius: 50%; background: var(--sf-amber); color: #fff;
+    font-size: 0.6875rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.dash-flow-step-label { font-size: 0.8125rem; font-weight: 600; color: var(--dash-text-color); }
+.dash-flow-arrow { color: var(--dash-text-muted); font-size: 1rem; flex-shrink: 0; }
+@@media (max-width: 768px) {
+    .dash-flow-steps { gap: 6px; }
+    .dash-flow-arrow { display: none; }
+    .dash-flow-step { padding: 5px 10px; }
+    .dash-flow-step-label { font-size: 0.75rem; }
+}
+
 .dash-progress-bar {
     width: 100%;
     height: 8px;

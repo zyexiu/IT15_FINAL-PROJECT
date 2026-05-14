@@ -148,10 +148,7 @@ textarea {
         display: none;
     }
 
-    /* Reduce sidebar width */
-    .dash-sidebar {
-        width: 240px;
-    }
+    /* Sidebar already handled by dashboard.css mobile rules */
 
     /* Adjust detail grids */
     .dash-detail-grid {

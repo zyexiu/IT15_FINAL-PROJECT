@@ -283,9 +283,6 @@ namespace SnackFlowMES.Migrations
 
                     b.HasKey("BomId");
 
-                    b.HasIndex("ItemId")
-                        .IsUnique();
-
                     b.HasIndex("ItemId", "Version")
                         .IsUnique()
                         .HasDatabaseName("IX_Bom_ItemId_Version");
@@ -681,7 +678,7 @@ namespace SnackFlowMES.Migrations
 
                     b.HasIndex("MrpRunId");
 
-                    b.ToTable("MrpRequirements");
+                    b.ToTable("MrpRequirement");
                 });
 
             modelBuilder.Entity("SnackFlowMES.Models.MrpRun", b =>
@@ -721,7 +718,7 @@ namespace SnackFlowMES.Migrations
 
                     b.HasIndex("PlanId");
 
-                    b.ToTable("MrpRuns");
+                    b.ToTable("MrpRun");
                 });
 
             modelBuilder.Entity("SnackFlowMES.Models.Notification", b =>
@@ -1153,7 +1150,7 @@ namespace SnackFlowMES.Migrations
                     b.HasIndex("WorkOrderId")
                         .IsUnique();
 
-                    b.ToTable("WorkOrderCosts");
+                    b.ToTable("WorkOrderCost");
                 });
 
             modelBuilder.Entity("SnackFlowMES.Models.WorkOrderMaterial", b =>
@@ -1249,8 +1246,8 @@ namespace SnackFlowMES.Migrations
             modelBuilder.Entity("SnackFlowMES.Models.BillOfMaterials", b =>
                 {
                     b.HasOne("SnackFlowMES.Models.Item", "Item")
-                        .WithOne("Bom")
-                        .HasForeignKey("SnackFlowMES.Models.BillOfMaterials", "ItemId")
+                        .WithMany("Boms")
+                        .HasForeignKey("ItemId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -1508,7 +1505,7 @@ namespace SnackFlowMES.Migrations
                     b.HasOne("SnackFlowMES.Models.WorkOrder", "WorkOrder")
                         .WithOne("Cost")
                         .HasForeignKey("SnackFlowMES.Models.WorkOrderCost", "WorkOrderId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("WorkOrder");
@@ -1561,9 +1558,9 @@ namespace SnackFlowMES.Migrations
 
             modelBuilder.Entity("SnackFlowMES.Models.Item", b =>
                 {
-                    b.Navigation("Bom");
-
                     b.Navigation("BomLines");
+
+                    b.Navigation("Boms");
 
                     b.Navigation("InventoryBalance");
 

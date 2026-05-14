@@ -139,9 +139,7 @@ C:\xampp2\htdocs\SnackFlowMES\SnackFlowMES\obj\Debug\net10.0\scopedcss\Views\Sha
 C:\xampp2\htdocs\SnackFlowMES\SnackFlowMES\obj\Debug\net10.0\scopedcss\bundle\SnackFlowMES.styles.css
 C:\xampp2\htdocs\SnackFlowMES\SnackFlowMES\obj\Debug\net10.0\scopedcss\projectbundle\SnackFlowMES.bundle.scp.css
 C:\xampp2\htdocs\SnackFlowMES\SnackFlowMES\obj\Debug\net10.0\compressed\zqvgrlflgs-{0}-wwdn3exr60-wwdn3exr60.gz
-C:\xampp2\htdocs\SnackFlowMES\SnackFlowMES\obj\Debug\net10.0\compressed\gyw0xpil92-{0}-m5r0kaahr9-m5r0kaahr9.gz
 C:\xampp2\htdocs\SnackFlowMES\SnackFlowMES\obj\Debug\net10.0\compressed\5wyeu6dyot-{0}-3zsidwmtqk-3zsidwmtqk.gz
-C:\xampp2\htdocs\SnackFlowMES\SnackFlowMES\obj\Debug\net10.0\compressed\eozafzsoto-{0}-w6l10kh8nl-w6l10kh8nl.gz
 C:\xampp2\htdocs\SnackFlowMES\SnackFlowMES\obj\Debug\net10.0\compressed\1ph7o8ro87-{0}-u8gq1w97mk-u8gq1w97mk.gz
 C:\xampp2\htdocs\SnackFlowMES\SnackFlowMES\obj\Debug\net10.0\compressed\33jhnf81n6-{0}-bc23exnga5-bc23exnga5.gz
 C:\xampp2\htdocs\SnackFlowMES\SnackFlowMES\obj\Debug\net10.0\compressed\pmhaviuut4-{0}-r3csd2jntp-r3csd2jntp.gz
@@ -226,3 +224,6 @@ C:\xampp2\htdocs\SnackFlowMES\SnackFlowMES\bin\Debug\net10.0\publish\appsettings
 C:\xampp2\htdocs\SnackFlowMES\SnackFlowMES\bin\Debug\net10.0\publish\SnackFlowMES.deps.json
 C:\xampp2\htdocs\SnackFlowMES\SnackFlowMES\bin\Debug\net10.0\publish\SnackFlowMES.runtimeconfig.json
 C:\xampp2\htdocs\SnackFlowMES\SnackFlowMES\bin\Debug\net10.0\publish\SnackFlowMES.staticwebassets.endpoints.json
+C:\xampp2\htdocs\SnackFlowMES\SnackFlowMES\obj\Debug\net10.0\compressed\mjxynv4e0j-{0}-wuvbdf6dgn-wuvbdf6dgn.gz
+C:\xampp2\htdocs\SnackFlowMES\SnackFlowMES\obj\Debug\net10.0\compressed\eozafzsoto-{0}-w6l10kh8nl-w6l10kh8nl.gz
+C:\xampp2\htdocs\SnackFlowMES\SnackFlowMES\obj\Debug\net10.0\compressed\gyw0xpil92-{0}-ky9bip852n-ky9bip852n.gz

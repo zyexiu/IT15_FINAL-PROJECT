@@ -15,6 +15,48 @@
     </div>
 </div>
 
+<!-- ══ ADMIN SETUP FLOW GUIDE ════════════════════════════════ -->
+@{
+    var pendingRequests = ViewBag.PendingMaterialRequests as int? ?? 0;
+}
+<div class="dash-flow-guide">
+    <div class="dash-flow-guide-title">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        Admin Workflow
+    </div>
+    <div class="dash-flow-steps">
+        <a href="/Inventory/Create" class="dash-flow-step">
+            <span class="dash-flow-step-num">1</span>
+            <span class="dash-flow-step-label">Add Items</span>
+        </a>
+        <span class="dash-flow-arrow">→</span>
+        <a href="/Bom/Create" class="dash-flow-step">
+            <span class="dash-flow-step-num">2</span>
+            <span class="dash-flow-step-label">Create BOMs</span>
+        </a>
+        <span class="dash-flow-arrow">→</span>
+        <a href="/Users" class="dash-flow-step">
+            <span class="dash-flow-step-num">3</span>
+            <span class="dash-flow-step-label">Manage Users</span>
+        </a>
+        <span class="dash-flow-arrow">→</span>
+        <a href="/MaterialRequest" class="dash-flow-step @(pendingRequests > 0 ? "dash-flow-step--alert" : "")">
+            <span class="dash-flow-step-num">4</span>
+            <span class="dash-flow-step-label">Approve Requests @(pendingRequests > 0 ? $"({pendingRequests})" : "")</span>
+        </a>
+        <span class="dash-flow-arrow">→</span>
+        <a href="/WorkOrder" class="dash-flow-step">
+            <span class="dash-flow-step-num">5</span>
+            <span class="dash-flow-step-label">Release Work Orders</span>
+        </a>
+        <span class="dash-flow-arrow">→</span>
+        <a href="/Downtime?status=Open" class="dash-flow-step">
+            <span class="dash-flow-step-num">6</span>
+            <span class="dash-flow-step-label">Resolve Downtime</span>
+        </a>
+    </div>
+</div>
+
 <!-- ══ KPI CARDS - MANAGEMENT FOCUSED ══════════════════════ -->
 <div class="dash-kpi-grid">
     <div class="dash-kpi-card dash-kpi-role-admin">
@@ -40,6 +82,21 @@
         </div>
         <a href="/WorkOrder" class="dash-kpi-link">View Orders →</a>
     </div>
+
+    @if (pendingRequests > 0)
+    {
+        <div class="dash-kpi-card dash-kpi-card--alert dash-kpi-role-admin">
+            <div class="dash-kpi-icon dash-kpi-icon--blue" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+            </div>
+            <div class="dash-kpi-body">
+                <span class="dash-kpi-label">Pending Requests</span>
+                <span class="dash-kpi-value">@pendingRequests</span>
+                <span class="dash-kpi-sub">Awaiting approval</span>
+            </div>
+            <a href="/MaterialRequest" class="dash-kpi-link">Review Now →</a>
+        </div>
+    }
 
     @if (Model.LowStockCount > 0)
     {
@@ -121,8 +178,8 @@
         </div>
 
         <!-- Note for Admin -->
-        <div style="margin-top:20px;padding:16px;background:#F3F4F6;border-radius:8px;border-left:4px solid #3B82F6;">
-            <p style="margin:0;color:#374151;font-size:0.875rem;line-height:1.5;">
+        <div style="margin-top:20px;padding:16px;background:var(--dash-surface-alt);border-radius:8px;border-left:4px solid #3B82F6;">
+            <p style="margin:0;color:var(--dash-text-color);font-size:0.875rem;line-height:1.5;">
                 <strong>Note:</strong> As an Administrator, your focus is on system management and oversight. For detailed production floor operations, please refer to the Planner or Operator roles. Use the Reports section for comprehensive production analytics.
             </p>
         </div>
@@ -130,6 +187,84 @@
 </div>
 
 <style>
+/* ── Flow Guide ─────────────────────────────────────────── */
+.dash-flow-guide {
+    background: var(--dash-surface);
+    border: 1px solid var(--dash-border-color);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 4px;
+}
+.dash-flow-guide-title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--dash-text-muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 12px;
+}
+.dash-flow-steps {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.dash-flow-step {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--dash-border-color);
+    background: var(--dash-surface-alt);
+    text-decoration: none;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+.dash-flow-step:hover {
+    border-color: var(--sf-amber);
+    background: rgba(232,119,34,.08);
+}
+.dash-flow-step--alert {
+    border-color: #EF4444;
+    background: rgba(239,68,68,.08);
+}
+.dash-flow-step--alert .dash-flow-step-num {
+    background: #EF4444;
+}
+.dash-flow-step-num {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--sf-amber);
+    color: #fff;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.dash-flow-step-label {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--dash-text-color);
+}
+.dash-flow-arrow {
+    color: var(--dash-text-muted);
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+@@media (max-width: 768px) {
+    .dash-flow-steps { gap: 6px; }
+    .dash-flow-arrow { display: none; }
+    .dash-flow-step { padding: 5px 10px; }
+    .dash-flow-step-label { font-size: 0.75rem; }
+}
+
 /* Admin Analytics Layout */
 .dash-admin-analytics-grid {
     display: grid;

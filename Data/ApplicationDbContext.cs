@@ -72,11 +72,11 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             .IsUnique()
             .HasDatabaseName("IX_Bom_ItemId_Version");
 
-        // ── BOM → Item: one-to-one (each FG has one BOM) ─────
+        // ── BOM → Item: one item can have multiple BOM versions ─
         builder.Entity<BillOfMaterials>()
             .HasOne(b => b.Item)
-            .WithOne(i => i.Bom)
-            .HasForeignKey<BillOfMaterials>(b => b.ItemId)
+            .WithMany(i => i.Boms)
+            .HasForeignKey(b => b.ItemId)
             .OnDelete(DeleteBehavior.Restrict);
 
         // ── InventoryBalance: one row per item ───────────────
